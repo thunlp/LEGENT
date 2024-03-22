@@ -27,11 +27,15 @@ We aspire to democratize the research in this field for anyone interested. LEGEN
 
 ##### Robotics
 
-<https://github.com/thunlp/LEGENT/assets/50205889/0eba22de-984d-4170-9535-cef39933029c>
+
+<https://github.com/thunlp/LEGENT/assets/50205889/20657124-e2e6-434f-9315-bcbdce26e1f3>
+
 
 ##### Game
 
-<https://github.com/thunlp/LEGENT/assets/50205889/c57b3afd-a32f-46bb-a681-fe2124e4a212>
+
+<https://github.com/thunlp/LEGENT/assets/50205889/e667bf3d-1dc5-4ed7-95b7-b3bf6ab60fdf>
+
 
 ##### World Model
 
