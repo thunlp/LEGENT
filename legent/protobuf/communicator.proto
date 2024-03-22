@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+package communicator;
+
+service Communicator {
+  // game client(A), python server(B), Observation(data_1), Action(data_2)
+  // When A calls GetAction
+  // data_1 to B -> B receives data_1 -> B generates and sends data_2 -> A receives data_2
+  rpc GetAction (ObservationProto) returns (ActionProto) {}
+}
+
+message ObservationProto {
+  string type = 1; // "STEP" "EXITED"
+  bytes image = 2;
+  string text = 3;
+  string game_states = 4;
+  repeated float float_observations = 5;
+  repeated int32 int_observations = 6;
+  string api_returns = 7;
+}
+
+message ActionProto {
+  string type = 1; // "INIT" "RESET" "STEP" "CLOSE"
+  string text = 2;
+  string json_actions = 3;
+  repeated float float_actions = 4;
+  repeated int32 int_actions = 5;
+  string api_calls = 6; // APIs called after all actions have been executed
+}

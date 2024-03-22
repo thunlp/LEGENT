@@ -1,0 +1,6 @@
+CLIENT_FOLDER = '.legent/client'
+SCENES_FOLDER = '.legent/scenes'
+TASKS_FOLDER = '.legent/tasks'
+DATASET_FOLDER = '.legent/dataset'
+MODEL_FOLDER = '.legent/models'
+EVAL_FOLDER = '.legent/eval'
