@@ -23,13 +23,17 @@ We aspire to democratize the research in this field for anyone interested. LEGEN
 
 3. Implementation of important models for embodied agents, such as [vision-language-action](https://arxiv.org/abs/2307.15818) models.
 
-# What Can LEGENT Do?
+### What can LEGENT be used for?
 
-### Robotics
+##### Robotics
 
-### Game
+<https://github.com/thunlp/LEGENT/assets/50205889/0eba22de-984d-4170-9535-cef39933029c>
 
-### World Model
+##### Game
+
+<https://github.com/thunlp/LEGENT/assets/50205889/c57b3afd-a32f-46bb-a681-fe2124e4a212>
+
+##### World Model
 
 # Important Note
 
