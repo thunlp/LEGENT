@@ -3,9 +3,10 @@
 <h4 align="center">
     <p>
     【
-        <!-- <a href="https://github.com/chengzl18/LEGENT-dev/blob/main/docs/README.md">Documentation</a> | -->
+        <!-- <a href="https://github.com/thunlp/LEGENT/blob/main/docs/README.md">Documentation</a> | -->
         <a href="https://legent.ai/">Online Documentation</a> |
-        <a href="">Web Demo (Coming Soon)</a>
+        <a href="">Web Demo (Coming Soon)</a> |
+        <a href="">Paper (Coming Soon)</a>
     】
     </p>
 </h4>
