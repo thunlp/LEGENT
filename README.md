@@ -21,21 +21,26 @@ We aspire to facilitate the research in this field for anyone interested. LEGENT
 
 2. Automated generation of training data, including the generation of scenes, tasks, and ground truth actions. The platform is tailored to train large multimodal models into embodied models, using generated data from simulated worlds at scale.
 
-### What can LEGENT be used for?
+LEGENT serves as the data engine for embodied models in **robotics** and **games**, as well as for generative world simulators like Sora.
 
-##### Robotics
+## Demonstration
+
+Interact with the embodied agent within realistic scenes.
 
 
 <https://github.com/thunlp/LEGENT/assets/50205889/20657124-e2e6-434f-9315-bcbdce26e1f3>
 
 
-##### Game
+Interact with the embodied agent within stylized scenes.
 
 
 <https://github.com/thunlp/LEGENT/assets/50205889/e667bf3d-1dc5-4ed7-95b7-b3bf6ab60fdf>
 
 
-##### World Model
+Scene generation for scalable training.
+
+<https://github.com/thunlp/LEGENT/assets/50205889/fafaa02e-1050-4dab-a43f-701bca1477b7>
+
 
 # Important Note
 
