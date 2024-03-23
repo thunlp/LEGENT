@@ -12,10 +12,10 @@
 
 # Introduction
 
-LEGENT is a platform for embodied agent.
+LEGENT is a platform for embodied agent with scalable training pipeline.
 
 In the future, robots will perceive the environment as we do, communicate with us through natural language and help us with our tasks. The platform is dedicated to developing robots that can chat, see, and act from virtual world to real world.
-We aspire to democratize the research in this field for anyone interested. LEGENT is a pioneering solution combining large models with embodied agents, prioritizing ease of use and scalability. The platform focuses on developing the following functionalities:
+We aspire to facilitate the research in this field for anyone interested. LEGENT is a pioneering solution combining large models with embodied agents, prioritizing ease of use and scalability. The platform focuses on developing the following functionalities:
 
 1. An easy-to-use environment that simulates a physical world, where an agent can interact with humans through language, receive egocentric vision, and perform physical actions.
 
