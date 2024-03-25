@@ -1083,7 +1083,7 @@ class HouseGenerator:
             + small_object_instances
         )
 
-        DEBUG = True
+        DEBUG = False
         if DEBUG:
             for inst in instances:
                 inst["type"] = "kinematic"

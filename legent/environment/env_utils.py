@@ -6,7 +6,7 @@ from typing import Optional, List
 import requests
 from tqdm import tqdm
 from legent.utils.io import log, log_green, get_latest_folder
-from legent.utils.config import CLIENT_FOLDER
+from legent.utils.config import CLIENT_FOLDER, ENV_DATA_FOLDER
 import zipfile
 
 
@@ -149,37 +149,38 @@ def download_file(url, file_path):
             bar.update(size)
 
 
-def download_env():
-    # from_tsinghua_cloud = False
-    # try:
-    #     res = requests.get('http://ip-api.com/json', timeout=3)
-    #     from_tsinghua_cloud = res.json()['country'] == 'China'
-    # except:
-    #     pass
-    from_tsinghua_cloud = True
+def download_env(from_tsinghua_cloud=False, download_env_data=False):
     if from_tsinghua_cloud:
         share_key = '9976c807e6e04e069377'
         res = requests.get(f'https://cloud.tsinghua.edu.cn/api/v2.1/share-links/{share_key}/dirents/')
         files = [item['file_name'] for item in res.json()['dirent_list']]
-        if get_platform() == "linux" or get_platform() == "linux2":
-            platform_name = 'linux'
-        elif get_platform() == "darwin":
-            platform_name = 'mac'
-        elif get_platform() == "win32":
-            platform_name = 'win'
-        else:
-            log("Cannot decide platform. Exit.")
-            return
-        files = [file for file in files if file.startswith('LEGENT-'+platform_name)]
-        file_name = sorted(files, reverse=True)[0]
-        file_path = f'{CLIENT_FOLDER}/{file_name}'
-        log(f'download {file_name} from https://cloud.tsinghua.edu.cn/d/{share_key}')
-        download_file(f'https://cloud.tsinghua.edu.cn/d/{share_key}/files/?p={file_name}&dl=1', file_path)
     else:
-        pass
+        from huggingface_hub import list_files_info
+        files_info = list_files_info("LEGENT/LEGENT-environment-Alpha")
+        files = [f.rfilename for f in list(files_info)]
 
+    if get_platform() == "linux" or get_platform() == "linux2":
+        platform_name = 'linux'
+    elif get_platform() == "darwin":
+        platform_name = 'mac'
+    elif get_platform() == "win32":
+        platform_name = 'win'
+    else:
+        log("Cannot decide platform. Exit.")
+        return
+    file_prefix = 'env_data' if download_env_data else f'LEGENT-{platform_name}'
+    files = [file for file in files if file.startswith(file_prefix)]
+    file_name = sorted(files, reverse=True)[0]
+    file_path = f'{ENV_DATA_FOLDER}/{file_name}' if download_env_data else f'{CLIENT_FOLDER}/{file_name}'
+    if from_tsinghua_cloud:
+        link = f'https://cloud.tsinghua.edu.cn/d/{share_key}/files/?p={file_name}&dl=1'
+    else:
+        link = f'https://huggingface.co/LEGENT/LEGENT-environment-Alpha/resolve/main/{file_name}?download=true'
+    # log(f'download {file_name} from {link}')
+    download_file(link, file_path)
+        
     extract_to = file_path.rsplit('.', maxsplit=1)[0]
-    log(f'extract {file_path} to {extract_to}')
+    # log(f'extract {file_path} to {extract_to}')
     with zipfile.ZipFile(file_path, 'r') as zip_ref:
         zip_ref.extractall(extract_to)
     if platform_name != 'win':
@@ -189,8 +190,17 @@ def download_env():
             for file in files:
                 os.chmod(os.path.join(root, file), mode)
     env_path = os.path.abspath(extract_to).replace('\\', '/')
-    log_green(f'LEGENT environment client is saved to <g>{env_path}<g/>.\nUse <g>legent.Environment(env_path=\"{env_path}\")<g/> in your code or use command <g>legent launch --env_path {env_path}<g/> to launch it.')
+    log_prefix = 'environment data' if download_env_data else 'LEGENT environment client'
+    log_green(f'{log_prefix} is saved to <g>{env_path}<g/>.')
 
 
 def get_default_env_path(root_folder=CLIENT_FOLDER):
     return get_latest_folder(root_folder)
+
+
+env_data_path = None
+def get_default_env_data_path():
+    global env_data_path
+    if not env_data_path:
+        env_data_path = get_latest_folder(ENV_DATA_FOLDER)
+    return env_data_path

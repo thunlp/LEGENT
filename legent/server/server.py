@@ -1,6 +1,6 @@
 from legent.server.scene_generator import generate_scene, complete_scene
 from legent.environment.env import Environment
-from legent.environment.env_utils import launch_executable, get_default_env_path
+from legent.environment.env_utils import get_default_env_data_path, launch_executable, get_default_env_path
 from legent.utils.io import log, log_green, load_json, load_json_from_toolkit, parse_ssh, SSHTunnel
 from flask import Flask, jsonify, request
 import requests
@@ -178,7 +178,7 @@ def serve(use_default_scene):
         server.start()
         if use_default_scene:
             time.sleep(0.1)
-            set_next_scene(load_json_from_toolkit('scenes/scene-default.json'))
+            set_next_scene(load_json(f'{get_default_env_data_path()}/scene-default.json'))
         return server
     
 

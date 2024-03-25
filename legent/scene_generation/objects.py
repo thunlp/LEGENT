@@ -6,6 +6,8 @@ from typing import Any, Dict, List, Tuple, Union
 import pandas as pd
 from attr import define
 
+from legent.environment.env_utils import get_default_env_data_path
+
 
 @define
 class ObjectDB:
@@ -24,30 +26,26 @@ class ObjectDB:
 
 
 def _get_place_annotations():
-    dirname = os.path.dirname(__file__)
-    # filepath = os.path.join(dirname, "data", "placement_annotations_extended.csv")
-    filepath = os.path.join(dirname, "data", "placement_annotations_latest.csv")
-    # filepath = os.path.join(dirname, "data", "placement_annotations_filtered.csv")
+    # filepath = os.path.join(f"{get_default_env_data_path()}/procthor", "placement_annotations_extended.csv")
+    filepath = os.path.join(f"{get_default_env_data_path()}/procthor","placement_annotations_latest.csv")
+    # filepath = os.path.join(f"{get_default_env_data_path()}/procthor", "placement_annotations_filtered.csv")
     df = pd.read_csv(filepath, index_col=0)
     df.index.set_names("assetType", inplace=True)
     return df
 
 
 def _get_object_dict():
-    dirname = os.path.dirname(__file__)
-    filepath = os.path.join(dirname, "data", "object_dict_filtered_new.json")
+    filepath = os.path.join(f"{get_default_env_data_path()}/procthor", "object_dict_filtered_new.json")
     return json.load(open(filepath))
 
 
 def _get_my_objects():
-    dirname = os.path.dirname(__file__)
-    filepath = os.path.join(dirname, "data", "my_objects.json")
+    filepath = os.path.join(f"{get_default_env_data_path()}/procthor", "my_objects.json")
     return json.load(open(filepath))
 
 
 def _get_object_to_type():
-    dirname = os.path.dirname(__file__)
-    filepath = os.path.join(dirname, "data", "object_name_to_type.json")
+    filepath = os.path.join(f"{get_default_env_data_path()}/procthor", "object_name_to_type.json")
     return json.load(open(filepath))
 
 
@@ -62,7 +60,7 @@ def _get_prefabs():
         kinematic_names_set,
     ) = (None, [], [], {}, {})
     dirname = os.path.dirname(__file__)
-    json_file_path = os.path.join(dirname, "data", "addressables.json")
+    json_file_path = os.path.join(f"{get_default_env_data_path()}/procthor", "addressables.json")
     # json_file = pkg_resources.resource_filename(__name__, json_file_path)
     with open(json_file_path, "r", encoding="utf-8") as f:
         prefabs = json.load(f)["prefabs"]
@@ -86,7 +84,7 @@ def _get_prefabs():
 
 def _get_asset_groups():
     dirname = os.path.dirname(__file__)
-    asset_group_path = os.path.join(dirname, "data", "asset_groups")
+    asset_group_path = os.path.join(f"{get_default_env_data_path()}/procthor", "asset_groups")
     asset_group_files = os.listdir(asset_group_path)
     asset_groups = {}
     for file in asset_group_files:
@@ -141,8 +139,7 @@ class keydefaultdict(defaultdict):
 
 
 def _get_receptacles():
-    dirname = os.path.dirname(__file__)
-    filepath = os.path.join(dirname, "data", "recptacle_score2.json")
+    filepath = os.path.join(f"{get_default_env_data_path()}/procthor", "recptacle_score2.json")
     return json.load(open(filepath))
 
 

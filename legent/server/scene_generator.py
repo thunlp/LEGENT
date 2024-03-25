@@ -1,5 +1,6 @@
+from legent.environment.env_utils import get_default_env_data_path
 from legent.server.rect_placer import RectPlacer
-from legent.utils.io import log, store_json, load_json_from_toolkit
+from legent.utils.io import load_json, log, store_json, load_json_from_toolkit
 from legent.utils.math import look_rotation
 import numpy as np
 import json
@@ -23,7 +24,7 @@ def set_seed(seed: int = 42) -> None:
 def load_prefabs() -> None:
     global prefabs, interactable_names, kinematic_names, interactable_names_set, kinematic_names_set
 
-    prefabs = load_json_from_toolkit("server/addressables.json")["prefabs"]
+    prefabs = load_json(f"{get_default_env_data_path()}/addressables.json")["prefabs"]
     for prefab in prefabs:
         if prefab["type"] == "interactable":
             interactable_names.append(prefab["name"])
