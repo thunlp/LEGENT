@@ -1,4 +1,5 @@
 from legent.environment.env_utils import get_default_env_data_path
+from legent.scene_generation.objects import get_default_object_db
 from legent.server.rect_placer import RectPlacer
 from legent.utils.io import load_json, log, store_json, load_json_from_toolkit
 from legent.utils.math import look_rotation
@@ -71,7 +72,7 @@ def generate_scene(object_counts: Dict[str, int] = {}, receptacle_object_counts=
     # receptacle_object_counts= {"Table": {"count": 1, "objects": [{"Banana": 1}]}}
     room_spec = ROOM_SPEC_SAMPLER.sample()
     house_generator = HouseGenerator(
-        room_spec=room_spec, dims=(MAX, MAX), objectDB=DEFAULT_OBJECT_DB
+        room_spec=room_spec, dims=(MAX, MAX), objectDB=get_default_object_db()
     )
 
     # receptacle_object_counts={

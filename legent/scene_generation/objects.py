@@ -126,7 +126,7 @@ def _get_floor_assets(
 
 
 def _get_default_floor_assets_from_key(key: Tuple[str, str]):
-    return _get_floor_assets(*key, odb=DEFAULT_OBJECT_DB)
+    return _get_floor_assets(*key, odb=get_default_object_db())
 
 
 class keydefaultdict(defaultdict):
@@ -143,20 +143,26 @@ def _get_receptacles():
     return json.load(open(filepath))
 
 
-DEFAULT_OBJECT_DB = ObjectDB(
-    PLACEMENT_ANNOTATIONS=_get_place_annotations(),
-    OBJECT_DICT=_get_object_dict(),
-    MY_OBJECTS=_get_my_objects(),
-    OBJECT_TO_TYPE=_get_object_to_type(),
-    PREFABS=_get_prefabs()[0],
-    RECEPTACLES=_get_receptacles(),
-    KINETIC_AND_INTERACTABLE_INFO=_get_prefabs()[1],
-    ASSET_GROUPS=_get_asset_groups(),
-    FLOOR_ASSET_DICT=keydefaultdict(_get_default_floor_assets_from_key),
-    PRIORITY_ASSET_TYPES={
-        "Bedroom": ["bed", "dresser"],
-        "LivingRoom": ["television", "diningTable", "sofa"],
-        "Kitchen": ["counterTop", "refrigerator","oven"],
-        "Bathroom": ["toilet","washer"],
-    },
-)
+
+DEFAULT_OBJECT_DB = None
+def get_default_object_db():
+    global DEFAULT_OBJECT_DB
+    if not DEFAULT_OBJECT_DB:
+        DEFAULT_OBJECT_DB = ObjectDB(
+            PLACEMENT_ANNOTATIONS=_get_place_annotations(),
+            OBJECT_DICT=_get_object_dict(),
+            MY_OBJECTS=_get_my_objects(),
+            OBJECT_TO_TYPE=_get_object_to_type(),
+            PREFABS=_get_prefabs()[0],
+            RECEPTACLES=_get_receptacles(),
+            KINETIC_AND_INTERACTABLE_INFO=_get_prefabs()[1],
+            ASSET_GROUPS=_get_asset_groups(),
+            FLOOR_ASSET_DICT=keydefaultdict(_get_default_floor_assets_from_key),
+            PRIORITY_ASSET_TYPES={
+                "Bedroom": ["bed", "dresser"],
+                "LivingRoom": ["television", "diningTable", "sofa"],
+                "Kitchen": ["counterTop", "refrigerator","oven"],
+                "Bathroom": ["toilet","washer"],
+            },
+        )
+    return DEFAULT_OBJECT_DB
