@@ -11,16 +11,21 @@ parser.add_argument(
     "--ssh",
     type=str,
     default=None,
-    help="""ssh="<username>@<host>". If you use a non-standard ssh port: "<username>@<host>:<ssh_port>". If you use password: "<username>@<host>:<ssh_port>,<password>".""",
+    help=r"""
+ssh="<username>@<host>".
+If you use a non-standard ssh port: "<username>@<host>:<ssh_port>".
+If you use password: "<username>@<host>:<ssh_port>,<password>". If there is special character in <password>, please use escape character like this: \"
+""",
 )
+parser.add_argument("--remote_model_port", type=int, default=50050, help="remote model port")
 parser.add_argument("--api_key", type=str, default=None, help="api key")
 parser.add_argument("--base_url", type=str, default=None, help="base url")
 parser.add_argument("--task", type=str, default="come", choices=["come", "where"], help="task")
 args = parser.parse_args()
 if args.ssh is None and args.api_key is None:
-    parser.error("At least one of --ssh or --api_key must be provided.")
-if args.ssh:
-    agent = AgentClient(ssh=args.ssh)
+    print("No --ssh or --api_key parameters provided. Ensure your model and environment are running locally.")
+if args.api_key is None:
+    agent = AgentClient(ssh=args.ssh, remote_model_port=args.remote_model_port)
     model_name = "model"
 else:
     prompt = {"come": GPT4V_PROMPT_COME, "where": GPT4V_PROMPT_WHERE}[args.task]

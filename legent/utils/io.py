@@ -100,6 +100,7 @@ class SSHTunnel:
         ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 
         # connect ssh server
+        log(f"Connect to {ssh_username}@{remote_host}:{ssh_port}" + f" with password {ssh_password}" if ssh_password else "")
         ssh_client.connect(hostname=remote_host, username=ssh_username, password=ssh_password, port=ssh_port)
 
         # build ssh tunnel

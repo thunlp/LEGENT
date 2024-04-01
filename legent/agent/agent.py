@@ -8,11 +8,11 @@ from legent.utils.io import log, parse_ssh, SSHTunnel
 
 
 class AgentClient:
-    def __init__(self, ssh: str) -> None:
+    def __init__(self, ssh: str, remote_model_port: int = 50050) -> None:
         self.MODEL_PORT = 50050
         if ssh:
             host, port, username, password = parse_ssh(ssh)
-            self.ssh_tunnel = SSHTunnel(host, port, username, password, self.MODEL_PORT, self.MODEL_PORT)
+            self.ssh_tunnel = SSHTunnel(host, port, username, password, self.MODEL_PORT, remote_model_port)
         self.ssh = ssh
 
         self.request_queue = queue.Queue()  # Queue for storing requests
@@ -61,7 +61,7 @@ class AgentClient:
         return Action()
 
     def clear_history(self):
-        url = f'http://127.0.0.1:{self.MODEL_PORT}/clear_history'
+        url = f"http://127.0.0.1:{self.MODEL_PORT}/clear_history"
         response = requests.get(url)
         return Action()
 
@@ -72,14 +72,14 @@ class AgentClient:
         buffered.seek(0)
 
         # Set up the image and text data
-        files = {'image': buffered}
-        data = {'text': self.current_chat}
+        files = {"image": buffered}
+        data = {"text": self.current_chat}
 
-        url = f'http://127.0.0.1:{self.MODEL_PORT}/get_action'
+        url = f"http://127.0.0.1:{self.MODEL_PORT}/get_action"
         response = requests.post(url, files=files, data=data)
 
         try:
-            action = response.json()['action']
+            action = response.json()["action"]
             action = parse_action(action)
         except:
             log("failed to parse response to action. skip.")
