@@ -1,15 +1,9 @@
 import random
-from typing import Dict, List, Literal, Optional, Sequence, Tuple, TypedDict, Union
+from typing import Dict, List, Tuple, TypedDict
 
 from attrs import define
 
-Split = Literal["train", "val", "test"]
-XZPoly = List[Tuple[Tuple[float, float], Tuple[float, float]]]
 BoundaryGroups = Dict[Tuple[int, int], List[Tuple[float, float]]]
-
-
-class InvalidFloorplan(Exception):
-    pass
 
 
 @define
@@ -37,45 +31,10 @@ class SamplingVars:
         )
 
 
-class Skybox(TypedDict):
-    name: str
-    timeOfDay: Literal["Midday", "GoldenHour", "BlueHour", "Midnight"]
-
-
 class Vector3(TypedDict):
     x: float
     y: float
     z: float
-
-
-class BoundingBox(TypedDict):
-    max: Vector3
-    min: Vector3
-
-
-class Door(TypedDict):
-    id: str
-    assetId: str
-    boundingBox: BoundingBox
-    openness: float
-    openable: bool
-    room0: str
-    room1: str
-    wall0: str
-    wall1: str
-
-
-class Window(TypedDict):
-    id: str
-    assetId: str
-    boundingBox: BoundingBox
-    room0: str
-    room1: Optional[str]
-    wall0: str
-    wall1: Optional[str]
-    assetOffset: Vector3
-    """A piece of metadata used for cutting walls. Allows the cutout to not be
-    the entire size of the window."""
 
 
 class Object(TypedDict):
@@ -98,124 +57,3 @@ class Object(TypedDict):
     Large objects, such as Fridges and Toilets often shouldn't be moveable, and 
     can result in a variety of bugs.
     """
-
-
-class RGB(TypedDict):
-    r: float
-    g: float
-    b: float
-
-
-class RGBA(TypedDict):
-    r: float
-    g: float
-    b: float
-    a: float
-
-
-class LightShadow(TypedDict):
-    bias: float
-    nearPlane: float
-    normalBias: float
-    resolution: str
-    strength: float
-    type: str
-
-
-# TODO: account for either directional or point light!
-class Light(TypedDict):
-    id: str
-    """The name of the light."""
-
-    position: Vector3
-    """The global position of the light in the scene."""
-
-    rotation: Vector3
-    """The global rotation of the light in the scene."""
-
-    type: Literal["point", "directional", "spot"]
-
-    rgb: RGBA
-    """The color of the light."""
-
-    # optional
-    linkedObjectId: str
-    """Links the light to a toggleabe object.
-    
-    When the object is toggled, the light is toggled.
-    """
-
-    indirectMultiplier: float
-    """Use this value to vary the intensity of indirect light.
-
-    If you set Indirect Multiplier to a value lower than 1, the bounced light becomes
-    dimmer with every bounce. A value higher than 1 makes light brighter with each
-    bounce. This is useful, for example, when a dark surface in shadow (such as the
-    interior of a cave) needs to be brighter in order to make detail visible. If you
-    want to use Realtime Global Illumination, but want to limit a single real-time
-    Light so that it only emits direct light, set its Indirect Multiplier to 0.
-
-    From Unity: https://docs.unity3d.com/Manual/class-Light.html
-    """
-
-    intensity: float
-    """The Intensity of a light is multiplied with the Light color.
-
-    The value can be between 0 and 8. This allows you to create over bright lights.
-
-    From Unity: https://docs.unity3d.com/ScriptReference/Light-intensity.html
-    """
-
-    range: float
-    """Define how far the light emitted from the center of the object travels
-    (Point and Spot lights only).
-
-    From Unity: https://docs.unity3d.com/Manual/class-Light.html
-    """
-
-    shadow: LightShadow
-    """Only used for directional lights."""
-
-
-class ProceduralParameters(TypedDict):
-    ceilingMaterial: str
-    ceilingColor: RGB
-    lights: List[Light]
-
-    reflections: list  # TODO: Annotate this!
-    skyboxId: str
-
-    # receptacle collider height for the floor
-    receptacleHeight: float
-
-    # TODO: what is this?
-    floorColliderThickness: float
-
-
-class RoomType(TypedDict):
-    id: str
-    roomType: Literal["Kitchen", "LivingRoom", "Bedroom", "Bathroom"]
-    floorMaterial: str
-    floorPolygon: List[Vector3]
-
-    ceilings: list  # TODO: what is this?
-    children: list  # TODO: what is this?
-
-
-class Wall(TypedDict):
-    id: str
-    polygon: List[Vector3]
-    material: str
-    roomId: str
-
-    # NOTE: optional
-    empty: bool
-
-
-class HouseDict(TypedDict):
-    doors: Optional[List[Door]]
-    windows: Optional[List[Window]]
-    objects: Optional[List[Object]]
-    proceduralParameters: Optional[ProceduralParameters]
-    rooms: Optional[List[RoomType]]
-    walls: Optional[List[Wall]]

@@ -1,17 +1,13 @@
 import copy
 import random
 from typing import (
-    TYPE_CHECKING,
     Any,
     Dict,
     List,
     Literal,
     Optional,
     Sequence,
-    Set,
     Tuple,
-    TypedDict,
-    Union,
 )
 
 import numpy as np
@@ -20,7 +16,8 @@ from attr import field
 from attrs import define
 
 from .objects import ObjectDB
-from .types import Vector3, Object
+from .types import Object, Vector3
+
 
 @define
 class Asset:
@@ -79,6 +76,7 @@ class Asset:
             ),
             **self.states,
         )
+
 
 @define
 class AssetGroup:

@@ -7,6 +7,15 @@ import numpy as np
 import json
 from typing import Dict, Literal, Optional
 
+from legent.scene_generation.generator import HouseGenerator
+from legent.scene_generation.objects import DEFAULT_OBJECT_DB,get_default_object_db
+from legent.scene_generation.room_spec import (
+    ROOM_SPEC_SAMPLER,
+    RoomSpecSampler,
+    RoomSpec,
+    LeafRoom,
+)
+
 
 prefabs = None  # all the prefabs info, including name, size and center offset (for Unity transform position)
 interactable_names = []  # all the interactive object names, such as "Watermelon_01"
@@ -37,40 +46,41 @@ def load_prefabs() -> None:
     kinematic_names_set = set(kinematic_names)
 
 
-def generate_scene(object_counts: Dict[str, int] = {}, receptacle_object_counts={}, room_num=2):
-    from legent.scene_generation.generator import HouseGenerator
-    from legent.scene_generation.objects import DEFAULT_OBJECT_DB
-    from legent.scene_generation.room_spec import ROOM_SPEC_SAMPLER, RoomSpecSampler, RoomSpec, LeafRoom
+def generate_scene(
+    object_counts: Dict[str, int] = {}, receptacle_object_counts={}, room_num=2
+):
 
     # object_counts specifies a definite number for certain objects
     # For example, if you want to have only one instance of ChristmasTree_01 in the scene, you can set the object_counts as {"ChristmasTree_01": 1}.
     # global prefabs, interactable_names, kinematic_names, interactable_names_set, kinematic_names_set
     MAX = 7
-    if room_num==2:
-        ROOM_SPEC_SAMPLER = RoomSpecSampler(
-            [
-                RoomSpec(
-                    room_spec_id="LivingRoom", # TwoRooms
-                    sampling_weight=1,
-                    spec=[
-                        LeafRoom(room_id=2, ratio=1, room_type="Bedroom"),
-                        LeafRoom(room_id=3, ratio=1, room_type="LivingRoom")
-                    ],
-                )
-            ]
-        )
-    else:
-        ROOM_SPEC_SAMPLER = RoomSpecSampler(
-            [
-                RoomSpec(
-                    room_spec_id="LivingRoom",
-                    sampling_weight=1,
-                    spec=[LeafRoom(room_id=2, ratio=1, room_type="Bedroom")],
-                )
-            ]
-        )
+    # if room_num == 2:
+    #     ROOM_SPEC_SAMPLER = RoomSpecSampler(
+    #         [
+    #             RoomSpec(
+    #                 room_spec_id="LivingRoom",  # TwoRooms
+    #                 sampling_weight=1,
+    #                 spec=[
+    #                     LeafRoom(room_id=2, ratio=1, room_type="Bedroom"),
+    #                     LeafRoom(room_id=3, ratio=1, room_type="LivingRoom"),
+    #                 ],
+    #             )
+    #         ]
+    #     )
+    # else:
+    #     ROOM_SPEC_SAMPLER = RoomSpecSampler(
+    #         [
+    #             RoomSpec(
+    #                 room_spec_id="LivingRoom",
+    #                 sampling_weight=1,
+    #                 spec=[LeafRoom(room_id=2, ratio=1, room_type="Bedroom")],
+    #             )
+    #         ]
+    #     )
     # receptacle_object_counts= {"Table": {"count": 1, "objects": [{"Banana": 1}]}}
     room_spec = ROOM_SPEC_SAMPLER.sample()
+
+    
     house_generator = HouseGenerator(
         room_spec=room_spec, dims=(MAX, MAX), objectDB=get_default_object_db()
     )
@@ -90,7 +100,7 @@ def generate_scene(object_counts: Dict[str, int] = {}, receptacle_object_counts=
     return scene
 
 
-def generate_scene_messy(object_counts: Dict[str, int]={}):
+def generate_scene_messy(object_counts: Dict[str, int] = {}):
     # object_counts specifies a definite number for certain objects
     # For example, if you want to have only one instance of ChristmasTree_01 in the scene, you can set the object_counts as {"ChristmasTree_01": 1}.
     global prefabs, interactable_names, kinematic_names, interactable_names_set, kinematic_names_set
@@ -162,7 +172,7 @@ def generate_scene_messy(object_counts: Dict[str, int]={}):
                         "position": [x, 0, z],
                         "rotation": [0, 90, 0],
                         "scale": [1, 1, 1],
-                        "type": "kinematic"
+                        "type": "kinematic",
                     }
                 )
             x_size, y_size, z_size = (
@@ -189,7 +199,7 @@ def generate_scene_messy(object_counts: Dict[str, int]={}):
                         "position": [x, y_size / 2, z],
                         "rotation": [0, 90, 0],
                         "scale": [1, 1, 1],
-                        "type": "kinematic"
+                        "type": "kinematic",
                     }
                 )
             # above is 1 and below is 0
@@ -204,7 +214,7 @@ def generate_scene_messy(object_counts: Dict[str, int]={}):
                         "position": [x, y_size / 2, z],
                         "rotation": [0, 90, 0],
                         "scale": [1, 1, 1],
-                        "type": "kinematic"
+                        "type": "kinematic",
                     }
                 )
             # left is 0 and right is 1
@@ -219,7 +229,7 @@ def generate_scene_messy(object_counts: Dict[str, int]={}):
                         "position": [x, y_size / 2, z],
                         "rotation": [0, 0, 0],
                         "scale": [1, 1, 1],
-                        "type": "kinematic"
+                        "type": "kinematic",
                     }
                 )
             # left is 1 and right is 0
@@ -234,7 +244,7 @@ def generate_scene_messy(object_counts: Dict[str, int]={}):
                         "position": [x, y_size / 2, z],
                         "rotation": [0, 0, 0],
                         "scale": [1, 1, 1],
-                        "type": "kinematic"
+                        "type": "kinematic",
                     }
                 )
 
@@ -288,7 +298,7 @@ def generate_scene_messy(object_counts: Dict[str, int]={}):
             "rotation": [0, np.random.uniform(0, 360), 0],
             "scale": [1, 1, 1],
             "parent": -1,
-            "type": ""
+            "type": "",
         }
         ok = placer.place_rectangle(
             "player",
@@ -306,7 +316,7 @@ def generate_scene_messy(object_counts: Dict[str, int]={}):
             "rotation": [0, np.random.uniform(0, 360), 0],
             "scale": [1, 1, 1],
             "parent": -1,
-            "type": ""
+            "type": "",
         }
         ok = placer.place_rectangle(
             "agent",
@@ -314,10 +324,10 @@ def generate_scene_messy(object_counts: Dict[str, int]={}):
         )
         if ok:
             break
-    
+
     # player lookat the agent
     vs, vt = np.array(player["position"]), np.array(agent["position"])
-    vr = look_rotation(vt-vs)
+    vr = look_rotation(vt - vs)
     player["rotation"] = [0, vr[1], 0]
 
     ### STEP 4: Create Objects Randomly
@@ -326,7 +336,13 @@ def generate_scene_messy(object_counts: Dict[str, int]={}):
         name: 10 for name in kinematic_names
     }  # Limit the maximum number of each type of object.
 
-    def put_once(_name, _placer: RectPlacer, parent_idx, rand_method: Literal["eps", "fit"], return_bbox=False):
+    def put_once(
+        _name,
+        _placer: RectPlacer,
+        parent_idx,
+        rand_method: Literal["eps", "fit"],
+        return_bbox=False,
+    ):
         # Put _name in _placer on parent_idx
 
         _x_size, _y_size, _z_size = (
@@ -334,12 +350,14 @@ def generate_scene_messy(object_counts: Dict[str, int]={}):
             prefabs[_name]["size"]["y"],
             prefabs[_name]["size"]["z"],
         )
-        if rand_method=="eps": # put at a fixed distance from the edge of the area
+        if rand_method == "eps":  # put at a fixed distance from the edge of the area
             if _name in kinematic_names:
                 _x, _z = random_xz_in_area_inner(eps=0.05)
             else:
-                _x, _z = random_xz_in_area_inner(eps=0.2) # Avoid generating small objects close to the wall
-        elif rand_method=="fit": # put exactly inside the area
+                _x, _z = random_xz_in_area_inner(
+                    eps=0.2
+                )  # Avoid generating small objects close to the wall
+        elif rand_method == "fit":  # put exactly inside the area
             _bbox = _placer.bbox
             _x_min, _x_max, _z_min, _z_max = _bbox[0], _bbox[2], _bbox[1], _bbox[3]
             try:
@@ -353,10 +371,15 @@ def generate_scene_messy(object_counts: Dict[str, int]={}):
         _bbox = (_x - _x_size / 2, _z - _z_size / 2, _x + _x_size / 2, _z + _z_size / 2)
         ok = _placer.place_rectangle(_name, bbox=_bbox)
         if parent_idx == 0:
-            _y_base = 0 + prefabs[DEFAULT_FLOOR_PREFAB]["size"]["y"] / 2   # center + size / 2
+            _y_base = (
+                0 + prefabs[DEFAULT_FLOOR_PREFAB]["size"]["y"] / 2
+            )  # center + size / 2
         else:
-            parent_info = object_instances[parent_idx-len(floor_instances)]
-            _y_base = parent_info["position"][1] + prefabs[parent_info["prefab"]]["size"]["y"]/2
+            parent_info = object_instances[parent_idx - len(floor_instances)]
+            _y_base = (
+                parent_info["position"][1]
+                + prefabs[parent_info["prefab"]]["size"]["y"] / 2
+            )
         if ok:
             _y = _y_base + _y_size / 2
             object_instances.append(
@@ -365,28 +388,42 @@ def generate_scene_messy(object_counts: Dict[str, int]={}):
                     "position": [_x, _y, _z],
                     "rotation": [0, 0, 0],
                     "scale": [1, 1, 1],
-                    "parent": parent_idx, # 0 represents the floor
-                    "type": "interactable" if name in interactable_names_set else "kinematic"
+                    "parent": parent_idx,  # 0 represents the floor
+                    "type": (
+                        "interactable"
+                        if name in interactable_names_set
+                        else "kinematic"
+                    ),
                 }
             )
         if return_bbox:
             return ok, _bbox
         return ok
-    
-    def put_one(_name, _placer: RectPlacer, parent_idx, rand_method: Literal["eps", "fit"], return_bbox=False):
+
+    def put_one(
+        _name,
+        _placer: RectPlacer,
+        parent_idx,
+        rand_method: Literal["eps", "fit"],
+        return_bbox=False,
+    ):
         ok = False
         while not ok:
             ok, _bbox = put_once(_name, _placer, parent_idx, rand_method, True)
         if return_bbox:
             return True, _bbox
         return True
-    
+
     # generate objects with a specified number
     for name in object_counts:
         for i in range(object_counts[name]):
             put_one(name, placer, 0, "eps")
-    random_kinematic_names = [name for name in kinematic_names if name not in object_counts]
-    random_interactable_names = [name for name in interactable_names if name not in object_counts]
+    random_kinematic_names = [
+        name for name in kinematic_names if name not in object_counts
+    ]
+    random_interactable_names = [
+        name for name in interactable_names if name not in object_counts
+    ]
 
     # create non-interactive objects
     for i in range(10):
@@ -432,7 +469,11 @@ def complete_scene(predefined_scene):
     # add player, agent, interactable information etc.
     x, z = np.random.uniform(-5, 5), np.random.uniform(-5, 5)
 
-    position = [x, 0.05, z]  # TODO: obtain the precise centerOffset of the character. calculate y based on it.
+    position = [
+        x,
+        0.05,
+        z,
+    ]  # TODO: obtain the precise centerOffset of the character. calculate y based on it.
     rotation = [0, np.random.uniform(0, 360), 0]
     if predefined_scene["player"]["prefab"]:
         position = predefined_scene["player"]["position"]
@@ -443,12 +484,12 @@ def complete_scene(predefined_scene):
         "rotation": rotation,
         "scale": [1, 1, 1],
         "parent": -1,
-        "type": ""
+        "type": "",
     }
-    
+
     x = np.random.uniform(*[[x - 3, x - 1], [x + 1, x + 3]][np.random.randint(0, 2)])
     z = np.random.uniform(*[[z - 3, z - 1], [z + 1, z + 3]][np.random.randint(0, 2)])
-    
+
     position = [x, 0.05, z]
     rotation = [0, np.random.uniform(0, 360), 0]
     if predefined_scene["agent"]["prefab"]:
@@ -460,7 +501,7 @@ def complete_scene(predefined_scene):
         "rotation": rotation,
         "scale": [1, 1, 1],
         "parent": -1,
-        "type": ""
+        "type": "",
     }
 
     for instance in predefined_scene["instances"]:
@@ -474,7 +515,7 @@ def complete_scene(predefined_scene):
         "agent": agent,
         "center": [0, 0, 10],
     }
-    
+
     with open("last_scene.json", "w", encoding="utf-8") as f:
         json.dump(infos, f, ensure_ascii=False, indent=4)
     return infos
