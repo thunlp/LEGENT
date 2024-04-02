@@ -28,19 +28,6 @@ class InvalidFloorplan(Exception):
     pass
 
 
-def visualize_floorplan(floorplan: np.array):
-    colors = ["green", "blue", "red", "yellow", "black"]
-
-    fig, ax = plt.subplots()
-    for i, room_id in enumerate(np.unique(floorplan.flatten())):
-        # print(room_id)
-        coords = np.argwhere(floorplan == room_id)
-        ax.scatter(coords[:, 1], coords[:, 0], label=room_id, c=colors[i])
-        ax.set_aspect("equal")
-        ax.legend(loc=(1.04, 0))
-    return fig
-
-
 def select_room(
     rooms: Sequence[Union[LeafRoom, MetaRoom]]
 ) -> Union[LeafRoom, MetaRoom]:

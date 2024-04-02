@@ -1,5 +1,5 @@
 import random
-from typing import TYPE_CHECKING, Any, Dict, Iterable, List, Set, Tuple, Union
+from typing import Any, Dict, Iterable, List, Set, Tuple, Union
 
 from legent.scene_generation.constants import OUTDOOR_ROOM_ID
 from legent.scene_generation.house import HouseStructure
@@ -52,6 +52,8 @@ MAX_DOORS_TO_OUTSIDE = 1
 EPSILON = 1e-3
 """Small value to compare floats within a bound."""
 
+MAX_NEIGHBOR_RETRIES = 100
+
 
 def convert_rowcol_walls(rowcol_walls):
     for k, v in rowcol_walls.items():
@@ -79,41 +81,18 @@ def default_add_doors(
     boundary_groups = house_structure.boundary_groups
     rowcol_walls = house_structure.rowcol_walls
     rowcol_walls = convert_rowcol_walls(rowcol_walls)
-    # print(f"rowcol_walls: {rowcol_walls}")
-    # print(f'house structure: {house_structure}')
-    # print(f'boundary groups: {boundary_groups}')
 
     room_spec_neighbors = get_room_spec_neighbors(room_spec=room_spec.spec)
-    # print(f'room spec neighbors: {room_spec_neighbors}')
     openings = select_openings(
         neighboring_rooms=set(boundary_groups.keys()),
         room_spec_neighbors=room_spec_neighbors,
         room_spec=room_spec,
     )
-    # print(f"openings: {openings}")
     door_walls = select_door_walls(
         openings=openings,
         rowcol_walls=rowcol_walls,
     )
-    # print(f"door walls: {door_walls}")
-
-    # outdoor_openings = select_outdoor_openings(
-    #     boundary_groups=boundary_groups, room_type_map=room_spec.room_type_map
-    # )
-    # outdoor_walls = select_door_walls(
-    #     openings=outdoor_openings,
-    #     rowcol_walls=rowcol_walls,
-    # )
-
-    # door_walls.update(outdoor_walls)
-    # polygons_to_subtract = add_door_meta(
-    #     door_walls=door_walls,
-    #     closed_doors=set(outdoor_walls.keys()),
-    #     room_spec=room_spec,
-    #     boundary_groups=boundary_groups,
-    #     odb=odb,
-    # )
-    # return polygons_to_subtract
+    
     return door_walls
 
 
@@ -201,12 +180,14 @@ def select_openings(
 
         # NOTE: indexes that still need connecting rooms
         need_connections_between = list(range(len(group_neighbors)))
-        try_times = 0
+
+        cnt = 1
         while need_connections_between:
-            try_times += 1
-            if try_times >= 10:
-                print("Stuck in select_openings")
-                raise Exception("Stuck in select_openings")
+            cnt+=1
+            if cnt > MAX_NEIGHBOR_RETRIES:
+                raise ValueError(
+                    f"Failed to connect all rooms in group_neighbors: {group_neighbors}"
+                )
             next_room_i = random.choice(need_connections_between)
             other_room_is = [i for i in range(len(group_neighbors)) if i != next_room_i]
             random.shuffle(other_room_is)
@@ -307,27 +288,3 @@ def select_outdoor_openings(
             return doors_to_outside
 
     return doors_to_outside
-
-
-def add_door_meta(
-    door_walls: Dict[Tuple[int, int], Tuple[Tuple[int, int], Tuple[int, int]]],
-    closed_doors: Set[Tuple[int, int]],
-    room_spec: RoomSpec,
-    boundary_groups: BoundaryGroups,
-    odb: ObjectDB,
-):
-    """Get the formatted metadata of the doors.
-
-    Args:
-        door_walls: which walls should have a connecting door. Example: ::
-
-            {
-                (35, 53): ((0, 3), (5, 3)),
-                (48, 57): ((5, 4), (10, 4)),
-                (35, 48): ((5, 4), (5, 7))
-            },
-
-            where the keys (e.g., (35, 53)) specify the roomIds and the values
-            specify the wall positions.
-    """
-    pass

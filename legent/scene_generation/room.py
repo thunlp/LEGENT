@@ -4,7 +4,6 @@ import time
 from collections import defaultdict
 from statistics import mean
 from typing import (
-    TYPE_CHECKING,
     Any,
     Dict,
     List,
@@ -26,14 +25,11 @@ from legent.scene_generation.constants import (
     MAX_INTERSECTING_OBJECT_RETRIES,
     MIN_RECTANGLE_SIDE_SIZE,
     OPENNESS_RANDOMIZATIONS,
-    P_CHOOSE_ASSET_GROUP,
     P_CHOOSE_EDGE,
     P_LARGEST_RECTANGLE,
-    P_W1_ASSET_SKIPPED,
     PADDING_AGAINST_WALL,
 )
 from legent.scene_generation.objects import ObjectDB
-from legent.utils.io import log
 
 from .asset_groups import Asset, AssetGroup, AssetGroupGenerator
 from .types import Vector3
@@ -42,14 +38,6 @@ from .types import Vector3
 def is_chosen_asset_group(data: dict) -> bool:
     """Determine if a dict is from a ChosenAsset or ChosenAssetGroup."""
     return "objects" in data
-
-
-def sample_openness(obj_type: str) -> float:
-    """Sample the openness of an object."""
-    openness = random.choices(**OPENNESS_RANDOMIZATIONS[obj_type])[0]
-    if openness == "any":
-        openness = random.random()
-    return openness
 
 
 class ChosenAssetGroup(TypedDict):
@@ -219,10 +207,8 @@ class OrthogonalPolygon:
     def get_all_rectangles(self) -> Set[Tuple[float, float, float, float]]:
         start_time = time.time()
         neighboring_rectangles = self.get_neighboring_rectangles().copy()
-        # log(f"1 get_neighboring_rectangles time: {time.time() - start_time}")
         curr_rects = neighboring_rectangles
         all_rects = self.random_cover_rectangles(curr_rects)
-        # log(f"2 loop time: {time.time() - start_time}")
         return all_rects
 
     @staticmethod
@@ -421,10 +407,8 @@ class Room:
     ):
         start_time = time.time()
         rectangles = self.open_polygon.get_all_rectangles()
-        # print(f"rectangles: {len(rectangles)}")
         self.last_rectangles = rectangles
         end_time = time.time()
-        # log(f"get_all_rectangle time: {end_time - start_time}")
         if len(rectangles) == 0:
             return None
 
@@ -439,7 +423,6 @@ class Room:
                     max_area = area
                     out = rect
             end_time = time.time()
-            # log(f"2 sample_next_rectangle time: {end_time - start_time}")
             return out
 
         # NOTE: p(1 - epsilon) = randomly choose rect, weighted by area
@@ -456,11 +439,9 @@ class Room:
             weights.append(area)
             population.append(rect)
         end_time = time.time()
-        # log(f"3 sample_next_rectangle time: {end_time - start_time}")
         if not weights:
             return None
         end_time = time.time()
-        # log(f"4 sample_next_rectangle time: {end_time - start_time}")
         return random.choices(population=population, weights=weights, k=1)[0]
 
     def sample_anchor_location(
@@ -562,24 +543,8 @@ class Room:
             "assetGroupGenerator"
         ].iloc[0]
 
-        # NOTE: sample object placement from within the asset group generator.
         for _ in range(MAX_INTERSECTING_OBJECT_RETRIES):
             object_placement = asset_group_generator.sample_object_placement()
-
-            # NOTE: check for collisions
-            # (
-            #     any_collisions,
-            #     intersecting_objects,
-            # ) = asset_group_generator.get_intersecting_objects(
-            #     object_placement=object_placement["objects"]
-            # )
-            # if not any_collisions:
-            #     if set_rotated is None:
-            #         set_rotated = Room.sample_rotation(
-            #             asset=asset_group.to_dict(orient="records")[0],
-            #             rect_x_length=rect_x_length,
-            #             rect_z_length=rect_z_length,
-            #         )
 
             return ChosenAssetGroup(
                 assetGroupName=asset_group["assetGroupName"].iloc[0],
@@ -714,7 +679,6 @@ class Room:
                         "instanceId": obj["instanceId"],
                     }
                 )
-                # log(f"add asset group object: {objects[-1]}")
             self.add_asset(
                 AssetGroup(
                     asset_group_name=asset["assetGroupName"],

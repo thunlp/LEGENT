@@ -1,32 +1,14 @@
-import enum
-import gzip
-import json
-import logging
-import random
-from collections import Counter, defaultdict
-from functools import total_ordering
-from typing import Any, Dict, List, Optional, Sequence, Set, Tuple
+from collections import defaultdict
+from typing import Dict, List, Optional, Sequence, Set, Tuple
 
 import numpy as np
 from attrs import define
 
 from legent.scene_generation.constants import OUTDOOR_ROOM_ID
 from legent.scene_generation.room_spec import RoomSpec
-from legent.utils.io import log
 
 from .floorplan import generate_floorplan
 from .interior_boundaries import sample_interior_boundary
-from .types import (
-    BoundingBox,
-    Door,
-    HouseDict,
-    Object,
-    ProceduralParameters,
-    RoomType,
-    Vector3,
-    Wall,
-    Window,
-)
 
 
 @define
@@ -41,7 +23,9 @@ class HouseStructure:
 
 XZPoly = List[Tuple[Tuple[float, float], Tuple[float, float]]]
 BoundaryGroups = Dict[Tuple[int, int], List[Tuple[float, float]]]
-INTERIOR_BOUNDARY_SCALE = 2.5
+from .constants import UNIT_SIZE
+
+INTERIOR_BOUNDARY_SCALE = UNIT_SIZE
 
 
 def find_walls(floorplan: np.array):
@@ -194,7 +178,6 @@ def get_xz_poly_map(boundary_groups, room_ids: Set[int]) -> Dict[int, XZPoly]:
         points = []
         dirs = []
         for p0, p1 in room_wall_loop:
-            # log(f"p0: {p0}, p1: {p1}")
             points.append(p0)
             if p1[0] > p0[0]:
                 dirs.append("right")
@@ -228,8 +211,6 @@ def get_xz_poly_map(boundary_groups, room_ids: Set[int]) -> Dict[int, XZPoly]:
                     points[i][1] + WALL_THICKNESS,
                 )
         room_wall_loop = list(zip(points, points[1:] + [points[0]]))
-        # for p0,p1 in room_wall_loop:
-        #     log(f"p0: {p0}, p1: {p1}")
         out[room_id] = room_wall_loop
     return out
 
@@ -249,8 +230,6 @@ def generate_house_structure(room_spec: RoomSpec, dims: Optional[Tuple[int, int]
         num_rooms=len(room_ids),
         dims=generate_dims,
     )
-
-    # log(f"interior boundary: {interior_boundary}")
 
     floorplan = generate_floorplan(
         room_spec=room_spec, interior_boundary=interior_boundary

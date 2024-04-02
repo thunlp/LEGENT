@@ -1,46 +1,35 @@
 import copy
 import json
 import random
-from collections import defaultdict
-from typing import Dict, List, Literal, Optional, Sequence, Set, Tuple, Union
+from typing import Dict, List, Optional, Tuple, Union
 
 import numpy as np
 import pandas as pd
-from attrs import define
 from shapely.geometry import Polygon
 
 from legent.scene_generation.doors import default_add_doors
 from legent.scene_generation.house import generate_house_structure
 from legent.scene_generation.objects import ObjectDB
-from legent.scene_generation.room import OrthogonalPolygon, Room
+from legent.scene_generation.room import Room
 from legent.scene_generation.room_spec import RoomSpec
 from legent.scene_generation.small_objects import add_small_objects
 from legent.server.rect_placer import RectPlacer
-def log(*args, **kwargs):
-    pass
+from legent.utils.io import log
 from legent.utils.math import look_rotation
 
-from .asset_groups import Asset, AssetGroup
+from .asset_groups import Asset
 from .constants import (
     MARGIN,
-    MAX_INTERSECTING_OBJECT_RETRIES,
-    MIN_RECTANGLE_SIDE_SIZE,
-    OPENNESS_RANDOMIZATIONS,
     P_CHOOSE_ASSET_GROUP,
-    P_CHOOSE_EDGE,
-    P_LARGEST_RECTANGLE,
     P_W1_ASSET_SKIPPED,
     PADDING_AGAINST_WALL,
+    UNIT_SIZE,
 )
-from .floorplan import generate_floorplan
-from .house import HouseStructure
-from .interior_boundaries import sample_interior_boundary
 from .types import Vector3
 
-MAX = 7
-UNIT_SIZE = 2.5  # The size of a unit in the grid
+DEFAULT_FLOOR_SIZE = 2.5
 HALF_UNIT_SIZE = UNIT_SIZE / 2  # Half of the size of a unit in the grid
-DEFAULT_FLOOR_PREFAB = "LowPolyInterior_Floor_01"
+SCALE_RATIO = UNIT_SIZE / DEFAULT_FLOOR_SIZE
 DEFAULT_WALL_PREFAB = "LowPolyInterior_WallFloor1_09"
 MAX_SPECIFIED_RECTANGLE_RETRIES = 10
 MAX_SPECIFIED_NUMBER = 20
@@ -83,7 +72,6 @@ class HouseGenerator:
         room_num = len(room_spec.room_type_map)
         room_ids = set(room_spec.room_type_map.keys())
         room2wall = {i: np.random.choice(odb.MY_OBJECTS["wall"][:]) for i in room_ids}
-        # wall_with_door_prefab = odb.MY_OBJECTS["wall_with_door"][0]
         DOOR_PREFAB = odb.MY_OBJECTS["door"][0]
         door_x_size = prefabs[DOOR_PREFAB]["size"]["x"]
         door_y_size = prefabs[DOOR_PREFAB]["size"]["y"]
@@ -115,12 +103,11 @@ class HouseGenerator:
         floors = house_structure.floorplan
         # convert 1 in floors to 0
         floors = np.where(floors == 1, 0, floors)
-        log(f"floors:\n{floors}")
+        log(f"floors:\n{floors}") 
 
         doors = default_add_doors(odb, room_spec, house_structure)
         log(f"doors: {doors}")
         door_positions = set(doors.values())
-        # exit()
 
         floor_instances = []
         # generate walls based on the 0-1 boundaries
@@ -135,7 +122,7 @@ class HouseGenerator:
                             "prefab": FLOOR_PREFAB,
                             "position": [x, -floor_y_size / 2, z],
                             "rotation": [0, 90, 0],
-                            "scale": [1, 1, 1],
+                            "scale": [SCALE_RATIO, 1, SCALE_RATIO],
                             "type": "kinematic",
                         }
                     )
@@ -153,8 +140,6 @@ class HouseGenerator:
                 if i < floors.shape[0] - 1:
                     a_col = floors[i + 1][j]
 
-                    # x轴相邻的格子
-
                     if a != a_col:
                         x = i + 1 - 1
                         z = j + 0.5 - 1
@@ -169,14 +154,14 @@ class HouseGenerator:
                         left_wall_prefab = room2wall[floors[i][j]]
                         right_wall_prefab = room2wall[floors[i + 1][j]]
 
-                        scale = [1, 1, 0.5]
+                        scale = [SCALE_RATIO, 1, 0.5]
                         left_scale = [
-                            1,
+                            SCALE_RATIO,
                             self.align_wall_height_scale(left_wall_prefab),
                             0.5,
                         ]
                         right_scale = [
-                            1,
+                            SCALE_RATIO,
                             self.align_wall_height_scale(right_wall_prefab),
                             0.5,
                         ]
@@ -253,14 +238,14 @@ class HouseGenerator:
                         up_wall_prefab = room2wall[floors[i][j]]
                         down_wall_prefab = room2wall[floors[i][j + 1]]
 
-                        scale = [1, 1, 0.5]
+                        scale = [SCALE_RATIO, 1, 0.5]
                         up_scale = [
-                            1,
+                            SCALE_RATIO,
                             self.align_wall_height_scale(up_wall_prefab),
                             0.5,
                         ]
                         down_scale = [
-                            1,
+                            SCALE_RATIO,
                             self.align_wall_height_scale(down_wall_prefab),
                             0.5,
                         ]
@@ -324,7 +309,6 @@ class HouseGenerator:
         return floor_instances, floors
 
     def add_human_and_agent(self, floors):
-        # log(floors)
         def get_bbox_of_floor(x, z):
             x, z = (x - 0.5) * UNIT_SIZE, (z - 0.5) * UNIT_SIZE
             return (
@@ -347,10 +331,6 @@ class HouseGenerator:
             x, z = np.unravel_index(floor_idx, floors.shape)
             log(f"human/agent x: {x}, z: {z}")
 
-            # debug:
-            # x,z = (x-0.5)*UNIT_SIZE, (z-0.5)*UNIT_SIZE
-            # return x,z
-
             # get the bbox of the floor
             bbox = get_bbox_of_floor(x, z)
             # uniformly sample from the bbox, with eps
@@ -363,8 +343,7 @@ class HouseGenerator:
         # place the player
         while True:
             x, z = random_xz_for_agent(eps=0.5, floors=floors)
-            x_size, z_size = 0.3, 0.3
-            # TODO: obtain the precise centerOffset of the character. calculate y based on it.
+            x_size, z_size = 1, 1
             player = {
                 "prefab": "",
                 "position": [x, 0.05, z],
@@ -378,17 +357,10 @@ class HouseGenerator:
             if ok:
                 log(f"player x: {x}, z: {z}")
                 break
-            #     self.placer.visualize(
-            #         x - x_size / 2,
-            #         z - z_size / 2,
-            #         x + x_size / 2,
-            #         z + z_size / 2,
-            #         c="y",
-            #     )
         # place the playmate
         while True:
             x, z = random_xz_for_agent(eps=0.5, floors=floors)
-            x_size, z_size = 0.3, 0.3
+            x_size, z_size = 1, 1
             playmate = {
                 "prefab": "",
                 "position": [x, 0.05, z],
@@ -400,13 +372,6 @@ class HouseGenerator:
             ok = self.placer.place("playmate", x, z, x_size, z_size)
             if ok:
                 log(f"playmate x: {x}, z: {z}")
-                # self.placer.visualize(
-                #     x - x_size / 2,
-                #     z - z_size / 2,
-                #     x + x_size / 2,
-                #     z + z_size / 2,
-                #     c="y",
-                # )
                 break
 
         # player lookat the playmate
@@ -504,50 +469,40 @@ class HouseGenerator:
                 )
             )
 
-        # log(f"spawnable_asset_groups: {spawnable_asset_groups}")
-        # log(f"anchor type: {anchor_type}")
         asset_group_candidates = spawnable_asset_groups[
             spawnable_asset_groups[anchor_type] & size_filter(spawnable_asset_groups)
         ]
-        # log(f"asset_group_candidates: {asset_group_candidates}")
         asset_candidates = spawnable_assets[
             spawnable_assets[anchor_type] & size_filter(spawnable_assets)
         ]
-        # log(f"asset_candidates: {asset_candidates}")
 
         if priority_asset_types:
             for asset_type in priority_asset_types:
                 asset_type = asset_type.lower()
-                # log(f"priority asset_type: {asset_type}")
                 # NOTE: see if there are any semantic asset groups with the asset
                 asset_groups_with_type = asset_group_candidates[
                     asset_group_candidates[f"has{asset_type}"]
                 ]
-                # log(f"asset groups with type: { asset_groups_with_type}")
 
                 # NOTE: see if assets can spawn by themselves
                 can_spawn_alone_assets = odb.PLACEMENT_ANNOTATIONS[
                     odb.PLACEMENT_ANNOTATIONS.index == asset_type
                 ]
-                # log(f"can_spawn_alone_assets: {can_spawn_alone_assets}")
 
                 can_spawn_standalone = len(can_spawn_alone_assets) and (
                     can_spawn_alone_assets[f"in{room.room_type}s"].iloc[0] > 0
                 )
-                # log(f"can_spawn_standalone: {can_spawn_standalone}")
                 assets_with_type = None
                 if can_spawn_standalone:
                     assets_with_type = asset_candidates[
                         asset_candidates["assetType"] == asset_type
                     ]
-                    # log(f"assets_with_type: {assets_with_type}")
 
                 # NOTE: try using an asset group first
                 if len(asset_groups_with_type) and (
                     assets_with_type is None or random.random() <= P_CHOOSE_ASSET_GROUP
                 ):
                     # NOTE: Try using an asset group
-                    # log(f"use asset group!")
                     asset_group = asset_groups_with_type.sample()
                     chosen_asset_group = room.place_asset_group(
                         asset_group=asset_group,
@@ -555,7 +510,6 @@ class HouseGenerator:
                         rect_x_length=rect_x_length,
                         rect_z_length=rect_z_length,
                     )
-                    # log(f'chosen_asset_group: {chosen_asset_group}')
                     if chosen_asset_group is not None:
                         return chosen_asset_group
 
@@ -709,7 +663,7 @@ class HouseGenerator:
 
         player, playmate = self.add_human_and_agent(floors)
 
-        max_floor_objects = 15
+        max_floor_objects = 10
 
         spawnable_asset_group_info = self.get_spawnable_asset_group_info()
 
@@ -800,7 +754,6 @@ class HouseGenerator:
             for i in range(max_floor_objects):
                 cache_rectangles = i != 0 and asset is None
 
-                # log("sample rectangle")
                 if cache_rectangles:
                     # NOTE: Don't resample failed rectangles
                     room.last_rectangles.remove(rectangle)
@@ -808,7 +761,6 @@ class HouseGenerator:
                 else:
                     rectangle = room.sample_next_rectangle()
 
-                # log(f"rectangle: {rectangle}")
                 if rectangle is None:
                     break
 
@@ -826,7 +778,6 @@ class HouseGenerator:
                     priority_asset_types=priority_asset_types,
                     odb=odb,
                 )
-                # log(f'asset: {asset}')
 
                 if asset is None:
                     continue
@@ -839,7 +790,6 @@ class HouseGenerator:
                     anchor_delta=anchor_delta,
                 )
 
-                # log("place ok!")
 
                 added_asset_types = []
                 if "assetType" in asset:
@@ -860,7 +810,6 @@ class HouseGenerator:
                     allow_duplicates_of_asset_type = odb.PLACEMENT_ANNOTATIONS.loc[
                         asset_type.lower()
                     ]["multiplePerRoom"]
-                    # print(allow_duplicates_of_asset_type)
 
                     if not allow_duplicates_of_asset_type:
                         # NOTE: Remove all asset groups that have the type
@@ -934,7 +883,6 @@ class HouseGenerator:
 
                 else:  # is asset_group
                     assets_dict = a.assets_dict
-                    # log(f"asset_dict: {json.dumps(assets_dict, indent=4)}")
                     max_bbox = (10000, 100000, -1, -1)
                     asset_group_full_name = []
 
@@ -943,7 +891,6 @@ class HouseGenerator:
                         prefab = asset["assetId"]
                         asset_type = odb.OBJECT_TO_TYPE[prefab]
                         if asset_type in specified_object_types:
-                            # log(f'conflicted with specified objects!')
                             conflict = True
                             break
 
@@ -992,9 +939,6 @@ class HouseGenerator:
                             ):
                                 is_receptacle = False
 
-                            # log(
-                            #     f'{asset["assetId"]} is_receptacle: {is_receptacle} tvinid {"tv" in asset["assetId"].lower()} chairinid {"chair" in asset["assetId"].lower()}'
-                            # )
                             object_instances.append(
                                 {
                                     "prefab": asset["assetId"],
@@ -1027,10 +971,6 @@ class HouseGenerator:
                                         or "chair" in asset["assetId"].lower()
                                     ):
                                         is_receptacle = False
-
-                                    # log(
-                                    #     f'{asset["assetId"]} is_receptacle: {is_receptacle} tvinid {"tv" in asset["assetId"].lower()} chairinid {"chair" in asset["assetId"].lower()}'
-                                    # )
 
                                     object_instances.append(
                                         {
@@ -1069,9 +1009,6 @@ class HouseGenerator:
             receptacle_object_counts=receptacle_object_counts,
         )
 
-        # for object in small_object_instances:
-        #     log(f"small_object: {object['prefab']}")
-
         ### STEP 5: Adjust Positions for Unity GameObject
         # Convert all the positions (the center of the mesh bounding box) to positions of Unity GameObject transform
         # They are not equal because position of a GameObject also depends on the relative center offset of the mesh within the prefab
@@ -1089,8 +1026,9 @@ class HouseGenerator:
                 inst["type"] = "kinematic"
 
         height = max(12, (max_z - min_z) * 1 + 2)
-        # center = [0, height, 0]
+        log(f'min_x: {min_x}, max_x: {max_x}, min_z: {min_z}, max_z: {max_z}')
         center = [(min_x + max_x) / 2, height, (min_z + max_z) / 2]
+
         infos = {
             "prompt": "",
             "instances": instances,
@@ -1101,3 +1039,4 @@ class HouseGenerator:
         with open("last_scene.json", "w", encoding="utf-8") as f:
             json.dump(infos, f, ensure_ascii=False, indent=4)
         return infos
+

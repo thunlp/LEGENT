@@ -2,59 +2,14 @@ import copy
 import json
 import random
 from collections import defaultdict
-from typing import Dict, List, Literal, Optional, Sequence, Set, Tuple, Union
+from typing import Dict, List
 
 import numpy as np
 
 from legent.scene_generation.objects import ObjectDB
-from legent.scene_generation.room import OrthogonalPolygon, Room
+from legent.scene_generation.room import Room
 from legent.server.rect_placer import RectPlacer
 from legent.utils.io import log
-
-PARENT_BIAS = defaultdict(
-    lambda: 0.2, {"Chair": 0, "ArmChair": 0, "Countertop": 0.2, "ShelvingUnit": 0.4}
-)
-"""The sampling bias for how often an object is placed in a receptacle."""
-
-CHILD_BIAS = defaultdict(
-    lambda: 0,
-    {
-        "plant": 0.25,
-        "Basketball": 0.2,
-        "SprayBottle": 0.2,
-        "Pot": 0.1,
-        "Pan": 0.1,
-        "Bowl": 0.05,
-        "BaseballBat": 0.1,
-    },
-)
-"""The sampling bias for how often an individual object is sampled."""
-
-
-def randomize_bias():
-    """Randomize the sampling bias for the parent and child objects."""
-    lower = -0.3
-    upper = 0.1
-    return (upper - lower) * np.random.beta(a=3.5, b=1.9) + lower
-
-
-MAX_OF_TYPE_ON_RECEPTACLE = 3
-"""The maximum number of objects of a given type that can be placed on a receptacle."""
-
-HOUSE_PLANT_MAX_HEIGHT = 0.75
-"""The maximum height of a house plant that is considered small.
-
-Note: There are some large house plants are intended to be placed on the floor.
-"""
-
-FLOOR_OBJECTS_TO_DROP = {"BaseballBat": {"p": 0.7}}
-"""The objects that are dropped to be put in place."""
-
-OBJECTS_TO_DROP = {"BaseballBat": {"p": 0.97}}
-"""The objects that are pushed when they are placed on a receptacle.
-
-Helps avoid the baseball bat from always standing upright.
-"""
 
 MAX_OBJECT_NUM_ON_RECEPTACLE = 3
 
@@ -64,7 +19,6 @@ SMALL_OBJECT_MIN_MARGIN = 0.1
 
 
 def prefab_fit_surface(prefab_size, surface, receptacle):
-    # log(prefab_size)
     px, py, pz = prefab_size.values()
     sx = surface["surface"]["x_max"] - surface["surface"]["x_min"]
     sz = surface["surface"]["z_max"] - surface["surface"]["z_min"]
@@ -108,7 +62,7 @@ def add_small_objects(
         for room_id, objects in objects_per_room.items()
     }
 
-    # log(f"receptacle_object_counts: {receptacle_object_counts}")
+    log(f"receptacle_object_counts: {receptacle_object_counts}")
     specified_small_object_types = set()
     failed_objects = {}
     if receptacle_object_counts:
@@ -144,9 +98,9 @@ def add_small_objects(
 
                     failed_object_dict[kk] = 0
 
-                    # log(
-                    #     f'placing kk: {kk} {vv} times on receptacle {receptacle["receptacle"]["prefab"]}'
-                    # )
+                    log(
+                        f'placing kk: {kk} {vv} times on receptacle {receptacle["receptacle"]["prefab"]}'
+                    )
                     for _ in range(vv):
                         prefab_name = random.choice(odb.OBJECT_DICT[kk])
                         prefab = odb.PREFABS[prefab_name]
@@ -243,7 +197,6 @@ def add_small_objects(
 
                                         small_object["position"] = (x, y, z)
                                         small_object["type"] = "interactable"
-                                        # small_object["type"] = "kinematic"
                                         small_object["parent"] = receptacle[
                                             "receptacle"
                                         ]["prefab"]
@@ -255,9 +208,9 @@ def add_small_objects(
                                         success_flag = True
                                         break
                                 if success_flag:
-                                    # log(
-                                    #     f"Small Object {kk} on {receptacle['receptacle']['prefab']}, position:{format(small_object['position'][0],'.4f')},{format(small_object['position'][2],'.4f')}",
-                                    # )
+                                    log(
+                                        f"Small Object {kk} on {receptacle['receptacle']['prefab']}, position:{format(small_object['position'][0],'.4f')},{format(small_object['position'][2],'.4f')}",
+                                    )
                                     break
                         if not success_flag:
                             failed_object_dict[kk] += 1
@@ -265,138 +218,6 @@ def add_small_objects(
 
     with open("failed_objects.json", "w") as f:
         json.dump(failed_objects, f, indent=4, ensure_ascii=False)
-
-    # log(f"object_counts: {object_counts}")
-    if object_counts:
-        # If object_counts is specified, we will only place the objects in object_counts
-        surfaces = []
-        for room_id, room in rooms.items():
-            if room_id not in receptacles_per_room:
-                continue
-            receptacles_in_room = receptacles_per_room[room_id]
-            for receptacle in receptacles_in_room:
-                placeable_surfaces = odb.PREFABS[receptacle["prefab"]][
-                    "placeable_surfaces"
-                ]
-                if not placeable_surfaces:
-                    continue
-                for surface in placeable_surfaces:
-                    surfaces.append(
-                        {
-                            "receptacle": receptacle,
-                            "surface": surface,
-                            "small_object_num": 0,
-                        }
-                    )
-
-        for k, v in object_counts.items():
-            for _ in range(v):
-                random.shuffle(surfaces)
-                prefab = odb.PREFABS[k]
-                success_flag = False
-                for surface in surfaces:
-                    receptacle = surface
-                    if prefab_fit_surface(prefab["size"], surface, receptacle):
-                        small_object = {}
-                        small_object["prefab"] = k
-
-                        x_min = (
-                            (
-                                surface["surface"]["x_min"]
-                                + receptacle["receptacle"]["position"][0]
-                            )
-                            if receptacle["receptacle"]["rotation"][1] == 0
-                            or receptacle["receptacle"]["rotation"][1] == 180
-                            else (
-                                surface["surface"]["z_min"]
-                                + receptacle["receptacle"]["position"][0]
-                            )
-                        )
-                        x_max = (
-                            (
-                                surface["surface"]["x_max"]
-                                + receptacle["receptacle"]["position"][0]
-                            )
-                            if receptacle["receptacle"]["rotation"][1] == 0
-                            or receptacle["receptacle"]["rotation"][1] == 180
-                            else (
-                                surface["surface"]["z_max"]
-                                + receptacle["receptacle"]["position"][0]
-                            )
-                        )
-                        z_min = (
-                            (
-                                surface["surface"]["z_min"]
-                                + receptacle["receptacle"]["position"][2]
-                            )
-                            if receptacle["receptacle"]["rotation"][1] == 0
-                            or receptacle["receptacle"]["rotation"][1] == 180
-                            else (
-                                surface["surface"]["x_min"]
-                                + receptacle["receptacle"]["position"][2]
-                            )
-                        )
-                        z_max = (
-                            (
-                                surface["surface"]["z_max"]
-                                + receptacle["receptacle"]["position"][2]
-                            )
-                            if receptacle["receptacle"]["rotation"][1] == 0
-                            or receptacle["receptacle"]["rotation"][1] == 180
-                            else (
-                                surface["surface"]["x_max"]
-                                + receptacle["receptacle"]["position"][2]
-                            )
-                        )
-
-                        x_margin = prefab["size"]["x"] / 2 + SMALL_OBJECT_MIN_MARGIN
-
-                        z_margin = prefab["size"]["z"] / 2 + SMALL_OBJECT_MIN_MARGIN
-
-                        sample_x_min = x_min + x_margin
-                        sample_x_max = x_max - x_margin
-                        sample_z_min = z_min + z_margin
-                        sample_z_max = z_max - z_margin
-
-                        for _ in range(MAX_PLACE_ON_SURFACE_RETRIES):
-                            x, z = np.random.uniform(
-                                sample_x_min, sample_x_max
-                            ), np.random.uniform(sample_z_min, sample_z_max)
-
-                            if placer.place(
-                                k,
-                                x,
-                                z,
-                                prefab["size"]["x"] + 2 * SMALL_OBJECT_MIN_MARGIN,
-                                prefab["size"]["z"] + 2 * SMALL_OBJECT_MIN_MARGIN,
-                            ):
-                                y = (
-                                    receptacle["receptacle"]["position"][1]
-                                    + surface["surface"]["y"]
-                                    + odb.PREFABS[k]["size"]["y"] / 2
-                                )
-
-                                small_object["position"] = (x, y, z)
-                                small_object["type"] = "interactable"
-                                # small_object["type"] = "kinematic"
-                                small_object["parent"] = receptacle["receptacle"][
-                                    "prefab"
-                                ]
-                                small_object["scale"] = [1, 1, 1]
-                                small_object["rotation"] = [0, 0, 0]
-                                small_objects.append(small_object)
-                                surface["small_object_num"] += 1
-                                receptacle["small_object_num"] += 1
-                                success_flag = True
-                                break
-                        if success_flag:
-                            # log(
-                            #     f"Small Object {k} on {receptacle['receptacle']['prefab']}, position:{format(small_object['position'][0],'.4f')},{format(small_object['position'][2],'.4f')}",
-                            # )
-                            break
-        return small_objects
-
-    # if not object_counts specified, we will randomly place objects in the scene
 
     object_types_in_rooms = {
         room_id: set(odb.OBJECT_TO_TYPE[obj["prefab"]] for obj in objects)
@@ -478,7 +299,6 @@ def add_small_objects(
             chosen_asset_id = random.choice(asset_candidates)
 
             prefab = odb.PREFABS[chosen_asset_id]
-            area = prefab["size"]["x"] * prefab["size"]["z"]
 
             receptacle = receptacle_dict[group["receptacleIndex"]]
             surfaces = receptacle["surfaces"]
@@ -567,16 +387,15 @@ def add_small_objects(
 
                             small_object["position"] = (x, y, z)
                             small_object["type"] = "interactable"
-                            # small_object["type"] = "kinematic"
                             small_objects.append(small_object)
                             surface["small_object_num"] += 1
                             receptacle["small_object_num"] += 1
                             success_flag = True
                             break
                     if success_flag:
-                        # log(
-                        #     f"Small Object {chosen_asset_id} on {receptacle['receptacle']['prefab']}, position:{format(small_object['position'][0],'.4f')},{format(small_object['position'][2],'.4f')}",
-                        # )
+                        log(
+                            f"Small Object {chosen_asset_id} on {receptacle['receptacle']['prefab']}, position:{format(small_object['position'][0],'.4f')},{format(small_object['position'][2],'.4f')}",
+                        )
                         break
 
     return small_objects
