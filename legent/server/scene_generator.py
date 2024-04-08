@@ -47,57 +47,60 @@ def load_prefabs() -> None:
 
 
 def generate_scene(
-    object_counts: Dict[str, int] = {}, receptacle_object_counts={}, room_num=2
+    object_counts: Dict[str, int] = {}, receptacle_object_counts={}, room_num=None, method="proc"
 ):
+    if method == "proc":
+        # object_counts specifies a definite number for certain objects
+        # For example, if you want to have only one instance of ChristmasTree_01 in the scene, you can set the object_counts as {"ChristmasTree_01": 1}.
+        # global prefabs, interactable_names, kinematic_names, interactable_names_set, kinematic_names_set
+        MAX = 7
+        sampler = ROOM_SPEC_SAMPLER
+        if room_num == 2:
+            sampler = RoomSpecSampler(
+                [
+                    RoomSpec(
+                        room_spec_id="LivingRoom",  # TwoRooms
+                        sampling_weight=1,
+                        spec=[
+                            LeafRoom(room_id=2, ratio=1, room_type="Bedroom"),
+                            LeafRoom(room_id=3, ratio=1, room_type="LivingRoom"),
+                        ],
+                    )
+                ]
+            )
+        elif room_num == 1:
+            sampler = RoomSpecSampler(
+                [
+                    RoomSpec(
+                        room_spec_id="LivingRoom",
+                        sampling_weight=1,
+                        spec=[LeafRoom(room_id=2, ratio=1, room_type="Bedroom")],
+                    )
+                ]
+            )
+        # receptacle_object_counts= {"Table": {"count": 1, "objects": [{"Banana": 1}]}}
+        room_spec = sampler.sample()
 
-    # object_counts specifies a definite number for certain objects
-    # For example, if you want to have only one instance of ChristmasTree_01 in the scene, you can set the object_counts as {"ChristmasTree_01": 1}.
-    # global prefabs, interactable_names, kinematic_names, interactable_names_set, kinematic_names_set
-    MAX = 7
-    # if room_num == 2:
-    #     ROOM_SPEC_SAMPLER = RoomSpecSampler(
-    #         [
-    #             RoomSpec(
-    #                 room_spec_id="LivingRoom",  # TwoRooms
-    #                 sampling_weight=1,
-    #                 spec=[
-    #                     LeafRoom(room_id=2, ratio=1, room_type="Bedroom"),
-    #                     LeafRoom(room_id=3, ratio=1, room_type="LivingRoom"),
-    #                 ],
-    #             )
-    #         ]
-    #     )
-    # else:
-    #     ROOM_SPEC_SAMPLER = RoomSpecSampler(
-    #         [
-    #             RoomSpec(
-    #                 room_spec_id="LivingRoom",
-    #                 sampling_weight=1,
-    #                 spec=[LeafRoom(room_id=2, ratio=1, room_type="Bedroom")],
-    #             )
-    #         ]
-    #     )
-    # receptacle_object_counts= {"Table": {"count": 1, "objects": [{"Banana": 1}]}}
-    room_spec = ROOM_SPEC_SAMPLER.sample()
 
-    
-    house_generator = HouseGenerator(
-        room_spec=room_spec, dims=(MAX, MAX), objectDB=get_default_object_db()
-    )
+        house_generator = HouseGenerator(
+            room_spec=room_spec, dims=(MAX, MAX), objectDB=get_default_object_db()
+        )
 
-    # receptacle_object_counts={
-    #     "Sofa": {"count": 1, "objects": [{"Orange": 1}]},
-    #     "Chair": {"count": 1, "objects": [{"Orange": 1}]},
-    #     "Table": {"count": 1, "objects": [{"Orange": 1}]},
-    #     "Bar": {"count": 1, "objects": [{"Orange": 1}]},
-    #     "Dresser": {"count": 1, "objects": [{"Orange": 1}]},
-    # }
-    scene = house_generator.generate(
-        object_counts=object_counts, receptacle_object_counts=receptacle_object_counts
-    )
-    # for instance in scene["instances"]:
-    #     instance["type"] = "kinematic"
-    return scene
+        # receptacle_object_counts={
+        #     "Sofa": {"count": 1, "objects": [{"Orange": 1}]},
+        #     "Chair": {"count": 1, "objects": [{"Orange": 1}]},
+        #     "Table": {"count": 1, "objects": [{"Orange": 1}]},
+        #     "Bar": {"count": 1, "objects": [{"Orange": 1}]},
+        #     "Dresser": {"count": 1, "objects": [{"Orange": 1}]},
+        # }
+        scene = house_generator.generate(
+            object_counts=object_counts, receptacle_object_counts=receptacle_object_counts
+        )
+        # for instance in scene["instances"]:
+        #     instance["type"] = "kinematic"
+        return scene
+    else:
+        raise NotImplementedError
 
 
 def generate_scene_messy(object_counts: Dict[str, int] = {}):
