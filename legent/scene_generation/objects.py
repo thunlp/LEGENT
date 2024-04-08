@@ -24,28 +24,32 @@ class ObjectDB:
         str, List[str]
     ]  # These objects should be placed first inside of the rooms.
 
-# ENV_DATA_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data")
-ENV_DATA_PATH= f"{get_default_env_data_path()}/procthor"
+ENV_DATA_PATH = None
+def get_data_path():
+    global ENV_DATA_PATH
+    if ENV_DATA_PATH is None:
+        ENV_DATA_PATH = f"{get_default_env_data_path()}/procthor"
+    return ENV_DATA_PATH
 
 def _get_place_annotations():
-    filepath = os.path.join(ENV_DATA_PATH,"placement_annotations.csv")
+    filepath = os.path.join(get_data_path(), "placement_annotations.csv")
     df = pd.read_csv(filepath, index_col=0)
     df.index.set_names("assetType", inplace=True)
     return df
 
 
 def _get_object_dict():
-    filepath = os.path.join(ENV_DATA_PATH, "object_dict.json")
+    filepath = os.path.join(get_data_path(), "object_dict.json")
     return json.load(open(filepath))
 
 
 def _get_my_objects():
-    filepath = os.path.join(ENV_DATA_PATH, "my_objects.json")
+    filepath = os.path.join(get_data_path(), "my_objects.json")
     return json.load(open(filepath))
 
 
 def _get_object_to_type():
-    filepath = os.path.join(ENV_DATA_PATH, "object_name_to_type.json")
+    filepath = os.path.join(get_data_path(), "object_name_to_type.json")
     return json.load(open(filepath))
 
 
@@ -57,7 +61,7 @@ def _get_prefabs():
         interactable_names_set,
         kinematic_names_set,
     ) = (None, [], [], {}, {})
-    json_file_path = os.path.join(ENV_DATA_PATH, "addressables.json")
+    json_file_path = os.path.join(get_data_path(), "addressables.json")
     with open(json_file_path, "r", encoding="utf-8") as f:
         prefabs = json.load(f)["prefabs"]
         for prefab in prefabs:
@@ -77,7 +81,7 @@ def _get_prefabs():
 
 
 def _get_asset_groups():
-    asset_group_path = os.path.join(ENV_DATA_PATH, "asset_groups")
+    asset_group_path = os.path.join(get_data_path(), "asset_groups")
     asset_group_files = os.listdir(asset_group_path)
     asset_groups = {}
     for file in asset_group_files:
@@ -126,7 +130,7 @@ class keydefaultdict(defaultdict):
 
 
 def _get_receptacles():
-    filepath = os.path.join(ENV_DATA_PATH, "receptacle.json")
+    filepath = os.path.join(get_data_path(), "receptacle.json")
     return json.load(open(filepath))
 
 
