@@ -14,7 +14,7 @@ from legent.agent.agent import AgentClient
 from legent.agent.gpt4v_agent import GPT4VAgentClient
 from legent.dataset.eval import task_done
 from legent.action.action import parse_action
-from legent.action.api import SaveTopDownView
+from legent.action.api import SaveTopDownView, TakePhotoWithVisiblityInfo
 
 
 def main():
