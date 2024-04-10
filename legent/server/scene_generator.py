@@ -47,7 +47,7 @@ def load_prefabs() -> None:
 
 
 def generate_scene(
-    object_counts: Dict[str, int] = {}, receptacle_object_counts={}, room_num=None, method="proc"
+    object_counts: Dict[str, int] = {}, receptacle_object_counts={}, room_num=1, method="proc"
 ):
     if method == "proc":
         # object_counts specifies a definite number for certain objects
