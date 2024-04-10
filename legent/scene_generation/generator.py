@@ -576,11 +576,40 @@ class HouseGenerator:
             return 90
         else:
             return -1
+    
+    def add_corner_agent(self,max_x,max_z):
+
+        agents = []
+        for i,(x,z) in enumerate([(0,0),(0,1),(1,1),(1,0)]):
+            offset_x = 1 if x==0 else -1
+            offset_z = 1 if z==0 else -1
+            x = x * max_x + offset_x * (WALL_THICKNESS+0.6)
+            z = z * max_z + offset_z * (WALL_THICKNESS+0.6)
+            from legent.utils.io import log
+            if self.placer.place("agent", x, z, 1, 1):
+                log(i)
+                
+                rotation = 45 + i * 90
+                log(rotation)
+                agent = {
+                    "prefab": "",
+                    "position": [x, 0.05, z],
+                    "rotation": [0, rotation, 0],
+                    "scale": [1, 1, 1],
+                    "parent": -1,
+                    "type": "",
+                }
+                agents.append(agent)
+        if agents:
+            return True,random.choice(agents)
+        return False, None
+
 
     def generate(
         self,
         object_counts: Dict[str, int] = {},
         receptacle_object_counts: Dict[str, Dict[str, int]] = {},
+        room_num = None
     ):
         odb = self.odb
         prefabs = odb.PREFABS
@@ -602,7 +631,12 @@ class HouseGenerator:
 
         self.get_rooms(room_type_map=room_spec.room_type_map, floor_polygons=floor_polygons)
 
-        player, playmate = self.add_human_and_agent(floors)
+        player, agent = self.add_human_and_agent(floors)
+        if room_num == 1:
+            flag, success_agent = self.add_corner_agent(max_x,max_z)
+            if flag:
+                agent = success_agent
+
 
         max_floor_objects = 10
 
@@ -913,7 +947,7 @@ class HouseGenerator:
             "prompt": "",
             "instances": instances,
             "player": player,
-            "agent": playmate,
+            "agent": agent,
             "center": center,
         }
         with open("last_scene.json", "w", encoding="utf-8") as f:

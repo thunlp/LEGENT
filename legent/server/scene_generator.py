@@ -94,7 +94,7 @@ def generate_scene(
         #     "Dresser": {"count": 1, "objects": [{"Orange": 1}]},
         # }
         scene = house_generator.generate(
-            object_counts=object_counts, receptacle_object_counts=receptacle_object_counts
+            object_counts=object_counts, receptacle_object_counts=receptacle_object_counts,room_num=room_num
         )
         # for instance in scene["instances"]:
         #     instance["type"] = "kinematic"
