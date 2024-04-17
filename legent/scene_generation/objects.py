@@ -28,7 +28,8 @@ ENV_DATA_PATH = None
 def get_data_path():
     global ENV_DATA_PATH
     if ENV_DATA_PATH is None:
-        ENV_DATA_PATH = f"{get_default_env_data_path()}/procthor"
+        # ENV_DATA_PATH = f"{get_default_env_data_path()}/procthor"
+        ENV_DATA_PATH = r'D:\code\LEGENT\LEGENT\legent\scene_generation\data'
     return ENV_DATA_PATH
 
 def _get_place_annotations():
@@ -149,7 +150,7 @@ def get_default_object_db():
             ASSET_GROUPS=_get_asset_groups(),
             FLOOR_ASSET_DICT=keydefaultdict(_get_default_floor_assets_from_key),
             PRIORITY_ASSET_TYPES={
-                "Bedroom": ["bed", "dresser"],
+                "Bedroom": ["bed"],
                 "LivingRoom": ["television", "diningTable", "sofa"],
                 "Kitchen": ["counterTop", "refrigerator","oven"],
                 "Bathroom": ["toilet","washer"],

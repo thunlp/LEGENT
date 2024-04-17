@@ -15,6 +15,7 @@ from legent.scene_generation.room_spec import (
     RoomSpec,
     LeafRoom,
 )
+from legent.scene_generation.constants import UNIT_SIZE
 
 
 prefabs = None  # all the prefabs info, including name, size and center offset (for Unity transform position)
@@ -49,6 +50,7 @@ def load_prefabs() -> None:
 def generate_scene(
     object_counts: Dict[str, int] = {}, receptacle_object_counts={}, room_num=1, method="proc"
 ):
+    room_num = 1
     if method == "proc":
         # object_counts specifies a definite number for certain objects
         # For example, if you want to have only one instance of ChristmasTree_01 in the scene, you can set the object_counts as {"ChristmasTree_01": 1}.
@@ -69,12 +71,26 @@ def generate_scene(
                 ]
             )
         elif room_num == 1:
+            import random
+            room_types = ['Bedroom','LivingRoom','Kitchen','Bathroom']
+            room_type = random.choice(room_types)
+            room_type = 'Bedroom'
+            global UNIT_SIZE
+            if room_type == 'Bedroom':
+                UNIT_SIZE = 2
+            elif room_type == 'LivingRoom':
+                UNIT_SIZE = 1.5
+            elif room_type == 'Kitchen':
+                UNIT_SIZE = 1
+            elif room_type == 'Bathroom':
+                UNIT_SIZE = 0.5
+            
             sampler = RoomSpecSampler(
                 [
                     RoomSpec(
-                        room_spec_id="LivingRoom",
+                        room_spec_id="OneRoom",
                         sampling_weight=1,
-                        spec=[LeafRoom(room_id=2, ratio=1, room_type="Bedroom")],
+                        spec=[LeafRoom(room_id=2, ratio=1, room_type=room_type)],
                     )
                 ]
             )

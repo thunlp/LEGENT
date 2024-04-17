@@ -75,3 +75,4 @@ FLOOR_Y = 0
 """Position of the floor in meters."""
 
 UNIT_SIZE = 2
+

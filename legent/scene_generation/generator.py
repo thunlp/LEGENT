@@ -14,7 +14,7 @@ from legent.scene_generation.room import Room
 from legent.scene_generation.room_spec import RoomSpec
 from legent.scene_generation.small_objects import add_small_objects
 from legent.server.rect_placer import RectPlacer
-# from legent.utils.io import log
+from legent.utils.io import log
 from legent.utils.math import look_rotation
 
 from .asset_groups import Asset
@@ -36,8 +36,8 @@ MAX_SPECIFIED_NUMBER = 20
 WALL_THICKNESS = 0.075
 
 
-def log(*args, **kwargs):
-    pass
+# def log(*args, **kwargs):
+#     pass
 
 
 class HouseGenerator:
@@ -108,6 +108,7 @@ class HouseGenerator:
         door_positions = set(doors.values())
 
         floor_instances = []
+        log(f'SCALE_RATIO: {SCALE_RATIO}')
         # generate walls based on the 0-1 boundaries
         for i in range(floors.shape[0]):
             for j in range(floors.shape[1]):
@@ -335,9 +336,9 @@ class HouseGenerator:
 
         ### STEP 3: Randomly place the player and playmate (AI agent)
         # place the player
+        AGENT_HUMAN_SIZE = 0
         while True:
             x, z = random_xz_for_agent(eps=0.5, floors=floors)
-            x_size, z_size = 1, 1
             player = {
                 "prefab": "",
                 "position": [x, 0.05, z],
@@ -346,7 +347,7 @@ class HouseGenerator:
                 "parent": -1,
                 "type": "",
             }
-            ok = self.placer.place("playmate", x, z, x_size, z_size)
+            ok = self.placer.place("playmate", x, z, AGENT_HUMAN_SIZE, AGENT_HUMAN_SIZE)
 
             if ok:
                 log(f"player x: {x}, z: {z}")
@@ -354,7 +355,6 @@ class HouseGenerator:
         # place the playmate
         while True:
             x, z = random_xz_for_agent(eps=0.5, floors=floors)
-            x_size, z_size = 1, 1
             playmate = {
                 "prefab": "",
                 "position": [x, 0.05, z],
@@ -363,7 +363,7 @@ class HouseGenerator:
                 "parent": -1,
                 "type": "",
             }
-            ok = self.placer.place("playmate", x, z, x_size, z_size)
+            ok = self.placer.place("playmate", x, z, AGENT_HUMAN_SIZE, AGENT_HUMAN_SIZE)
             if ok:
                 log(f"playmate x: {x}, z: {z}")
                 break
@@ -580,17 +580,23 @@ class HouseGenerator:
     def add_corner_agent(self,max_x,max_z):
 
         agents = []
+        AGENT_SIZE = 0.3
+
+        CORNER_MARGIN = 0.2
         for i,(x,z) in enumerate([(0,0),(0,1),(1,1),(1,0)]):
             offset_x = 1 if x==0 else -1
             offset_z = 1 if z==0 else -1
-            x = x * max_x + offset_x * (WALL_THICKNESS+0.6)
-            z = z * max_z + offset_z * (WALL_THICKNESS+0.6)
+            x = x * max_x + offset_x * (WALL_THICKNESS+CORNER_MARGIN)
+            z = z * max_z + offset_z * (WALL_THICKNESS+CORNER_MARGIN)
             from legent.utils.io import log
-            if self.placer.place("agent", x, z, 1, 1):
-                log(i)
+
+            bbox = (x - AGENT_SIZE / 2, z - AGENT_SIZE / 2, x + AGENT_SIZE / 2, z + AGENT_SIZE / 2)
+            # if self.placer.place("agent", x, z, AGENT_SIZE, AGENT_SIZE):
+            if not self.placer.spindex.intersect(bbox):
+                # log(i)
                 
                 rotation = 45 + i * 90
-                log(rotation)
+                # log(rotation)
                 agent = {
                     "prefab": "",
                     "position": [x, 0.05, z],
@@ -601,7 +607,13 @@ class HouseGenerator:
                 }
                 agents.append(agent)
         if agents:
-            return True,random.choice(agents)
+            idx = random.randint(0,len(agents)-1)
+            agent = agents[idx]
+            x = agent["position"][0]
+            z = agent["position"][2]
+            bbox = (x - AGENT_SIZE / 2, z - AGENT_SIZE / 2, x + AGENT_SIZE / 2, z + AGENT_SIZE / 2)
+            self.placer.insert("agent", bbox)
+            return True,agent
         return False, None
 
 
@@ -616,6 +628,13 @@ class HouseGenerator:
         room_spec = self.room_spec
 
         log("starting...")
+        log(room_spec)
+        log(f"UNIT_SIZE: {UNIT_SIZE}")
+        global HALF_UNIT_SIZE
+        HALF_UNIT_SIZE = UNIT_SIZE / 2  # Half of the size of a unit in the grid
+        global SCALE_RATIO
+        SCALE_RATIO = UNIT_SIZE / DEFAULT_FLOOR_SIZE
+
 
         house_structure = self.generate_structure(room_spec=room_spec)
         interior_boundary = house_structure.interior_boundary
@@ -631,14 +650,22 @@ class HouseGenerator:
 
         self.get_rooms(room_type_map=room_spec.room_type_map, floor_polygons=floor_polygons)
 
-        player, agent = self.add_human_and_agent(floors)
+        # player, agent = self.add_human_and_agent(floors)
+        player = {
+            "prefab": "",
+            "position": [10, 0.05, 10],
+            "rotation": [0, np.random.uniform(0, 360), 0],
+            "scale": [1, 1, 1],
+            "parent": -1,
+            "type": "",
+        }
         if room_num == 1:
             flag, success_agent = self.add_corner_agent(max_x,max_z)
             if flag:
                 agent = success_agent
 
 
-        max_floor_objects = 10
+        max_floor_objects = 20
 
         spawnable_asset_group_info = self.get_spawnable_asset_group_info()
 
@@ -646,7 +673,6 @@ class HouseGenerator:
         specified_object_types = set()
         if receptacle_object_counts:
             # first place the specified receptacles
-            for receptacle, d in receptacle_object_counts.items():
                 receptacle_type = receptacle
                 receptacle = random.choice(odb.OBJECT_DICT[receptacle.lower()])
                 specified_object_types.add(odb.OBJECT_TO_TYPE[receptacle])
@@ -715,7 +741,7 @@ class HouseGenerator:
 
                 if cache_rectangles:
                     # NOTE: Don't resample failed rectangles
-                    room.last_rectangles.remove(rectangle)
+                    # room.last_rectangles.remove(rectangle)
                     rectangle = room.sample_next_rectangle(cache_rectangles=True)
                 else:
                     rectangle = room.sample_next_rectangle()
@@ -738,6 +764,8 @@ class HouseGenerator:
 
                 if asset is None:
                     continue
+
+                # log(f'asset: {asset}')
                 room.sample_place_asset_in_rectangle(
                     asset=asset,
                     rectangle=rectangle,
