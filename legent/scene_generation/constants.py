@@ -76,3 +76,14 @@ FLOOR_Y = 0
 
 UNIT_SIZE = 2
 
+# class UnitSize:
+#     def __init__(self) -> None:
+#         self.size = 2
+    
+#     def get_size():
+#         return self.size
+    
+#     def set_size(size):
+#         self.size = size
+# UNIT_SIZE = UnitSize()
+

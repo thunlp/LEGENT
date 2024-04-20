@@ -8,7 +8,7 @@ import json
 from typing import Dict, Literal, Optional
 
 from legent.scene_generation.generator import HouseGenerator
-from legent.scene_generation.objects import DEFAULT_OBJECT_DB,get_default_object_db
+from legent.scene_generation.objects import DEFAULT_OBJECT_DB, get_default_object_db
 from legent.scene_generation.room_spec import (
     ROOM_SPEC_SAMPLER,
     RoomSpecSampler,
@@ -48,7 +48,10 @@ def load_prefabs() -> None:
 
 
 def generate_scene(
-    object_counts: Dict[str, int] = {}, receptacle_object_counts={}, room_num=1, method="proc"
+    object_counts: Dict[str, int] = {},
+    receptacle_object_counts={},
+    room_num=1,
+    method="proc",
 ):
     room_num = 1
     if method == "proc":
@@ -72,19 +75,26 @@ def generate_scene(
             )
         elif room_num == 1:
             import random
-            room_types = ['Bedroom','LivingRoom','Kitchen','Bathroom']
+
+            room_types = ["Bedroom", "LivingRoom", "Kitchen", "Bathroom"]
             room_type = random.choice(room_types)
-            room_type = 'Bedroom'
-            global UNIT_SIZE
-            if room_type == 'Bedroom':
-                UNIT_SIZE = 2
-            elif room_type == 'LivingRoom':
-                UNIT_SIZE = 1.5
-            elif room_type == 'Kitchen':
-                UNIT_SIZE = 1
-            elif room_type == 'Bathroom':
-                UNIT_SIZE = 0.5
+
+            # room_type = "Bedroom"
             
+
+            unit_size = 2.5
+            # global UNIT_SIZE
+            if room_type == "Bedroom":
+                unit_size = 2
+            elif room_type == "LivingRoom":
+                unit_size = 1.5
+            elif room_type == "Kitchen":
+                unit_size = 1
+            elif room_type == "Bathroom":
+                unit_size = 0.5
+            
+            unit_size = 2
+
             sampler = RoomSpecSampler(
                 [
                     RoomSpec(
@@ -97,9 +107,11 @@ def generate_scene(
         # receptacle_object_counts= {"Table": {"count": 1, "objects": [{"Banana": 1}]}}
         room_spec = sampler.sample()
 
-
         house_generator = HouseGenerator(
-            room_spec=room_spec, dims=(MAX, MAX), objectDB=get_default_object_db()
+            room_spec=room_spec,
+            dims=(MAX, MAX),
+            objectDB=get_default_object_db(),
+            unit_size = unit_size,
         )
 
         # receptacle_object_counts={
@@ -110,7 +122,9 @@ def generate_scene(
         #     "Dresser": {"count": 1, "objects": [{"Orange": 1}]},
         # }
         scene = house_generator.generate(
-            object_counts=object_counts, receptacle_object_counts=receptacle_object_counts,room_num=room_num
+            object_counts=object_counts,
+            receptacle_object_counts=receptacle_object_counts,
+            room_num=room_num,
         )
         # for instance in scene["instances"]:
         #     instance["type"] = "kinematic"
