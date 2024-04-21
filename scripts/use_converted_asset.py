@@ -11,17 +11,6 @@ import numpy as np
 from use_objaverse import objaverse_object
 
 
-uid2size = {}
-
-
-def use_uid2size():
-    global uid2size
-    if not uid2size:
-        # Download from https://drive.google.com/file/d/1VhY_E0SGVsVVqBbO-sF6LzQrtCfI7SN2/view?usp=sharing
-        # TODO: Change the path to the downloaded file
-        uid2size = load_json("objaverse_holodeck_uid2size.json")
-
-
 def convert_holodeck_asset_to_gltf(asset_path, output_file):
     uid = os.path.basename(asset_path)
     mesh_data = compress_pickle.load(f"{asset_path}/{uid}.pkl.gz")
@@ -62,12 +51,6 @@ def convert_holodeck_asset_to_gltf(asset_path, output_file):
     # For bed cd956b2abec04b52ac48bea1ec141d60, it is not aligned.
     vertices = rotate(np.array(vertices), y_rot_offset)
     normals = rotate(np.array(normals), y_rot_offset)
-
-    # Scale the object to the annotated size
-    # vertices = np.array(vertices).reshape(-1, 3)
-    # max_vals, min_vals = np.max(vertices, axis=0), np.min(vertices, axis=0)
-    # scale = max(uid2size[uid] / (max_vals - min_vals))
-    # vertices = vertices.reshape(-1) * scale
 
     vertices, normals = vertices.tolist(), normals.tolist()
 
@@ -199,7 +182,6 @@ try:
         # Or generate the assets using the CRM model from https://github.com/thu-ml/CRM
         # TODO: Change this to the path of the generated OBJ file
         crm_generated_obj = "path/to/crm/generated/xxx.obj"
-        crm_generated_obj = "F:/Downloads/output3d/tmp7ibwls3n.obj"
 
         convert_crm_obj_to_gltf(crm_generated_obj, "crm_example.gltf")
 
@@ -213,8 +195,6 @@ try:
         # Download from https://drive.google.com/file/d/1MQbFbNfTz94x8Pxfkgbohz4l46O5e3G1/view?usp=sharing
         # TODO: Change this to the path of the Holodeck data folder
         holodeck_data_path = "path/to/holodeck_data/data/objaverse_holodeck/09_23_combine_scale/processed_2023_09_23_combine_scale"
-        holodeck_data_path = "C:/Users/cheng/Desktop/vscodeProjects/holodeck_data/data/objaverse_holodeck/09_23_combine_scale/processed_2023_09_23_combine_scale"
-        use_uid2size()
 
         # Some example uids:
         # cd956b2abec04b52ac48bea1ec141d60  modern bed
@@ -241,8 +221,6 @@ try:
         y_size = ori_size[1] * scale
         scene["instances"].append({"prefab": ori, "position": [2, y_size / 2, 5], "rotation": [0, 0, 0], "scale": [scale, scale, scale], "type": "kinematic"})
 
-        # scene["instances"].append({"prefab": "LowPolyInterior2_Bed2_C2", "position": [2, asset_y_size / 2, 4], "rotation": [0, 0, 0], "scale": [1, 1, 1], "type": "kinematic"})
-        # scene["instances"].append({"prefab": "LowPolyInterior_TV", "position": [2, asset_y_size, 4], "rotation": [0, 0, 0], "scale": [1, 1, 1], "type": "kinematic"})
         return scene
 
     obs: Observation = env.reset(ResetInfo(build_scene_with_custom_objects()))
