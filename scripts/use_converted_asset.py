@@ -73,7 +73,10 @@ def convert_holodeck_asset_to_gltf(asset_path, output_file):
     vertex_data = struct.pack("<" + "f" * len(vertices), *vertices)
     normal_data = struct.pack("<" + "f" * len(normals), *normals)
     uv_data = struct.pack("<" + "f" * len(uvs), *uvs)
-    index_data = struct.pack("<" + "H" * len(indices), *indices)
+    if len(vertices) // 3 > 0xFFFF:  # Check if any index exceeds the unsigned short range
+        index_data = struct.pack("<" + "I" * len(indices), *indices)  # unsigned int
+    else:
+        index_data = struct.pack("<" + "H" * len(indices), *indices)  # unsigned short
     # Encode as base64
     vertex_buffer = Buffer(uri="data:application/octet-stream;base64," + b64encode(vertex_data).decode("ascii"))
     normal_buffer = Buffer(uri="data:application/octet-stream;base64," + b64encode(normal_data).decode("ascii"))
@@ -91,10 +94,13 @@ def convert_holodeck_asset_to_gltf(asset_path, output_file):
     gltf.bufferViews.extend([vertex_buffer_view, normal_buffer_view, uv_buffer_view, index_buffer_view])
 
     # Create accessors
-    vertex_accessor = Accessor(bufferView=0, byteOffset=0, componentType=5126, count=len(vertices) // 3, type="VEC3")  # , max=list(np.max(vertices.reshape(-1, 3), axis=0)), min=list(np.min(vertices.reshape(-1, 3), axis=0)))
-    normal_accessor = Accessor(bufferView=1, byteOffset=0, componentType=5126, count=len(normals) // 3, type="VEC3")  # , max=list(np.max(normals.reshape(-1, 3), axis=0)), min=list(np.min(normals.reshape(-1, 3), axis=0)))
-    uv_accessor = Accessor(bufferView=2, byteOffset=0, componentType=5126, count=len(uvs) // 2, type="VEC2")  # , max=list(np.max(uvs.reshape(-1, 2), axis=0)), min=list(np.min(uvs.reshape(-1, 2), axis=0)))
-    index_accessor = Accessor(bufferView=3, byteOffset=0, componentType=5123, count=len(indices), type="SCALAR")  # , max=[int(np.max(indices))], min=[int(np.min(indices))])
+    vertex_accessor = Accessor(bufferView=0, byteOffset=0, componentType=5126, count=len(vertices) // 3, type="VEC3")
+    normal_accessor = Accessor(bufferView=1, byteOffset=0, componentType=5126, count=len(normals) // 3, type="VEC3")
+    uv_accessor = Accessor(bufferView=2, byteOffset=0, componentType=5126, count=len(uvs) // 2, type="VEC2")
+    if len(vertices) // 3 > 0xFFFF:
+        index_accessor = Accessor(bufferView=3, byteOffset=0, componentType=5125, count=len(indices), type="SCALAR")  # unsigned int
+    else:
+        index_accessor = Accessor(bufferView=3, byteOffset=0, componentType=5123, count=len(indices), type="SCALAR")  # unsigned short
 
     gltf.accessors.extend([vertex_accessor, normal_accessor, uv_accessor, index_accessor])
 
