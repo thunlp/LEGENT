@@ -7,4 +7,4 @@ A practical step towards obtaining a rudimentary general-purpose embodied model 
 
 The availability of open-source VLA models is currently limited. LEGENT has created embryonic VLA models leveraging open-source foundational models and generated data. Large-scale training with more tasks and trajectories is in progress.
 
-We demonstrated how to train with [single-image](/documentation/model/single_image/) or [multi-image](/documentation/model/multi_image/) models.
+We demonstrated how to train [single-image](/documentation/model/single_image/) or [multi-image](/documentation/model/multi_image/) models with generated trajectories.

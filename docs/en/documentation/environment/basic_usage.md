@@ -4,8 +4,8 @@ Start an environment with the following code. This code will launch the environm
 
 ``` python
 from legent import Environment
-path_to_executable = "<Your path to the environment client>"
-env = Environment(env_path=path_to_executable) # or env_path="auto" to start the latest client in .legent/client.
+path_to_executable = "<Your path to the environment client>" # ".legent/env/client/LEGENT-<platform>-<version>" for example
+env = Environment(env_path=path_to_executable) # or env_path="auto" to start the latest client in .legent/env/client.
 try:
     env.reset()
     while True:
@@ -16,7 +16,7 @@ finally:
 
 ??? "Launch the environment manuually"
 
-    It is equal to run the following code and start the executable file in `.legent/client` mannually.
+    It is equal to run the following code and start the executable file in `.legent/env/client` mannually.
     
     ``` python
     from legent import Environment

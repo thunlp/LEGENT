@@ -9,7 +9,7 @@ Here, the training and deployment example can only handle single-image input, ta
 
 ## Training
 
-Install dependencies:
+Install dependencies on the remote server:
 
 ``` bash
 pip install -e ".[llava]"
@@ -24,6 +24,12 @@ Generate the training data we need.
     1. Generate trajectory on your personal computer and upload to the remote server manually.
    
     2. Generate trajectory on the remote server using Xvfb.
+
+        On the remote server, run:
+
+        ``` bash
+        xvfb-run python scripts/create_traj_come.py
+        ```
     
     3. Using ssh.
     
