@@ -78,19 +78,20 @@ def get_latest_folder_with_suffix(root_folder, suffix):
 
 
 def parse_ssh(ssh: str):
-    ssh = ssh.rsplit(',', maxsplit=1)
-    if len(ssh) == 2:
-        ssh, password = ssh
+    ssh_parts = ssh.rsplit(',', maxsplit=1)
+    if len(ssh_parts) == 2:
+        ssh, password = ssh_parts
     else:
         password = None
-    ssh = ssh.rsplit(':', maxsplit=1)
-    if len(ssh) == 2:
-        ssh, port = ssh
+    ssh_parts = ssh.rsplit(':', maxsplit=1)
+    if len(ssh_parts) == 2:
+        ssh, port = ssh_parts
         port = int(port)
     else:
         port = 22
     username, host = ssh.rsplit('@', maxsplit=1)
     return host, port, username, password
+
 
 
 class SSHTunnel:
