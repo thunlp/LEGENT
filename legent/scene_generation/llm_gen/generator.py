@@ -10,13 +10,12 @@ import spacy
 from legent.environment.env_utils import get_default_env_data_path
 from langchain_openai import OpenAI
 from legent import load_json, store_json, Environment, ResetInfo, SaveTopDownView, Observation
+from legent.scene_generation.llm_gen.llm import llm
+from argparse import ArgumentParser
 
-
-global ENV_DATA_PATH    
-ENV_DATA_PATH = f"{get_default_env_data_path()}"
 
 class LLMGenerator:
-    def __init__(self, query, scene_name=None, single_room=False):
+    def __init__(self, query, asset_dir, save_dir, openai_api_key, scene_name=None, single_room=False):
         self.query = query
         create_time = str(datetime.now()).replace(" ", "-").replace(":", "-").replace(".", "-")
         if not scene_name:
@@ -25,11 +24,11 @@ class LLMGenerator:
             self.scene_name = scene_name
 
          # initialize llm
-        self.llm = OpenAI(model_name="gpt-4-1106-preview", max_tokens=2048)
-        self.asset_list = load_json(f"{ENV_DATA_PATH}/addressables.json")['prefabs']
-        self.object_type_to_names = load_json(f"{ENV_DATA_PATH}/llm_gen/object_type_to_names.json")
-        self.available_large_objects = load_json(f"{ENV_DATA_PATH}/llm_gen/available_large_objects.json")
-        self.available_small_objects = load_json(f"{ENV_DATA_PATH}/llm_gen/available_small_objects.json")
+        self.llm = OpenAI(model_name="gpt-4-1106-preview", openai_api_key=openai_api_key, max_tokens=2048)
+        self.asset_list = load_json(f"{asset_dir}/addressables.json")['prefabs']
+        self.object_type_to_names = load_json(f"{asset_dir}/llm_gen/object_type_to_names.json")
+        self.available_large_objects = load_json(f"{asset_dir}/llm_gen/available_large_objects.json")
+        self.available_small_objects = load_json(f"{asset_dir}/llm_gen/available_small_objects.json")
         # download with `python -m spacy download en_core_web_md` (42.8MB)
         self.nlp = spacy.load("en_core_web_md")
 
@@ -43,7 +42,7 @@ class LLMGenerator:
         self.additional_requirements_floor_object = "N/A"
         self.additional_requirements_small_object = "N/A"
 
-        self.scene_folder = f"{os.getcwd()}/scenes/{self.scene_name}"
+        self.scene_folder = f"{save_dir}/{self.scene_name}"
         os.makedirs(self.scene_folder, exist_ok=True)
         self.scene_path = f"{self.scene_folder}/scene.json"
         
@@ -181,14 +180,25 @@ def play_with_scene(scene_name):
     finally:
         env.close()
 
+
 if __name__ == "__main__":
-    query = "a living room, a bedroom and a bathroom"
-    scene_name = "alrabaab-2024-04-25-12-13-46-774113"
-   
+    
+    parser = ArgumentParser()
+    parser.add_argument("--query", help = "Query to generate scene from.", default = "a living room")
+    parser.add_argument("--scene_name", help = "Name of the scene to generate.", default = None)
+    parser.add_argument("--openai_api_key", help = "OpenAI API key.", default = None)
+    parser.add_argument("--asset_dir", help = "Directory to load assets from.", default = f"{get_default_env_data_path()}")
+    parser.add_argument("--save_dir", help = "Directory to save scene to.", default = f"{os.getcwd()}/scenes")
+    parser.add_argument("--generate_image", help = "Whether to generate an image of the scene.", default = "True")
+    parser.add_argument("--single_room", help = "Whether to generate a single room scene.", default = False)
+    parser.add_argument("--replacement", help = "Whether to allow replacement of objects.", default = True)
+    
+    args = parser.parse_args()
+    scene_generator = LLMGenerator(args.query, 
+                                asset_dir=args.asset_dir,
+                                save_dir=args.save_dir,
+                                openai_api_key=args.openai_api_key,
+                                scene_name=args.scene_name,
+                                single_room=args.single_room) # remember to turn on or turn off the single room requirement
+    scene = scene_generator.generate_scene(take_photo=args.generate_image, replacement=args.replacement)
 
-    # scene_generator = LLMGenerator(query, 
-    #                             # scene_name=scene_name,
-    #                             single_room=False) # remember to turn on or turn off the single room requirement
-    # scene = scene_generator.generate_scene(take_photo=True, replacement=True)
-
-    play_with_scene(scene_name)

@@ -38,7 +38,7 @@ class FloorObjectGenerator():
         # parse doorway plan
         scene["floor_object_plan"] = self.parse_plan(scene) 
         floor_object_placement = self.place_floor_objects(scene)
-        scene["floor_objects"] = self.replace_floor_objects(floor_object_placement, scene, plot=plot)
+        scene["floor_objects"] = self.replace_floor_objects(floor_object_placement, scene)
         scene["floor_objects"] = floor_object_placement
         return scene
 
@@ -269,7 +269,7 @@ class FloorObjectGenerator():
         return instances
     
 
-    def replace_floor_objects(self, floor_object_instances, scene, plot=False):
+    def replace_floor_objects(self, floor_object_instances, scene):
         all_rooms_instances = []
         for room in scene["rooms"]:
             room_bbox = room["vertices"]
@@ -289,7 +289,7 @@ class FloorObjectGenerator():
                 instance["bbox"] = self.get_door_bbox_according_to_center(instance["door_center"], instance["door_wall_vertices"], room_bbox, door_length=1.2)
             room_object_instances.extend([instance for instance in door_instances if "bbox" in instance])
             
-            all_instances = move_polygons_many_times(room_object_instances, room_bbox, plot=plot)
+            all_instances = move_polygons_many_times(room_object_instances, room_bbox)
             for instance in all_instances:
                 if "id" in instance:
                     x = [vertex[0] for vertex in instance["bbox"]]

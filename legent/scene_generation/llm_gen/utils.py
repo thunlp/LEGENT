@@ -134,7 +134,7 @@ def plot_multiple_polygons(polygons, box, save_path=None, save=False):
 
 
 # main function important
-def move_polygons_until_no_collision(polygons, m, n, box, plot=True):
+def move_polygons_until_no_collision(polygons, m, n, box, plot=False):
     
     directions = get_initial_move_direction(polygons[m], polygons[n])
    
@@ -267,7 +267,7 @@ def within_box(polygon, bbox):
         return False
 
 
-def move_polygons_many_times(polygons, box, plot=True):
+def move_polygons_many_times(polygons, box, plot=False):
     result = []
     if plot:plot_multiple_polygons(polygons, box)
     s = 0

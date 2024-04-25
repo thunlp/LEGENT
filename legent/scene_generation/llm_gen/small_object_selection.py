@@ -35,7 +35,7 @@ class SmallObjectGenerator():
         scene["small_object_plan"] = self.parse_plan(scene["raw_small_object_plan"]) 
         small_object_placement = self.place_small_objects(scene)
         if replacement:
-             scene["small_objects"] = self.replace_small_objects(small_object_placement, scene)
+             scene["small_objects"] = self.replace_small_objects(small_object_placement)
         else:
             scene["small_objects"] = small_object_placement
 
@@ -50,7 +50,7 @@ class SmallObjectGenerator():
         return grouped_floor_objects
 
 
-    def replace_small_objects(self, small_object_placement, scene, plot=False):
+    def replace_small_objects(self, small_object_placement):
         final_objects = []
         unique_surfaces = {}
         for instance in small_object_placement:
@@ -59,7 +59,7 @@ class SmallObjectGenerator():
         for index, item in unique_surfaces.items():
             surface, receptacle_id = item
             one_surface_multiple_instances = [instance for instance in small_object_placement if instance["surface"]==surface]
-            one_surface_multiple_instances = move_polygons_many_times(one_surface_multiple_instances, surface, plot=plot)
+            one_surface_multiple_instances = move_polygons_many_times(one_surface_multiple_instances, surface)
             final_objects.extend(one_surface_multiple_instances)
 
 
