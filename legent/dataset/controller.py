@@ -289,6 +289,8 @@ class Controller:
             elif solu.startswith("speak("):
                 actions = Speak(parse_arg(solu))
                 self.actions_queue.append(actions)
+            else:
+                raise
 
         self.actions = self.actions_queue.pop(0)
         self.actions.init_actions(self.env)
