@@ -1,4 +1,4 @@
-from legent.server.server import serve, launch, set_scenes_dir
+from legent.server.server import serve, launch
 from legent.utils.io import load_json, store_json, save_image, scene_string, time_string, get_latest_folder, get_latest_folder_with_suffix
 from legent.environment.env import Environment
 from legent.action.action import Action, ResetInfo, ActionFinish
@@ -17,29 +17,15 @@ from legent.action.action import parse_action
 from legent.action.api import SaveTopDownView, TakePhotoWithVisiblityInfo
 from legent.scenes.utils import get_mesh_size, get_mesh_vertical_size
 
-def main():
-    parser = argparse.ArgumentParser(
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter
-    )
-    parser.add_argument("function", help="serve or play")
 
+def main():
+    parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument("function", help="serve or play")
     parser.add_argument(
-        "--time_scale",
-        default=1.0,
+        "--scene",
+        default=0,
         action="store",
-        help="time scale to accelerate the game",
-    )
-    parser.add_argument(
-        "--use_default_scene",
-        default=False,
-        action="store_true",
-        help="use default scene on initialization",
-    )
-    parser.add_argument(
-        "--scenes",
-        default="",
-        action="store",
-        help="user pre-defined scene files under a directory rather than instantly generated scene files",
+        help="Use the specified scene file",
     )
     parser.add_argument(
         "--env_path",
@@ -51,16 +37,16 @@ def main():
         "--ssh",
         default="",
         action="store",
-        help="username@host:port",
+        help="username@host:port,password",
     )
-    
-    parser.add_argument('--thu', action='store_true', help='download from tsinghua cloud rather than huggingface hub')
-    
+
+    parser.add_argument("--thu", action="store_true", help="download from tsinghua cloud rather than huggingface hub")
+
     args = parser.parse_args()
     if args.function == "serve":
-        serve(args.use_default_scene)
+        serve(args.scene)
     elif args.function == "launch":
-        launch(args.env_path, args.ssh, args.use_default_scene)
+        launch(args.env_path, args.ssh, args.scene)
     elif args.function == "download":
         download_env(args.thu)
         download_env(args.thu, download_env_data=True)
