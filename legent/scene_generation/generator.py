@@ -146,15 +146,15 @@ class HouseGenerator:
                         }
                     )
                     # add ceiling
-                    floor_instances.append(
-                        {
-                            "prefab": FLOOR_PREFAB,
-                            "position": [x, wall_y_size + floor_y_size / 2, z],
-                            "rotation": [0, 90, 0],
-                            "scale": [self.scale_ratio, 1, self.scale_ratio],
-                            "type": "kinematic",
-                        }
-                    )
+                    # floor_instances.append(
+                    #     {
+                    #         "prefab": FLOOR_PREFAB,
+                    #         "position": [x, wall_y_size + floor_y_size / 2, z],
+                    #         "rotation": [0, 90, 0],
+                    #         "scale": [self.scale_ratio, 1, self.scale_ratio],
+                    #         "type": "kinematic",
+                    #     }
+                    # )
 
                 WALL_PREFAB = room2wall[floors[i][j]]
                 wall_x_size, wall_y_size, wall_z_size = (
@@ -740,17 +740,17 @@ class HouseGenerator:
         )
 
         # add light
-        light_prefab = "LowPolyInterior2_Light_04"
-        light_y_size = prefabs[light_prefab]["size"]["y"]
-        floor_instances.append(
-            {
-                "prefab": "LowPolyInterior2_Light_04",
-                "position": [max_x / 2, 3 - light_y_size / 2, max_z / 2],
-                "rotation": [0, 0, 0],
-                "scale": [1, 1, 1],
-                "type": "kinematic",
-            }
-        )
+        # light_prefab = "LowPolyInterior2_Light_04"
+        # light_y_size = prefabs[light_prefab]["size"]["y"]
+        # floor_instances.append(
+        #     {
+        #         "prefab": "LowPolyInterior2_Light_04",
+        #         "position": [max_x / 2, 3 - light_y_size / 2, max_z / 2],
+        #         "rotation": [0, 0, 0],
+        #         "scale": [1, 1, 1],
+        #         "type": "kinematic",
+        #     }
+        # )
 
         floor_polygons = self.get_floor_polygons(house_structure.xz_poly_map)
 
@@ -758,21 +758,21 @@ class HouseGenerator:
             room_type_map=room_spec.room_type_map, floor_polygons=floor_polygons
         )
 
-        # player, agent = self.add_human_and_agent(floors)
-        player = {
-            "prefab": "",
-            "position": [10, 0.05, 10],
-            "rotation": [0, np.random.uniform(0, 360), 0],
-            "scale": [1, 1, 1],
-            "parent": -1,
-            "type": "",
-        }
-        if room_num == 1:
-            flag, success_agent = self.add_corner_agent(max_x, max_z)
-            if flag:
-                agent = success_agent
+        player, agent = self.add_human_and_agent(floors)
+        # player = {
+        #     "prefab": "",
+        #     "position": [10, 0.05, 10],
+        #     "rotation": [0, np.random.uniform(0, 360), 0],
+        #     "scale": [1, 1, 1],
+        #     "parent": -1,
+        #     "type": "",
+        # }
+        # if room_num == 1:
+        #     flag, success_agent = self.add_corner_agent(max_x, max_z)
+        #     if flag:
+        #         agent = success_agent
 
-        max_floor_objects = 20
+        max_floor_objects = 10
 
         spawnable_asset_group_info = self.get_spawnable_asset_group_info()
 

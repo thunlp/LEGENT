@@ -59,7 +59,7 @@ def generate_scene(
         # For example, if you want to have only one instance of ChristmasTree_01 in the scene, you can set the object_counts as {"ChristmasTree_01": 1}.
         # global prefabs, interactable_names, kinematic_names, interactable_names_set, kinematic_names_set
         MAX = 7
-        sampler = ROOM_SPEC_SAMPLER
+        
         if room_num == 2:
             sampler = RoomSpecSampler(
                 [
@@ -104,6 +104,9 @@ def generate_scene(
                     )
                 ]
             )
+        
+        sampler = ROOM_SPEC_SAMPLER
+        unit_size = 2.5
         # receptacle_object_counts= {"Table": {"count": 1, "objects": [{"Banana": 1}]}}
         room_spec = sampler.sample()
 

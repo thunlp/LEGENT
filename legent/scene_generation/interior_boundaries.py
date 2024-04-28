@@ -58,7 +58,8 @@ def sample_interior_boundary(
 
     boundary = np.zeros((z_size, x_size), dtype=int)
 
-    if num_rooms > 1:
+    # if num_rooms > 1:
+    if False:
         n_cuts = get_n_cuts(num_rooms=num_rooms)
         logging.debug(f"Number of cuts: {n_cuts}")
 

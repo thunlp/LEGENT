@@ -150,10 +150,10 @@ def get_default_object_db():
             ASSET_GROUPS=_get_asset_groups(),
             FLOOR_ASSET_DICT=keydefaultdict(_get_default_floor_assets_from_key),
             PRIORITY_ASSET_TYPES={
-                "Bedroom": ["bed"],
-                "LivingRoom": ["television", "diningTable", "sofa"],
-                "Kitchen": ["counterTop", "refrigerator","oven"],
-                "Bathroom": ["toilet","washer"],
+                "Bedroom": ["bed", "pc_table"],
+                "LivingRoom": ["tv", "table", "sofa"],
+                "Kitchen": ["kitchen_table", "refrigerator","oven"],
+                "Bathroom": ["toilet","washing_machine"],
             },
         )
     return DEFAULT_OBJECT_DB
