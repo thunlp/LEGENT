@@ -23,7 +23,7 @@ def main():
     parser.add_argument("function", help="serve or play")
     parser.add_argument(
         "--scene",
-        default="0",
+        default="",
         action="store",
         help="Use the specified scene file",
     )

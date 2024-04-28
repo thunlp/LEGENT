@@ -5,13 +5,13 @@
 ### in one command (recommended)
 
 ```
-legent launch --use_default_scene
+legent launch --scene 0
 ```
 
 This command will launch the latest client in the .legent/env/client folder. If you want to launch a specific client, run:
 
 ```
-legent launch --env_path <path-to-the-client>  --use_default_scene
+legent launch --env_path <path-to-the-client>  --scene 0
 ```
 
 By default, a predefined 3D scene is displayed, where you and a robot agent are positioned in a first-person view.
