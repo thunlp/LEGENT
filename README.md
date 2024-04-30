@@ -5,15 +5,15 @@
     【
         <!-- <a href="https://github.com/thunlp/LEGENT/blob/main/docs/README.md">Documentation</a> | -->
         <a href="https://legent.ai/">Online Documentation</a> |
+        <a href="https://arxiv.org/pdf/2404.18243">Paper</a> |
         <a href="">Web Demo (Coming Soon)</a> |
-        <a href="">Paper (Coming Soon)</a>
     】
     </p>
 </h4>
 
 # Introduction
 
-LEGENT is a platform for embodied agent with scalable training pipeline.
+LEGENT is a platform for embodied agents with a scalable training pipeline.
 
 In the future, robots will perceive the environment as we do, communicate with us through natural language and help us with our tasks. The platform is dedicated to developing robots that can chat, see, and act from virtual world to real world.
 We aspire to facilitate the research in this field for anyone interested. LEGENT is a pioneering solution combining large models with embodied agents, prioritizing ease of use and scalability. The platform focuses on developing the following functionalities:
@@ -22,7 +22,7 @@ We aspire to facilitate the research in this field for anyone interested. LEGENT
 
 2. Automated generation of training data, including the generation of scenes, tasks, and ground truth actions. The platform is tailored to train large multimodal models into embodied models, using generated data from simulated worlds at scale.
 
-LEGENT serves as the data engine for embodied models in **robotics** and **games**, as well as for generative world simulators like Sora.
+LEGENT serves as the data engine for embodied models in **robotics** and **games**, as well as for generative world simulators.
 
 ## Demonstration
 
