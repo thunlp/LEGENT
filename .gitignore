@@ -162,3 +162,10 @@ cython_debug/
 # LEGENT
 *.json
 *.csv
+
+# docs
+docs/*.webp
+docs/*.svg
+docs/**/index.md
+
+!legent/dataset/task-prompts.json
