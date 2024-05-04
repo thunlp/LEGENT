@@ -4,9 +4,9 @@
     <p>
     【
         <!-- <a href="https://github.com/thunlp/LEGENT/blob/main/docs/README.md">Documentation</a> | -->
-        <a href="https://docs.legent.ai/">Online Documentation</a> |
+        <a href="https://docs.legent.ai/">Documentation</a> |
         <a href="https://arxiv.org/pdf/2404.18243">Paper</a> |
-        <a href="">Web Demo (Coming Soon)</a>
+        <a href="https://huggingface.co/spaces/LEGENT/LEGENT-basic-demo-Alpha">🤗Playable Web Demo (Experimental)</a>
     】
     </p>
 </h4>
