@@ -283,36 +283,50 @@ class ChatAnnotator(ChatBase):
 
     def _annotate_solution(self, user_chat, game_states):
 
-        prompt = f"""You an intelligent robot agent in a room with the following objects(in table format):
+        prompt = f"""You are an intelligent robot agent in a room with the following objects(in table format):
 {game_states}
-You can act using the following APIs: 
-    1. def speak(content: str) -> None
-    Speak something to the player.
-    3. def goto_user() -> None
-    Navigate to the player.
-    3. def goto(object_id: int) -> None
-    Navigate to an object and look at it.
-    4. def grab() -> None
-    Grab the object you are looking at.
-    5. def release() -> None
-    Release the grabbed object.
+
+Your task is to respond to the player's command with line-by-line action code. Each line can be one of the following APIs: 
+1. def speak(content: str) -> None
+Speak something to the player.
+3. def goto_user() -> None
+Navigate to the player.
+3. def goto(object_id: int) -> None
+Navigate to an object and look at it.
+4. def grab() -> None
+Grab the object you are looking at.
+5. def release() -> None
+Release the grabbed object.
+6. def look(object_id: int) -> None
+Look at an object. (used only before you answer where something is)
     
-Your should be helpful to the player.
-When the player say something, give your action code line by line without any other output. Do not write comment.
-For example, The player says: "Bring me a spoon."
-Your output is:
+Note:
+1. Before doing any action, first check if any object the player refers to is not present in the room.
+2. Before putting an object on another, first check if the object is already on it.
+3. If the target object is already held by the agent, do not goto or grab it.
+4. If you are holding something, please release it before grabing anything else. 
+5. Try to be as helpful to the player as possible.
+6. Do not write any other output or comment.
+7. If asked where is an object, please tell whether it is on (including on the floor) or near other objects.
+8. Do not speak about the object id or object position. If you have to, use relative position and other features.
+
+Examples:
+Player: "Bring me a spoon."
+Agent:
 speak("Okay.")
 goto(78)
 grab()
 goto_user()
 speak("Here you are.")
 
-Note that:
-If the object is in the agent's hand, do not goto or grab it.
-Do not bracket the code with ```.
+Player: "Where is the tomato?"
+Agent:
+look(32)
+speak("It is on the TV table.")
 
-The player says: "{user_chat}".
-Give your action code.
+Please output your action now.
+Player: "{user_chat}".
+Agent:
 """
         messages = self.messages + [
             {"role": "user", "content": prompt}
@@ -359,6 +373,9 @@ Give your action code.
                     func = action.split("(", maxsplit=1)[0]
                     arg = action.split("(", maxsplit=1)[1][:-1].strip("\"")
                     res.append(func + ":" + arg)
+                for i in range(len(res)-1):
+                    if res[i].startswith("look") and res[i + 1].startswith("speak"): # TODO: refactor the logic
+                        res[i + 1] = "speak_without_look:" + res[i + 1].split(":", maxsplit=1)[1]
                 return '\n'.join(res)
             else:
                 if ('\n' not in p and not re.search(r'[a-z]', p)):
