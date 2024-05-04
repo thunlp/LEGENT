@@ -27,7 +27,7 @@ Send "#RESET" in the chatbox to generate a new scene.
 
 #### Important notes
 
-1. The web demo has poor physics and lower frame rates compared to the desktop versions, with some odd interactive behaviors.
+1. The web demo has much poorer physics and lower frame rates compared to the desktop versions, which may cause some flawed physical behaviors.
 2. The current scene generation is from an old version with very limited objects. A better version will be released soon.
 3. The chat ability is still very primitive and the agent will make errors. We are developing it.
 4. The web demo only showcases a small portion of the platform's functionality. It uses stylized rendering and low-poly object assets instead of realistic ones. For more features, please refer to the platform's documentation.
