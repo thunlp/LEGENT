@@ -289,7 +289,7 @@ class ChatAnnotator(ChatBase):
 Your task is to respond to the player's command with line-by-line action code. Each line can be one of the following APIs: 
 1. def speak(content: str) -> None
 Speak something to the player.
-3. def goto_user() -> None
+2. def goto_user() -> None
 Navigate to the player.
 3. def goto(object_id: int) -> None
 Navigate to an object and look at it.
@@ -299,6 +299,8 @@ Grab the object you are looking at.
 Release the grabbed object.
 6. def look(object_id: int) -> None
 Look at an object. (used only before you answer where something is)
+7. def goto_point(point_id: int) -> None
+Navigate to a point. (used only the user asks you to go to a room or go upstairs/downstairs)
     
 Note:
 1. Before doing any action, first check if any object the player refers to is not present in the room.
@@ -345,18 +347,17 @@ Agent:
             reserved_turn = 3
             if len(messages) > 1 + reserved_turn*2:
                 messages = messages[:1] + messages[-reserved_turn*2:]
-        print(user_chat, '\n')
+        # print(user_chat, '\n')
         print(f"CHATGPT reply\n{solution}\n")
         if solution == "" or solution.startswith("<!doctype html>"):
             solution = "speak(\"I don't understand.\")"
-        print(f"Processed reply\n{solution}\n")
+        # print(f"Processed reply\n{solution}\n")
 
-        apis = ["speak", "speak_without_look", "play", "goto_user", "goto", "goto_and_grab", "grab", "release", "look", "speak_and_play"]
+        apis = ["speak", "speak_without_look", "play", "goto_user", "goto", "goto_point", "goto_and_grab", "grab", "release", "look", "speak_and_play"]
 
         def is_valid(p):
             for action in p.split('\n'):
                 action = action.strip()
-                print(action)
                 if any([action.startswith(f"{api}(") for api in apis]) and action.endswith(")"):
                     continue
                 else:
