@@ -14,7 +14,11 @@ This command will launch the latest client in the .legent/env/client folder. If 
 legent launch --env_path <path-to-the-client>  --scene 0
 ```
 
-By default, a predefined 3D scene is displayed, where you and a robot agent are positioned in a first-person view.
+A predefined 3D scene will be displayed, where you and a robot agent are positioned in a first-person view.
+
+??? note "A reminder for Windows users"
+
+    If you're using a Windows computer with a VPN enabled, please disable it. Otherwise, the client cannot get the scene file from the launched scene server. We'll investigate this issue further in future updates.
 
 ### step by step manually
 
