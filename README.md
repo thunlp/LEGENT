@@ -6,14 +6,14 @@
         <!-- <a href="https://github.com/thunlp/LEGENT/blob/main/docs/README.md">Documentation</a> | -->
         <a href="https://docs.legent.ai/">Documentation</a> |
         <a href="https://arxiv.org/pdf/2404.18243">Paper</a> |
-        <a href="https://huggingface.co/spaces/LEGENT/LEGENT-basic-demo-Alpha">🤗Playable Web Demo</a>
+        <a href="https://huggingface.co/spaces/LEGENT/LEGENT-basic-demo-Alpha">🤗Playable Demo</a>
     】
     </p>
 </h4>
 
-## Updates
+# Updates
 
-* [2024/05] A simple [web demo](https://huggingface.co/spaces/LEGENT/LEGENT-basic-demo-Alpha) (experimental) is accessible on Hugging Face Space.
+* [2024/05] A simple [web demo](https://huggingface.co/spaces/LEGENT/LEGENT-basic-demo-Alpha) (experimental) is accessible on HuggingFace Space.
 Let's dive into the immersive 3D interactive world!
 
 # Introduction
@@ -46,6 +46,27 @@ Interact with the embodied agent within stylized scenes.
 Scene generation for scalable training.
 
 <https://github.com/thunlp/LEGENT/assets/50205889/fafaa02e-1050-4dab-a43f-701bca1477b7>
+
+
+## Features
+
+* **User-friendly**. LEGENT requires no complex installation and can run cross-platform on both PCs and servers. It is as user-friendly as a game while also supporting complex research needs.
+  
+* **Interactable Objects**.
+
+* **Fundamental Physics**.
+
+* **Diverse Rendering**.
+
+* **Scalable Assets**. LEGENT supports importing (1) your own 3D objects, (2) objects from academic datasets, and (3) objects created by generative models. Learn more [here](https://docs.legent.ai/documentation/data/object_assets/).
+
+* **Language Interaction**.
+
+* **Humanoid Animation**. Body movement and nonverbal expression are also important for embodied agents. LEGENT will continue to enhance support in this aspect.
+  
+* **Scene Generation**. LEGENT integrates advanced scene generation algorithms to support scalable training.
+  
+* **Trajectory Generation**. Automatic generation of training data for training multimodal models into language-grounded embodied models.
 
 
 # Important Note
