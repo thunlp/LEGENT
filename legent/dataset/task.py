@@ -1,24 +1,27 @@
+import os
+import random
+import re
+import time
+import uuid
+from typing import Literal
+
+import numpy as np
 import openai
-from legent.server.scene_generator import generate_scene, generate_scene_messy, prefabs
-from legent.utils.config import TASKS_FOLDER
+
+from legent.server.scene_generator import generate_scene, prefabs
+from legent.utils.config import TASKS_FOLDER, OPENAI_API_KEY, OPENAI_BASE_URL, MODEL_CHAT
 from legent.utils.io import store_json, load_json_from_toolkit, time_string, scene_string, log_green, log
 from legent.utils.math import is_point_on_box
-import time
-import os
-from typing import Literal
-import random
-import numpy as np
-import re
 
 
 class ChatBase:
-    def __init__(self, api_key=None, base_url=None) -> None:
+    def __init__(self, api_key=OPENAI_API_KEY, base_url=OPENAI_BASE_URL) -> None:
         if api_key:
             self.client = openai.OpenAI(api_key=api_key, base_url=base_url)
 
     def send_chat(self, messages):
         response = self.client.chat.completions.create(
-            model='gpt-4',  # 'gpt-3.5-turbo', 'gpt-3.5-turbo-16k', 'gpt-4', 'gpt-4-32k'
+            model=MODEL_CHAT,  # 'gpt-3.5-turbo', 'gpt-3.5-turbo-16k', 'gpt-4', 'gpt-4-32k'
             messages=messages,
             max_tokens=None,
             n=1,
@@ -158,12 +161,22 @@ class TaskCreator(ChatBase):
         # TODO: Add descriptions for functions goto_user(), goto(object_id), grab(), release().
         task_description = \
             f"""You need to {task_prompt['message']}
-You need to propose {sample_num} independent tasks and corresponding solutions, in the format of "Task: task; Plan: plan; Solution: solution.", with no line breaks between the three (use ';' to seperate). One sentence in Plan should match one function call in Solution.
+You need to propose {sample_num} independent tasks and corresponding solutions, in the format of "Task: task; Plan: plan; Solution: solution.", with no line breaks between the three (use ';' to seperate). 
+One sentence in Plan should match one function call in Solution, and the Solution should contain only the following instructions and no other irrelevant output:
+1. goto_user()
+2. find(Object) :Objects that need to be grasped
+3. goto(meters) :
+4. grab()
+5. speak()
 For example (The examples are from other scenes. The number means object_id):
 {task_prompt['example']}
 """
         content = f"{scene_description}\n{task_description}"
         messages = [
+            {
+                "role": "user",
+                "content": content
+            },
             {
                 "role": "system",
                 "content": system_message
@@ -172,21 +185,20 @@ For example (The examples are from other scenes. The number means object_id):
                 "role": "assistant",
                 "content": task_prompt['example']
             },
-            {
-                "role": "user",
-                "content": content
-            },
         ]
+        id = uuid.uuid4()
+        log_green(f"\nid:{id} start send chat...")
 
         ret = self.send_chat(messages)
 
         log_green(f"<g>Send to ChatGPT<g/>:\n{content}\n<g>Received from ChatGPT<g/>:\n{ret}")
+        log_green(f"\nid:{id} end send chat...")
 
         task_lines = [task for task in ret.split("\n") if task]
         samples = []
         for task in task_lines:
             task, plan, solution = task.split('; ')
-            task, plan, solution = task.split(': ')[1], plan.split(': ')[1], solution.split(': ')[1]
+            task, plan, solution = task.split(': ')[1], plan.split(': ')[1], solution.split(': ')[1].split(', ')
             sample = {
                 "task": task,
                 "plan": plan,
