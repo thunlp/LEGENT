@@ -17,7 +17,6 @@ Things to consider:
 import random
 from typing import Dict, Sequence, Union
 
-import matplotlib.pyplot as plt
 import numpy as np
 
 from legent.scene_generation.constants import EMPTY_ROOM_ID, OUTDOOR_ROOM_ID

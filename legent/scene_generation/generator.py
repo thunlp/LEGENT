@@ -4,7 +4,6 @@ import random
 from typing import Dict, List, Optional, Tuple, Union
 
 import numpy as np
-import pandas as pd
 from shapely.geometry import Polygon
 
 from legent.scene_generation.doors import default_add_doors
@@ -403,8 +402,8 @@ class HouseGenerator:
         anchor_type: str,
         anchor_delta: int,
         odb: ObjectDB,
-        spawnable_assets: pd.DataFrame,
-        spawnable_asset_groups: pd.DataFrame,
+        spawnable_assets, # pd.DataFrame
+        spawnable_asset_groups, # pd.DataFrame
         priority_asset_types: List[str],
     ):
         set_rotated = None
@@ -517,7 +516,8 @@ class HouseGenerator:
             rect_z_length=rect_z_length,
         )
 
-    def get_spawnable_asset_group_info(self) -> pd.DataFrame:
+    def get_spawnable_asset_group_info(self):
+        import pandas as pd
         from .asset_groups import AssetGroupGenerator
 
         asset_groups = self.odb.ASSET_GROUPS
@@ -561,7 +561,7 @@ class HouseGenerator:
 
             data.append(group_data)
 
-        return pd.DataFrame(data)
+        return pd.DataFrame(data) 
 
     def prefab_fit_rectangle(self, prefab_size, rectangle):
         x0, z0, x1, z1 = rectangle

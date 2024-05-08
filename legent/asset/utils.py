@@ -1,7 +1,3 @@
-import trimesh
-from pygltflib import GLTF2
-
-
 def get_mesh_size(input_file):
     """Get the bounding box of a mesh file.
     Args:
@@ -9,6 +5,9 @@ def get_mesh_size(input_file):
     Returns:
         mesh_size: np.ndarray, the size of the mesh file.
     """
+
+    import trimesh
+
     mesh = trimesh.load(input_file)
     min_vals, max_vals = mesh.bounds[0], mesh.bounds[1]
     return max_vals - min_vals
@@ -26,6 +25,8 @@ def get_mesh_vertical_size(input_file):
 
 
 def get_mesh_colliders(input_file):
+
+    import trimesh
     import coacd
 
     mesh = trimesh.load(input_file, force="mesh")
@@ -35,6 +36,10 @@ def get_mesh_colliders(input_file):
 
 
 def convert_obj_to_gltf(input_file, output_file):
+
+    import trimesh
+    from pygltflib import GLTF2
+
     # Load an OBJ file
     mesh = trimesh.load(input_file)
 

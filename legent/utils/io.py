@@ -1,12 +1,8 @@
 import logging
 import json
-from skimage.io import imsave
 from colorama import Fore, Style
-import pkg_resources
 from datetime import datetime
 import os
-import paramiko
-from sshtunnel import SSHTunnelForwarder
 
 
 def log(*args):
@@ -38,10 +34,14 @@ def store_json(obj, file):
 
 
 def save_image(image, file):
+    from skimage.io import imsave
+
     imsave(file, image, check_contrast=False)
 
 
 def load_json_from_toolkit(file):
+    import pkg_resources
+
     # Specify the relative path to the JSON file within the package
     file = pkg_resources.resource_filename("legent", file)
     return load_json(file)
@@ -92,6 +92,9 @@ def parse_ssh(ssh: str):
 
 class SSHTunnel:
     def __init__(self, remote_host, ssh_port, ssh_username, ssh_password, local_port, remote_port) -> None:
+        import paramiko
+        from sshtunnel import SSHTunnelForwarder
+
         # set ssh parameters
         ssh_client = paramiko.SSHClient()
         ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())

@@ -17,7 +17,6 @@ from typing import (
 )
 
 import numpy as np
-import pandas as pd
 from shapely.geometry import LineString, MultiPolygon, Point, Polygon
 
 from legent.scene_generation.constants import (
@@ -530,7 +529,7 @@ class Room:
 
     def place_asset_group(
         self,
-        asset_group: pd.DataFrame,
+        asset_group, # pd.DataFrame
         set_rotated: Optional[bool],
         rect_x_length: float,
         rect_z_length: float,
@@ -559,7 +558,7 @@ class Room:
 
     def place_asset(
         self,
-        asset: pd.DataFrame,
+        asset, # pd.DataFrame
         set_rotated: Optional[bool],
         rect_x_length: float,
         rect_z_length: float,

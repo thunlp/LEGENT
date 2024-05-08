@@ -11,7 +11,6 @@ from typing import (
 )
 
 import numpy as np
-import pandas as pd
 from attr import field
 from attrs import define
 
@@ -226,6 +225,7 @@ class AssetGroupGenerator:
         return self.cache["dimensions"]
 
     def _set_dimensions(self) -> None:
+        import pandas as pd
         asset_group_assets = {
             asset["name"]: set([asset_id for asset_type, asset_id in asset["assetIds"]])
             for asset in self.data["assetMetadata"].values()
