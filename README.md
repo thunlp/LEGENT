@@ -44,7 +44,6 @@ Interact with the embodied agent within stylized scenes.
 <https://github.com/thunlp/LEGENT/assets/50205889/e667bf3d-1dc5-4ed7-95b7-b3bf6ab60fdf>
 
 
-<https://github.com/thunlp/LEGENT/assets/50205889/7cb3d9dc-940e-4d5f-8993-b6bb2f48e341>
 
 ## Features
 
@@ -59,25 +58,15 @@ Interact with the embodied agent within stylized scenes.
 
 * **Interactable Objects**. Agents and humans can manipulate various 3D objects.
 
-
-<https://github.com/thunlp/LEGENT/assets/50205889/7cb3d9dc-940e-4d5f-8993-b6bb2f48e341>
-
-
+<https://github.com/thunlp/LEGENT/assets/50205889/b2392a4e-0c26-489a-b608-2c11f45c619f>
 
 * **Fundamental Physics**.
 * **Diverse Rendering**.
 * **Scalable Assets**. LEGENT supports importing (1) your own 3D objects, (2) objects from academic datasets, and (3) objects created by generative models. Learn more [here](https://docs.legent.ai/documentation/data/object_assets/).
 
+<https://github.com/thunlp/LEGENT/assets/50205889/d5b35c51-4da3-4392-a87e-262ba70a9713>
 
-
-<https://github.com/thunlp/LEGENT/assets/50205889/24f84d12-fdee-4804-916d-489341445baf>
-
-
-
-
-<https://github.com/thunlp/LEGENT/assets/50205889/0fd780ce-30b4-46af-8f7d-c51e64ae5293>
-
-
+<https://github.com/thunlp/LEGENT/assets/50205889/b90c7ac4-73c6-4dfc-bbd8-9e4cd5051548>
 
 * **Humanoid Animation**. Body movement and nonverbal expression are also important for embodied agents. LEGENT will continue to enhance support in this aspect.
 * **Trajectory Generation**. Automatic generation of training data for training multimodal models into language-grounded embodied models.
