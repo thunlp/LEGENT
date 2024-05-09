@@ -160,9 +160,10 @@ cython_debug/
 #.idea/
 
 # LEGENT
-!legent/scene_generation/data/*
+
 *.json
 *.csv
 
+!legent/scene_generation/data/*
 legent/scene_generation/data_annotation/*
 legent/scene_generation/data_backup/*
