@@ -72,10 +72,10 @@ Interact with the embodied agent in stylized scenes.
 * **Humanoid Animation**. Body movement and nonverbal expression are also important for embodied agents. LEGENT will continue to enhance support in this aspect.
 * **Trajectory Generation**. Automatic generation of training data for training multimodal models into language-grounded embodied models. A minimal example of a trajectory:
   
-  <img src="https://github.com/thunlp/LEGENT/assets/50205889/14a58d07-a28b-45c5-b5f8-323d0690d9cc" width="200" height="200" alt="0000">
-  <img src="https://github.com/thunlp/LEGENT/assets/50205889/137bacc9-c144-4ab3-a3bf-97ac216ebac1" width="200" height="200" alt="0001">
-  <img src="https://github.com/thunlp/LEGENT/assets/50205889/c0dd17d1-1b62-431d-8db3-96b9a90e8f60" width="200" height="200" alt="0002">
-  <img src="https://github.com/thunlp/LEGENT/assets/50205889/1a2e20e0-6bd7-4ff4-873f-93e2eef551f5" width="200" height="200" alt="0003">
+  <img src="https://github.com/thunlp/LEGENT/assets/50205889/14a58d07-a28b-45c5-b5f8-323d0690d9cc" width="160" height="160" alt="0000">
+  <img src="https://github.com/thunlp/LEGENT/assets/50205889/137bacc9-c144-4ab3-a3bf-97ac216ebac1" width="160" height="160" alt="0001">
+  <img src="https://github.com/thunlp/LEGENT/assets/50205889/c0dd17d1-1b62-431d-8db3-96b9a90e8f60" width="160" height="160" alt="0002">
+  <img src="https://github.com/thunlp/LEGENT/assets/50205889/1a2e20e0-6bd7-4ff4-873f-93e2eef551f5" width="160" height="160" alt="0003">
 
   ```json
   {
