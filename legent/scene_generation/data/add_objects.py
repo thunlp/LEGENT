@@ -95,7 +95,7 @@ if args.type == "asset":
         data = json.load(f)
     asset_name = data["name"]
 
-    add_to_addressables(asset_name)
+    add_to_addressables(data)
     add_to_object_dict(asset_name, args.asset_type)
     add_to_name_to_type(asset_name, args.asset_type)
 
