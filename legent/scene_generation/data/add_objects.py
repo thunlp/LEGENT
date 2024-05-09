@@ -70,7 +70,7 @@ def add_asset_type(asset_type, args):
 
     df = pd.read_csv("placement_annotations.csv")
     # add one row
-    df = df.append(
+    new_row = pd.Series(
         {
             "Object": asset_type,
             "inKitchens": args.inKitchens,
@@ -84,6 +84,7 @@ def add_asset_type(asset_type, args):
             "inCorner": True,
         }
     )
+    df.loc[len(df)] = new_row
     df.to_csv("placement_annotations.csv", index=False)
 
 
