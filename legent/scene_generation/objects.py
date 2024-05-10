@@ -24,8 +24,8 @@ ENV_DATA_PATH = None
 def get_data_path():
     global ENV_DATA_PATH
     if ENV_DATA_PATH is None:
-        # ENV_DATA_PATH = f"{get_default_env_data_path()}/procthor"
-        ENV_DATA_PATH = r'D:\code\LEGENT\LEGENT\legent\scene_generation\data'
+        ENV_DATA_PATH = f"{get_default_env_data_path()}/procthor"
+        # ENV_DATA_PATH = r'D:\code\LEGENT\LEGENT\legent\scene_generation\data'
     return ENV_DATA_PATH
 
 def _get_place_annotations():
