@@ -164,7 +164,7 @@ class HouseGenerator:
 
                 WALL_WITH_DOOR_PREFAB = WALL_PREFAB[:-1] + "2"
 
-                DOOR_SCALE = [SCALE_RATIO, 1, 1]
+                DOOR_SCALE = [self.scale_ratio, 1, 1]
                 a = floors[i][j]
                 if i < floors.shape[0] - 1:
                     a_col = floors[i + 1][j]
@@ -183,10 +183,7 @@ class HouseGenerator:
                         left_wall_prefab = room2wall[floors[i][j]]
                         right_wall_prefab = room2wall[floors[i + 1][j]]
 
-<<<<<<< HEAD
                         scale = [self.scale_ratio, 1, 0.5]
-=======
->>>>>>> 77737886a01c2c11cb5285a66951ed7664e40d2b
                         left_scale = [
                             self.scale_ratio,
                             self.align_wall_height_scale(left_wall_prefab),
@@ -270,10 +267,7 @@ class HouseGenerator:
                         up_wall_prefab = room2wall[floors[i][j]]
                         down_wall_prefab = room2wall[floors[i][j + 1]]
 
-<<<<<<< HEAD
                         scale = [self.scale_ratio, 1, 0.5]
-=======
->>>>>>> 77737886a01c2c11cb5285a66951ed7664e40d2b
                         up_scale = [
                             self.scale_ratio,
                             self.align_wall_height_scale(up_wall_prefab),
