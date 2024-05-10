@@ -164,6 +164,6 @@ cython_debug/
 *.json
 *.csv
 
-!legent/scene_generation/data/*
+legent/scene_generation/data/*
 legent/scene_generation/data_annotation/*
 legent/scene_generation/data_backup/*

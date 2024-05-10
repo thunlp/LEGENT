@@ -105,7 +105,7 @@ def generate_scene(
                 ]
             )
         
-        sampler = ROOM_SPEC_SAMPLER
+        # sampler = ROOM_SPEC_SAMPLER
         unit_size = 2.5
         # receptacle_object_counts= {"Table": {"count": 1, "objects": [{"Banana": 1}]}}
         room_spec = sampler.sample()
