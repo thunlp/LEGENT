@@ -1,5 +1,4 @@
 import numpy as np
-from scipy.spatial.transform import Rotation
 from typing import Dict
 
 
@@ -105,6 +104,7 @@ def foward_to_rotation_matrix(forward_vector):
 
 
 def look_rotation(forward_vector):
+    from scipy.spatial.transform import Rotation
     r = Rotation.from_matrix(foward_to_rotation_matrix(forward_vector))
     r = r.as_euler('xyz', degrees=True)
     if r[0] != 0 and r[2] != 0:
@@ -113,6 +113,7 @@ def look_rotation(forward_vector):
 
 
 def is_point_on_box(point, box_center, box_size, box_forward=None, box_rotation=None):
+    from scipy.spatial.transform import Rotation
     # Calculate the position of the point relative to the center of the box
     relative_point = point - box_center
 

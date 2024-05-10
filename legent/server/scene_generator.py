@@ -540,9 +540,6 @@ def complete_scene(predefined_scene):
         "type": "",
     }
 
-    for instance in predefined_scene["instances"]:
-        instance["type"] = "kinematic"
-
     infos = {
         "prompt": "",
         "instances": predefined_scene["instances"],

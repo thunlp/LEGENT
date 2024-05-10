@@ -74,6 +74,7 @@ PROCTHOR_INITIALIZATION = dict(branch="main", scene="Procedural")
 FLOOR_Y = 0
 """Position of the floor in meters."""
 
+<<<<<<< HEAD
 UNIT_SIZE = 2
 
 # class UnitSize:
@@ -87,3 +88,6 @@ UNIT_SIZE = 2
 #         self.size = size
 # UNIT_SIZE = UnitSize()
 
+=======
+UNIT_SIZE = 2.5
+>>>>>>> 77737886a01c2c11cb5285a66951ed7664e40d2b

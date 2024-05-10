@@ -1,16 +1,22 @@
 import os
-import pkg_resources
+import importlib.util
 
 # Get the installation directory of the package
-package_path = pkg_resources.resource_filename("legent", "")
+package_name = "legent"
+package_path = importlib.util.find_spec(package_name).submodule_search_locations[0]
+
 # Construct the path to the resource
 resource_path = os.path.join(package_path, os.pardir, ".legent")
 resource_path = os.path.abspath(resource_path)
 
-ENV_DATA_FOLDER = f"{resource_path}/env/env_data"
-CLIENT_FOLDER = f"{resource_path}/env/client"
+ENV_FOLDER = f"{resource_path}/env"
+ENV_DATA_FOLDER = f"{ENV_FOLDER}/env_data"
+CLIENT_FOLDER = f"{ENV_FOLDER}/client"
 SCENES_FOLDER = f"{resource_path}/scenes"
 TASKS_FOLDER = f"{resource_path}/tasks"
 DATASET_FOLDER = f"{resource_path}/dataset"
 MODEL_FOLDER = f"{resource_path}/models"
 EVAL_FOLDER = f"{resource_path}/eval"
+
+
+DEFAULT_GRPC_PORT = 50051

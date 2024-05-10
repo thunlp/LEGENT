@@ -4,7 +4,6 @@ import random
 from typing import Dict, List, Optional, Tuple, Union
 
 import numpy as np
-import pandas as pd
 from shapely.geometry import Polygon
 
 from legent.scene_generation.doors import default_add_doors
@@ -165,6 +164,7 @@ class HouseGenerator:
 
                 WALL_WITH_DOOR_PREFAB = WALL_PREFAB[:-1] + "2"
 
+                DOOR_SCALE = [SCALE_RATIO, 1, 1]
                 a = floors[i][j]
                 if i < floors.shape[0] - 1:
                     a_col = floors[i + 1][j]
@@ -183,7 +183,10 @@ class HouseGenerator:
                         left_wall_prefab = room2wall[floors[i][j]]
                         right_wall_prefab = room2wall[floors[i + 1][j]]
 
+<<<<<<< HEAD
                         scale = [self.scale_ratio, 1, 0.5]
+=======
+>>>>>>> 77737886a01c2c11cb5285a66951ed7664e40d2b
                         left_scale = [
                             self.scale_ratio,
                             self.align_wall_height_scale(left_wall_prefab),
@@ -220,7 +223,7 @@ class HouseGenerator:
                                 DOOR_PREFAB,
                                 (x, door_y_size / 2, z),
                                 door_rotation,
-                                scale,
+                                DOOR_SCALE,
                             )
                         else:
                             left_wall = self.format_object(
@@ -267,7 +270,10 @@ class HouseGenerator:
                         up_wall_prefab = room2wall[floors[i][j]]
                         down_wall_prefab = room2wall[floors[i][j + 1]]
 
+<<<<<<< HEAD
                         scale = [self.scale_ratio, 1, 0.5]
+=======
+>>>>>>> 77737886a01c2c11cb5285a66951ed7664e40d2b
                         up_scale = [
                             self.scale_ratio,
                             self.align_wall_height_scale(up_wall_prefab),
@@ -305,7 +311,7 @@ class HouseGenerator:
                                 DOOR_PREFAB,
                                 (x, door_y_size / 2, z),
                                 door_rotation,
-                                scale,
+                                DOOR_SCALE,
                             )
                         else:
                             up_wall = self.format_object(
@@ -438,8 +444,8 @@ class HouseGenerator:
         anchor_type: str,
         anchor_delta: int,
         odb: ObjectDB,
-        spawnable_assets: pd.DataFrame,
-        spawnable_asset_groups: pd.DataFrame,
+        spawnable_assets, # pd.DataFrame
+        spawnable_asset_groups, # pd.DataFrame
         priority_asset_types: List[str],
     ):
         set_rotated = None
@@ -593,7 +599,8 @@ class HouseGenerator:
             rect_z_length=rect_z_length,
         )
 
-    def get_spawnable_asset_group_info(self) -> pd.DataFrame:
+    def get_spawnable_asset_group_info(self):
+        import pandas as pd
         from .asset_groups import AssetGroupGenerator
 
         asset_groups = self.odb.ASSET_GROUPS
@@ -641,7 +648,7 @@ class HouseGenerator:
 
             data.append(group_data)
 
-        return pd.DataFrame(data)
+        return pd.DataFrame(data) 
 
     def prefab_fit_rectangle(self, prefab_size, rectangle):
         x0, z0, x1, z1 = rectangle

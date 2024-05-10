@@ -1,0 +1,101 @@
+[
+    {
+        "TYPE": "instruction following",
+        "type": "come",
+        "message": "Ask the robot to come to you.",
+        "examples": [
+            {
+                "example": "Come here, please.",
+                "plan": "Go to the user.",
+                "solution": "goto_user()"
+            }
+        ]
+    },
+    {
+        "TYPE": "instruction following",
+        "type": "goto",
+        "message": "Ask the robot to go to something.",
+        "examples": [
+            {
+                "example": "Stand next to the table.",
+                "plan": "Go to the table.",
+                "solution": "goto(32)"
+            },
+            {
+                "example": "Can you move to the Christmas tree? I want to take a picture for you.",
+                "plan": "Go to the Christmas tree.",
+                "solution": "goto(44)"
+            },
+            {
+                "example": "Go to the Mushroom.",
+                "plan": "Go to the Mushroom.",
+                "solution": "goto(67)"
+            }
+        ]
+    },
+    {
+        "TYPE": "instruction following",
+        "type": "take",
+        "message": "Ask the robot to pick up something.",
+        "examples": [
+            {
+                "example": "Take the cupcake.",
+                "plan": "Go to the cupcake. Grab the object.",
+                "solution": "goto(93), grab()"
+            }
+        ]
+    },
+    {
+        "TYPE": "instruction following",
+        "type": "bring",
+        "message": "Ask the robot to bring you something.",
+        "examples": [
+            {
+                "example": "Bring me the cupcake.",
+                "plan": "Go to the cupcake. Grab the object. Go to the user.",
+                "solution": "goto(93), grab(), goto_user()"
+            },
+            {
+                "example": "Can you bring me the pen from the desk?",
+                "plan": "Go to the pen. Grab the object. Go to the user.",
+                "solution": "goto(96), grab(), goto_user()"
+            }
+        ]
+    },
+    {
+        "TYPE": "instruction following",
+        "type": "put",
+        "message": "Ask the robot to put something on something.",
+        "examples": [
+            {
+                "example": "Put the Cupcake on top of the Table.",
+                "plan": "Go to the pen. Grab the object. Go to the user. Release the object.",
+                "solution": "goto(93), grab(), goto(86), release()"
+            }
+        ]
+    },
+    {
+        "TYPE": "question answering",
+        "type": "where",
+        "message": "Ask the robot where something is.",
+        "examples": [
+            {
+                "example": "Where is the cupcake?",
+                "plan": "Go to the cupcake. Reply to the user.",
+                "solution": "goto(93), speak(\"It's on the table.\")"
+            }
+        ]
+    },
+    {
+        "TYPE": "question answering",
+        "type": "exist",
+        "message": "Ask the robot if there is something on something.",
+        "examples": [
+            {
+                "example": "Is there a cupcake on the table?",
+                "plan": "Go to the table. Reply to the user.",
+                "solution": "goto(86), speak(\"No, there isn't.\")"
+            }
+        ]
+    }
+]

@@ -26,7 +26,9 @@ setup(
     install_requires=[
         "pyqtree", "flask", "huggingface_hub", "colorama", "cloudpickle", "grpcio==1.59.2", "numpy>=1.14.1", "Pillow>=4.2.1", "protobuf==3.20.3", "pyyaml>=3.1.0", "filelock>=3.4.0", "scikit-image", "tqdm", "openai==1.10.0",
         "paramiko", "sshtunnel",
-        "shapely==2.0.3", "attrs==23.2.0", "pandas==2.2.1", "matplotlib==3.8.3"
+        "shapely==2.0.3", "attrs==23.2.0", "pandas==2.2.1", "matplotlib==3.8.3", # for scene generation
+        "objaverse", "pyglet==1.5.28", "trimesh", # for objaverse
+        "compress_pickle", "pygltflib", "Pillow" # for load holodeck asset
     ],
     extras_require={
         "llava": [

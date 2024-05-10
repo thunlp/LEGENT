@@ -1,5 +1,4 @@
-import openai
-from legent.server.scene_generator import generate_scene, generate_scene_messy, prefabs
+from legent.server.scene_generator import generate_scene, prefabs
 from legent.utils.config import TASKS_FOLDER
 from legent.utils.io import store_json, load_json_from_toolkit, time_string, scene_string, log_green, log
 from legent.utils.math import is_point_on_box
@@ -13,12 +12,14 @@ import re
 
 class ChatBase:
     def __init__(self, api_key=None, base_url=None) -> None:
+        import openai
+
         if api_key:
             self.client = openai.OpenAI(api_key=api_key, base_url=base_url)
 
     def send_chat(self, messages):
         response = self.client.chat.completions.create(
-            model='gpt-4',  # 'gpt-3.5-turbo', 'gpt-3.5-turbo-16k', 'gpt-4', 'gpt-4-32k'
+            model="gpt-4",  # 'gpt-3.5-turbo', 'gpt-3.5-turbo-16k', 'gpt-4', 'gpt-4-32k'
             messages=messages,
             max_tokens=None,
             n=1,
@@ -36,43 +37,41 @@ class TaskCreator(ChatBase):
 
         def get_random_object(scene):
             object_candidates = []
-            for i, instance in enumerate(scene['instances']):
-                if instance['type'] == 'interactable':
+            for i, instance in enumerate(scene["instances"]):
+                if instance["type"] == "interactable":
                     object_candidates.append(i)
             object_id = random.choice(object_candidates)
-            object_name = scene['instances'][object_id]['prefab'].split('_')[1]
+            object_name = scene["instances"][object_id]["prefab"].split("_")[1]
             return object_id, object_name
 
         def get_random_target(scene, object_id):
             target_candidates = []
-            for i, instance in enumerate(scene['instances']):
-                if i != object_id and\
-                    'Floor' not in instance['prefab'] and\
-                        'Wall' not in instance['prefab']:
+            for i, instance in enumerate(scene["instances"]):
+                if i != object_id and "Floor" not in instance["prefab"] and "Wall" not in instance["prefab"]:
                     target_candidates.append(i)
             target_id = random.choice(target_candidates)
-            target_name = scene['instances'][object_id]['prefab'].split('_')[1]
+            target_name = scene["instances"][object_id]["prefab"].split("_")[1]
             return target_id, target_name
 
         def get_on_which_object(scene, object_id):
             on_candidates = []
-            object_pos = scene['instances'][object_id]['position']
+            object_pos = scene["instances"][object_id]["position"]
             on_id, on_name = None, None
             # get all candidates Floor->Table->Plate->Apple, [Floor, Table, Plate]
-            for i, instance in scene['instances']:
+            for i, instance in scene["instances"]:
                 # TODO: get size from observation.game_states
-                pos, size, rot = np.array(instance["position"]), np.array(prefabs[instance['prefab']]['size']), np.array(instance["rotation"])
+                pos, size, rot = np.array(instance["position"]), np.array(prefabs[instance["prefab"]]["size"]), np.array(instance["rotation"])
                 if i != object_id and is_point_on_box(object_pos, pos, size, box_rotation=rot):  # TODO: consider more
                     on_candidates.append(i)
             max_y = -100
             on_id = None
             for i in on_candidates:
-                if scene['instances'][i]['position']['y'] > max_y:
-                    max_y = scene['instances'][i]['position']['y']
+                if scene["instances"][i]["position"]["y"] > max_y:
+                    max_y = scene["instances"][i]["position"]["y"]
                     on_id = i
 
             if on_id is not None:
-                on_name = scene['instances'][on_id]['prefab'].split('_')[1]
+                on_name = scene["instances"][on_id]["prefab"].split("_")[1]
             return on_id, on_name
 
         # generate a scene
@@ -82,33 +81,33 @@ class TaskCreator(ChatBase):
         # generate (task, plan, solution) triplets
         if task_type == "come":
             task = "Come here."
-            solution = ['goto_user()']
-            plan = ['Go to the user.']
+            solution = ["goto_user()"]
+            plan = ["Go to the user."]
 
         elif task_type == "goto":
             object_id, object_name = get_random_object(scene)
             task = f"Go to the {object_name}."
-            solution = [f'goto({object_id})']
-            plan = [f'Go to the {object_name}.']
+            solution = [f"goto({object_id})"]
+            plan = [f"Go to the {object_name}."]
 
         elif task_type == "take":
             object_id, object_name = get_random_object(scene)
             task = f"Take the {object_name}."
-            solution = [f'goto({object_id})', 'grab()']
-            plan = [f'Go to the {object_name}.', 'Grab the object.']
+            solution = [f"goto({object_id})", "grab()"]
+            plan = [f"Go to the {object_name}.", "Grab the object."]
 
         elif task_type == "bring":
             object_id, object_name = get_random_object(scene)
             task = f"Bring the {object_name}."
-            solution = [f'goto({object_id})', 'grab()', 'goto_user()']
-            plan = [f'Go to the {object_name}.', 'Grab the object.', 'Go to the user.']
+            solution = [f"goto({object_id})", "grab()", "goto_user()"]
+            plan = [f"Go to the {object_name}.", "Grab the object.", "Go to the user."]
 
         elif task_type == "put":
             object_id, object_name = get_random_object(scene)
             target_id, target_name = get_random_target(scene, object_id)
             task = f"Put the {object_name} on the {target_name}."
-            solution = [f'goto({object_id})', 'grab()', f'goto({target_id})', 'release()']
-            plan = [f'Go to the {object_name}.', 'Grab the object.', f'Go to the {target_name}.', 'Release the object.']
+            solution = [f"goto({object_id})", "grab()", f"goto({target_id})", "release()"]
+            plan = [f"Go to the {object_name}.", "Grab the object.", f"Go to the {target_name}.", "Release the object."]
 
         elif task_type == "where":
             # TODO: use ChatGPT
@@ -116,8 +115,8 @@ class TaskCreator(ChatBase):
             on_id, on_name = get_on_which_object(scene, object_id)
             task = f"Where is the {object_name}?"
             reply = f"It's on the {on_name}."
-            solution = [f'goto({object_id})', f'speak("{reply}")']
-            plan = [f'Go to the {object_name}.', 'Reply to the user.']
+            solution = [f"goto({object_id})", f'speak("{reply}")']
+            plan = [f"Go to the {object_name}.", "Reply to the user."]
 
         elif task_type == "exist":
             # create "Yes"
@@ -125,16 +124,11 @@ class TaskCreator(ChatBase):
             on_id, on_name = get_on_which_object(scene, object_id)
             task = f"Is there a {object_name} on the {on_name}."
             reply = "Yes."
-            solution = [f'goto({on_id})', f'speak("{reply}")']
-            plan = [f'Go to the {on_name}.', 'Reply to the user.']
+            solution = [f"goto({on_id})", f'speak("{reply}")']
+            plan = [f"Go to the {on_name}.", "Reply to the user."]
             # TODO: create "No" (select a on_id and get all objects on it. random select one object not included.)
 
-        sample = {
-            'task': task,
-            'plan': plan,
-            'solution': solution,
-            'scene': scene
-        }
+        sample = {"task": task, "plan": plan, "solution": solution, "scene": scene}
         samples = [sample]
         return samples
 
@@ -142,8 +136,8 @@ class TaskCreator(ChatBase):
         if not scene:
             scene = generate_scene()
 
-        task_prompt = {p['type']: p for p in load_json_from_toolkit('dataset/task-prompts.json')}[task_type]
-        if task_prompt['TYPE'] == 'instrution following':
+        task_prompt = {p["type"]: p for p in load_json_from_toolkit("dataset/task-prompts.json")}[task_type]
+        if task_prompt["TYPE"] == "instrution following":
             system_message = "You are a user in the room. You need to ask a robot do something."
         else:
             system_message = "You are a user in the room. You need to ask a robot some questions."
@@ -153,29 +147,19 @@ class TaskCreator(ChatBase):
         scene_description = f"You are in a room with the following objects(in table format):\n{scene_str}"
 
         # TODO: give more examples to improve the results. use inputs and outputs from hardcoding as examples
-        examples = [f"Task: {e['example']}; Plan: {e['plan']}; Solution: {e['solution']}" for e in task_prompt['examples']]
-        task_prompt['example'] = '\n'.join(examples)
+        examples = [f"Task: {e['example']}; Plan: {e['plan']}; Solution: {e['solution']}" for e in task_prompt["examples"]]
+        task_prompt["example"] = "\n".join(examples)
         # TODO: Add descriptions for functions goto_user(), goto(object_id), grab(), release().
-        task_description = \
-            f"""You need to {task_prompt['message']}
+        task_description = f"""You need to {task_prompt['message']}
 You need to propose {sample_num} independent tasks and corresponding solutions, in the format of "Task: task; Plan: plan; Solution: solution.", with no line breaks between the three (use ';' to seperate). One sentence in Plan should match one function call in Solution.
 For example (The examples are from other scenes. The number means object_id):
 {task_prompt['example']}
 """
         content = f"{scene_description}\n{task_description}"
         messages = [
-            {
-                "role": "system",
-                "content": system_message
-            },
-            {  # this message can ensure the format correct
-                "role": "assistant",
-                "content": task_prompt['example']
-            },
-            {
-                "role": "user",
-                "content": content
-            },
+            {"role": "system", "content": system_message},
+            {"role": "assistant", "content": task_prompt["example"]},  # this message can ensure the format correct
+            {"role": "user", "content": content},
         ]
 
         ret = self.send_chat(messages)
@@ -185,14 +169,9 @@ For example (The examples are from other scenes. The number means object_id):
         task_lines = [task for task in ret.split("\n") if task]
         samples = []
         for task in task_lines:
-            task, plan, solution = task.split('; ')
-            task, plan, solution = task.split(': ')[1], plan.split(': ')[1], solution.split(': ')[1]
-            sample = {
-                "task": task,
-                "plan": plan,
-                "solution": solution,
-                "scene": scene
-            }
+            task, plan, solution = task.split("; ")
+            task, plan, solution = task.split(": ")[1], plan.split(": ")[1], solution.split(": ")[1]
+            sample = {"task": task, "plan": plan, "solution": solution, "scene": scene}
             samples.append(sample)
         time.sleep(0.5)
         return samples
@@ -202,7 +181,7 @@ For example (The examples are from other scenes. The number means object_id):
 
     def create_tasks(self, task_types=None, method: Literal["hardcoding", "prompting", "chatting"] = "hardcoding", scene_num=1):
         if not task_types:
-            task_types = [p['type'] for p in load_json_from_toolkit('dataset/task-prompts.json')]
+            task_types = [p["type"] for p in load_json_from_toolkit("dataset/task-prompts.json")]
         save_path = f"{TASKS_FOLDER}/{method}/{time_string()}"
         create_func = {
             "hardcoding": self.create_task_for_scene_by_hardcoding,
@@ -225,24 +204,23 @@ For example (The examples are from other scenes. The number means object_id):
 
     def create_scene_for_task_by_hardcoding(self, task_type="where", object_cands=None, receptacle_cands=None, room_num=1):
         # TODO: add goto task to this function
-        if task_type=="where":
+        if task_type == "where":
             if object_cands is None:
                 object_cands = ["Orange", "Apple", "Banana", "Cola"]
             object_text = {"Orange": "orange", "Apple": "apple", "Banana": "banana", "Cola": "cola"}
-            object_prefab = {"Orange": "LowPolyInterior_Orange", "Apple": "LowPolyInterior_Apple", "Banana":"LowPolyInterior_Banana", "Cola": "LowPolyInterior_Cola"}
-            
+            object_prefab = {"Orange": "LowPolyInterior_Orange", "Apple": "LowPolyInterior_Apple", "Banana": "LowPolyInterior_Banana", "Cola": "LowPolyInterior_Cola"}
+
             if receptacle_cands is None:
                 receptacle_cands = ["Sofa", "KitchenChair", "Table", "Bar", "Dresser"]  # Kitchenchair, Giftbox
             receptacle_text = {"Sofa": "sofa", "KitchenChair": "chair", "Table": "table", "Bar": "countertop", "Dresser": "dresser"}
-            
-            
+
             exclusions = {"Banana-KitchenChair"}
             while True:
                 object_name = random.choice(object_cands)
                 receptacle_name = random.choice(receptacle_cands)
                 if f"{object_name}-{receptacle_name}" not in exclusions:
                     break
-            
+
             receptacle_object_counts = {receptacle_name: {"count": 1, "objects": [{object_name: 1}]}}
             # receptacle_object_counts = {"Sofa": {"count": 1, "objects": [{"Apple": 1}]}}
             object_id = -1
@@ -271,9 +249,10 @@ For example (The examples are from other scenes. The number means object_id):
             return sample
         else:
             raise NotImplementedError
-        
+
     def create_scenes_for_task_by_hardcoding(self, task_type="where", scene_num=1):
         return [self.create_scene_for_task_by_hardcoding(task_type=task_type) for i in range(scene_num)]
+
 
 class ChatAnnotator(ChatBase):
     def __init__(self, api_key=None, base_url=None, add_history=False):
@@ -283,66 +262,76 @@ class ChatAnnotator(ChatBase):
 
     def _annotate_solution(self, user_chat, game_states):
 
-        prompt = f"""You an intelligent robot agent in a room with the following objects(in table format):
+        prompt = f"""You are an intelligent robot agent in a room with the following objects(in table format):
 {game_states}
-You can act using the following APIs: 
-    1. def speak(content: str) -> None
-    Speak something to the player.
-    3. def goto_user() -> None
-    Navigate to the player.
-    3. def goto(object_id: int) -> None
-    Navigate to an object and look at it.
-    4. def grab() -> None
-    Grab the object you are looking at.
-    5. def release() -> None
-    Release the grabbed object.
+
+Your task is to respond to the player's command with line-by-line action code. Each line can be one of the following APIs: 
+1. def speak(content: str) -> None
+Speak something to the player.
+2. def goto_user() -> None
+Navigate to the player.
+3. def goto(object_id: int) -> None
+Navigate to an object and look at it.
+4. def grab() -> None
+Grab the object you are looking at.
+5. def release() -> None
+Release the grabbed object.
+6. def look(object_id: int) -> None
+Look at an object. (used only before you answer where something is)
+7. def goto_point(point_id: int) -> None
+Navigate to a point. (used only the user asks you to go to a room or go upstairs/downstairs)
     
-Your should be helpful to the player.
-When the player say something, give your action code line by line without any other output. Do not write comment.
-For example, The player says: "Bring me a spoon."
-Your output is:
+Note:
+1. Before doing any action, first check if any object the player refers to is not present in the room.
+2. Before putting an object on another, first check if the object is already on it.
+3. If the target object is already held by the agent, do not goto or grab it.
+4. If you are holding something, please release it before grabing anything else. 
+5. Try to be as helpful to the player as possible.
+6. Do not write any other output or comment.
+7. If asked where is an object, please tell whether it is on (including on the floor) or near other objects.
+8. Do not speak about the object id or object position. If you have to, use relative position and other features.
+
+Examples:
+Player: "Bring me a spoon."
+Agent:
 speak("Okay.")
 goto(78)
 grab()
 goto_user()
 speak("Here you are.")
 
-Note that:
-If the object is in the agent's hand, do not goto or grab it.
-Do not bracket the code with ```.
+Player: "Where is the tomato?"
+Agent:
+look(32)
+speak("It is on the TV table.")
 
-The player says: "{user_chat}".
-Give your action code.
+Please output your action now.
+Player: "{user_chat}".
+Agent:
 """
-        messages = self.messages + [
-            {"role": "user", "content": prompt}
-        ]
+        messages = self.messages + [{"role": "user", "content": prompt}]
 
-        print(f"CHATGPT request\n{messages}\n\n")
+        # print(f"CHATGPT request\n{messages}\n\n")
         return self.send_chat(messages)
 
     def annotate_solution(self, user_chat, game_states):
         solution = self._annotate_solution(user_chat, game_states)
         if self.add_history:
-            messages += [
-                {"role": "user", "content": user_chat},
-                {"role": "assistant", "content": solution}
-            ]
+            messages += [{"role": "user", "content": user_chat}, {"role": "assistant", "content": solution}]
             reserved_turn = 3
-            if len(messages) > 1 + reserved_turn*2:
-                messages = messages[:1] + messages[-reserved_turn*2:]
-        print(user_chat, '\n')
+            if len(messages) > 1 + reserved_turn * 2:
+                messages = messages[:1] + messages[-reserved_turn * 2 :]
+        # print(user_chat, '\n')
         print(f"CHATGPT reply\n{solution}\n")
         if solution == "" or solution.startswith("<!doctype html>"):
-            solution = "speak(\"I don't understand.\")"
-        print(f"Processed reply\n{solution}\n")
+            solution = 'speak("I don\'t understand.")'
+        # print(f"Processed reply\n{solution}\n")
 
-        apis = ["speak", "speak_without_look", "play", "goto_user", "goto", "goto_and_grab", "grab", "release", "look", "speak_and_play"]
+        apis = ["speak", "speak_without_look", "play", "goto_user", "goto", "goto_point", "goto_and_grab", "grab", "release", "look", "speak_and_play"]
 
         def is_valid(p):
-            for action in p.split('\n'):
+            for action in p.split("\n"):
                 action = action.strip()
-                print(action)
                 if any([action.startswith(f"{api}(") for api in apis]) and action.endswith(")"):
                     continue
                 else:
@@ -354,15 +343,19 @@ Give your action code.
         def post_process(p):
             if is_valid(p):
                 res = []
-                for action in p.split('\n'):
+                for action in p.split("\n"):
                     action = action.strip()
                     func = action.split("(", maxsplit=1)[0]
-                    arg = action.split("(", maxsplit=1)[1][:-1].strip("\"")
+                    arg = action.split("(", maxsplit=1)[1][:-1].strip('"')
                     res.append(func + ":" + arg)
-                return '\n'.join(res)
+                for i in range(len(res) - 1):
+                    if res[i].startswith("look") and res[i + 1].startswith("speak"):  # TODO: refactor the logic
+                        res[i + 1] = "speak_without_look:" + res[i + 1].split(":", maxsplit=1)[1]
+                return "\n".join(res)
             else:
-                if ('\n' not in p and not re.search(r'[a-z]', p)):
+                if "\n" not in p and not re.search(r"[a-z]", p):
                     return f"speak:{p}"
-                return ''
+                return ""
+
         solution = post_process(solution.strip())
         return solution

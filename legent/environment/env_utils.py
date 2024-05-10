@@ -3,8 +3,6 @@ import os
 import subprocess
 from sys import platform
 from typing import Optional, List
-import requests
-from tqdm import tqdm
 from legent.utils.io import log, log_green, get_latest_folder
 from legent.utils.config import CLIENT_FOLDER, ENV_DATA_FOLDER
 import zipfile
@@ -22,13 +20,7 @@ def validate_environment_path(env_path: str) -> Optional[str]:
     Strip out executable extensions of the env_path
     :param env_path: The path to the executable
     """
-    env_path = (
-        env_path.strip()
-        .replace(".app", "")
-        .replace(".exe", "")
-        .replace(".x86_64", "")
-        .replace(".x86", "")
-    )
+    env_path = env_path.strip().replace(".app", "").replace(".exe", "").replace(".x86_64", "").replace(".x86", "")
     true_filename = os.path.basename(os.path.normpath(env_path))
 
     if not (glob.glob(env_path) or glob.glob(env_path + ".*")):
@@ -54,21 +46,13 @@ def validate_environment_path(env_path: str) -> Optional[str]:
             launch_string = candidates[0]
 
     elif get_platform() == "darwin":
-        candidates = glob.glob(
-            os.path.join(cwd, env_path + ".app", "Contents", "MacOS", true_filename)
-        )
+        candidates = glob.glob(os.path.join(cwd, env_path + ".app", "Contents", "MacOS", true_filename))
         if len(candidates) == 0:
-            candidates = glob.glob(
-                os.path.join(env_path + ".app", "Contents", "MacOS", true_filename)
-            )
+            candidates = glob.glob(os.path.join(env_path + ".app", "Contents", "MacOS", true_filename))
         if len(candidates) == 0:
-            candidates = glob.glob(
-                os.path.join(cwd, env_path + ".app", "Contents", "MacOS", "*")
-            )
+            candidates = glob.glob(os.path.join(cwd, env_path + ".app", "Contents", "MacOS", "*"))
         if len(candidates) == 0:
-            candidates = glob.glob(
-                os.path.join(env_path + ".app", "Contents", "MacOS", "*")
-            )
+            candidates = glob.glob(os.path.join(env_path + ".app", "Contents", "MacOS", "*"))
         if len(candidates) > 0:
             launch_string = candidates[0]
     elif get_platform() == "win32":
@@ -77,14 +61,8 @@ def validate_environment_path(env_path: str) -> Optional[str]:
             candidates = glob.glob(env_path + ".exe")
         if len(candidates) == 0:
             # Look for e.g. 3DBall\UnityEnvironment.exe
-            crash_handlers = set(
-                glob.glob(os.path.join(cwd, env_path, "UnityCrashHandler*.exe"))
-            )
-            candidates = [
-                c
-                for c in glob.glob(os.path.join(cwd, env_path, "*.exe"))
-                if c not in crash_handlers
-            ]
+            crash_handlers = set(glob.glob(os.path.join(cwd, env_path, "UnityCrashHandler*.exe")))
+            candidates = [c for c in glob.glob(os.path.join(cwd, env_path, "*.exe")) if c not in crash_handlers]
         if len(candidates) > 0:
             launch_string = candidates[0]
     return launch_string
@@ -99,10 +77,7 @@ def launch_executable(file_name: str, args: List[str]) -> subprocess.Popen:
     """
     launch_string = validate_environment_path(file_name)
     if launch_string is None:
-        raise Exception(
-            "EnvironmentException:\n"
-            f"Couldn't launch the {file_name} environment. Provided filename does not match any environments."
-        )
+        raise Exception("EnvironmentException:\n" f"Couldn't launch the {file_name} environment. Provided filename does not match any environments.")
     else:
         # Launch Unity environment
         subprocess_args = [launch_string] + args
@@ -123,24 +98,22 @@ def launch_executable(file_name: str, args: List[str]) -> subprocess.Popen:
             )
         except PermissionError as perm:
             # This is likely due to missing read or execute permissions on file.
-            raise Exception(
-                "EnvironmentException:\n"
-                f"Error when trying to launch environment - make sure "
-                f"permissions are set correctly. For example "
-                f'"chmod -R 755 {launch_string}"'
-            ) from perm
+            raise Exception("EnvironmentException:\n" f"Error when trying to launch environment - make sure " f"permissions are set correctly. For example " f'"chmod -R 755 {launch_string}"') from perm
 
 
 def download_file(url, file_path):
+    import requests
+    from tqdm import tqdm
+
     folder_path, _ = os.path.split(file_path)
     if not os.path.exists(folder_path):
         os.makedirs(folder_path)
     response = requests.get(url, stream=True)
-    total_size = int(response.headers.get('content-length', 0))
+    total_size = int(response.headers.get("content-length", 0))
     with open(file_path, "wb") as file, tqdm(
         desc=file_path,
         total=total_size,
-        unit='iB',
+        unit="iB",
         unit_scale=True,
         unit_divisor=1024,
     ) as bar:
@@ -150,48 +123,51 @@ def download_file(url, file_path):
 
 
 def download_env(from_tsinghua_cloud=False, download_env_data=False):
+    import requests
+
     if from_tsinghua_cloud:
-        share_key = '9976c807e6e04e069377'
-        res = requests.get(f'https://cloud.tsinghua.edu.cn/api/v2.1/share-links/{share_key}/dirents/')
-        files = [item['file_name'] for item in res.json()['dirent_list']]
+        share_key = "9976c807e6e04e069377"
+        res = requests.get(f"https://cloud.tsinghua.edu.cn/api/v2.1/share-links/{share_key}/dirents/")
+        files = [item["file_name"] for item in res.json()["dirent_list"]]
     else:
         from huggingface_hub import list_files_info
+
         files_info = list_files_info("LEGENT/LEGENT-environment-Alpha")
         files = [f.rfilename for f in list(files_info)]
 
     if get_platform() == "linux" or get_platform() == "linux2":
-        platform_name = 'linux'
+        platform_name = "linux"
     elif get_platform() == "darwin":
-        platform_name = 'mac'
+        platform_name = "mac"
     elif get_platform() == "win32":
-        platform_name = 'win'
+        platform_name = "win"
     else:
         log("Cannot decide platform. Exit.")
         return
-    file_prefix = 'env_data' if download_env_data else f'LEGENT-{platform_name}'
+    file_prefix = "env_data" if download_env_data else f"LEGENT-{platform_name}"
     files = [file for file in files if file.startswith(file_prefix)]
     file_name = sorted(files, reverse=True)[0]
-    file_path = f'{ENV_DATA_FOLDER}/{file_name}' if download_env_data else f'{CLIENT_FOLDER}/{file_name}'
+    file_path = f"{ENV_DATA_FOLDER}/{file_name}" if download_env_data else f"{CLIENT_FOLDER}/{file_name}"
     if from_tsinghua_cloud:
-        link = f'https://cloud.tsinghua.edu.cn/d/{share_key}/files/?p={file_name}&dl=1'
+        link = f"https://cloud.tsinghua.edu.cn/d/{share_key}/files/?p={file_name}&dl=1"
     else:
-        link = f'https://huggingface.co/LEGENT/LEGENT-environment-Alpha/resolve/main/{file_name}?download=true'
+        link = f"https://huggingface.co/LEGENT/LEGENT-environment-Alpha/resolve/main/{file_name}?download=true"
     # log(f'download {file_name} from {link}')
     download_file(link, file_path)
-        
-    extract_to = file_path.rsplit('.', maxsplit=1)[0]
+
+    extract_to = file_path.rsplit(".", maxsplit=1)[0]
     # log(f'extract {file_path} to {extract_to}')
-    with zipfile.ZipFile(file_path, 'r') as zip_ref:
+    with zipfile.ZipFile(file_path, "r") as zip_ref:
         zip_ref.extractall(extract_to)
-    if platform_name != 'win':
+    if platform_name != "win":
         mode = 0o777
         for root, dirs, files in os.walk(extract_to):
             os.chmod(root, mode)
             for file in files:
                 os.chmod(os.path.join(root, file), mode)
-    env_path = os.path.abspath(extract_to).replace('\\', '/')
-    log_prefix = 'environment data' if download_env_data else 'LEGENT environment client'
-    log_green(f'{log_prefix} is saved to <g>{env_path}<g/>.')
+    env_path = os.path.abspath(extract_to).replace("\\", "/")
+    log_prefix = "environment data" if download_env_data else "LEGENT environment client"
+    log_green(f"{log_prefix} is saved to <g>{env_path}<g/>.")
 
 
 def get_default_env_path(root_folder=CLIENT_FOLDER):
@@ -199,6 +175,8 @@ def get_default_env_path(root_folder=CLIENT_FOLDER):
 
 
 env_data_path = None
+
+
 def get_default_env_data_path():
     global env_data_path
     if not env_data_path:

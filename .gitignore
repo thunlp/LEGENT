@@ -167,3 +167,9 @@ cython_debug/
 legent/scene_generation/data/*
 legent/scene_generation/data_annotation/*
 legent/scene_generation/data_backup/*
+# docs
+docs/*.webp
+docs/*.svg
+docs/**/index.md
+
+!legent/dataset/task-prompts.json
