@@ -109,7 +109,7 @@ To integrate your 3D objects into the default scene generation algorithm, Run:
 
 ```bash
 # (Optional) Add a new asset type for your asset
-legent/scene_generation/import_external_object/add_objects.py --type asset_type --asset_type <type_name> --inKitchens <0/1> --inLivingRooms <0/1> --inBedrooms <0/1> --inBathrooms <0/1> --onFloor <0/1> --multiplePerRoom <0/1>
+python legent/scene_generation/import_external_object/add_objects.py --type asset_type --asset_type <type_name> --inKitchens <0/1> --inLivingRooms <0/1> --inBedrooms <0/1> --inBathrooms <0/1> --onFloor <0/1> --multiplePerRoom <0/1>
 
 # Add a new asset to a asset type
 python legent/scene_generation/import_external_object/add_objects.py --type asset --asset_type <type_name> --asset <absolute_path_to_gltf_or_glb>
