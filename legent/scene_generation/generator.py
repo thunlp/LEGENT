@@ -370,7 +370,7 @@ class HouseGenerator:
 
         ### STEP 3: Randomly place the player and playmate (AI agent)
         # place the player
-        AGENT_HUMAN_SIZE = 0
+        AGENT_HUMAN_SIZE = 1
         while True:
             x, z = random_xz_for_agent(eps=0.5, floors=floors)
             player = {
