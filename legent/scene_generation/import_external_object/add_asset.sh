@@ -1,0 +1,1 @@
+python add_objects.py --type asset --asset_type chips --asset "C:\Users\14040\Downloads\lays_classic__hd_textures__free_download.glb" 
