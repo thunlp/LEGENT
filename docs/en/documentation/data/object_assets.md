@@ -103,7 +103,7 @@ The code above is essentially a trivial scene generation algorithm, while Minecr
 
 <img src="https://github.com/thunlp/LEGENT/assets/50205889/607a213a-d38e-451f-9c94-f89bccb0168c" width="360" height="240">
 
-#### Scene generation integration (Experimental)
+#### Scene generation integration
 
 To integrate your 3D objects into the default scene generation algorithm, Run:
 
@@ -116,10 +116,12 @@ python legent/scene_generation/import_external_object/add_objects.py --type asse
 
 # For example
 # python legent/scene_generation/import_external_object/add_objects.py --type asset_type --asset_type chips --inKitchens 1 --inLivingRooms 1 --inBedrooms 1 --inBathrooms 0 --onFloor 0 --multiplePerRoom 1
-# python legent/scene_generation/import_external_object/add_objects.py --type asset --asset_type chips --asset "F:\Downloads\lays_classic__hd_textures__free_download.glb" 
+# python legent/scene_generation/import_external_object/add_objects.py --type asset --asset_type chips --asset "F:/Downloads/lays_classic__hd_textures__free_download.glb" 
 ```
 
 Run `legent launch` and send `#RESET` to generate new scenes. You should see the objects you added appear in randomly generated scenes.
+
+The added objects can be placed on any other object by default. The placement relationships can be found in `.legent/env/env_data/env_data-<latest-version>/procthor/receptacle.json`. If needed, this file can be manually edited.
 
 ## Import Generated 3D objects
 
