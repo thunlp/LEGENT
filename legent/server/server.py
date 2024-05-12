@@ -8,10 +8,10 @@ from legent.utils.io import log, parse_ssh, SSHTunnel
 import time
 
 
-def launch(executable_path, ssh: str, use_default_scene, use_env=False, launch_scene_server=True, chat_api_key=None, chat_base_url=None):
+def launch(executable_path, ssh: str, scene, use_env=False, launch_scene_server=True, chat_api_key=None, chat_base_url=None):
     scene_server, chat_server = None, None
     if launch_scene_server:
-        scene_server = serve_scene(use_default_scene)
+        scene_server = serve_scene(scene)
     if chat_api_key:
         chat_server = serve_chat(chat_api_key, chat_base_url)
     if ssh:
