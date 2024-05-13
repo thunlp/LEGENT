@@ -1,3 +1,0 @@
-# Rendering Style
-
-To Edit
