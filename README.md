@@ -54,7 +54,8 @@ Interact with the embodied agent in stylized scenes.
 
 * **Fundamental Physics**. The simulation incorporates gravity, friction, and collision dynamics.
 
-* **Diverse Rendering**. By adjusting assets and rendering features, LEGENT can achieve photorealistic rendering and stylized rendering.
+* **Diverse Rendering**. By adjusting assets and rendering features, LEGENT can achieve photorealistic rendering and stylized rendering. 
+Instructions for trying out these scenes can be found [here](https://docs.legent.ai/documentation/getting_started/play/#default-scenes).
 
   <https://github.com/thunlp/LEGENT/assets/50205889/bcce2f73-8e8d-420a-85a2-0d7491840e48>
 
