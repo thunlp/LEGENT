@@ -11,7 +11,8 @@
         <a href="https://docs.legent.ai/">Documentation</a> |
         <a href="https://arxiv.org/pdf/2404.18243">Paper</a> |
         <a href="https://huggingface.co/spaces/LEGENT/LEGENT-basic-demo-Alpha">Playable Demo</a> |
-        <a href="https://docs.legent.ai/blog/introduction">Quick Start</a>
+        <a href="https://docs.legent.ai/blog/introduction">Quick Start</a> | 
+        <a href="https://discord.gg/FenHQRyFN7">Discord</a>
     】
     </p>
 </h4>
