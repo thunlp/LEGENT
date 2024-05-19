@@ -10,7 +10,7 @@
         <!-- <a href="https://github.com/thunlp/LEGENT/blob/main/docs/README.md">Documentation</a> | -->
         <a href="https://docs.legent.ai/">Documentation</a> |
         <a href="https://arxiv.org/pdf/2404.18243">Paper</a> |
-        <a href="https://huggingface.co/spaces/LEGENT/LEGENT-basic-demo-Alpha">Playable Demo</a> |
+        <a href="https://huggingface.co/spaces/LEGENT/LEGENT">Playable Demo</a> |
         <a href="https://docs.legent.ai/blog/introduction">Quick Start</a> | 
         <a href="https://discord.gg/FenHQRyFN7">Discord</a>
     】
@@ -21,7 +21,7 @@
 
 ### Updates
 
-* [2024/05] A simple [web demo](https://huggingface.co/spaces/LEGENT/LEGENT-basic-demo-Alpha) is accessible on HuggingFace Space🤗.
+* [2024/05] A simple [web demo](https://huggingface.co/spaces/LEGENT/LEGENT) is accessible on HuggingFace Space🤗.
 Let's dive into the immersive interactive world!
 
 ### Introduction
