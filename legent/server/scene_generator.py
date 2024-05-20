@@ -5,6 +5,7 @@ from legent.utils.io import load_json, log, store_json, load_json_from_toolkit
 from legent.utils.math import look_rotation
 import numpy as np
 import json
+import random
 from typing import Dict, Literal, Optional
 
 from legent.scene_generation.generator import HouseGenerator
@@ -53,30 +54,30 @@ def generate_scene(
     room_num=1,
     method="proc",
 ):
-    room_num = 1
+    # room_num = 1
     if method == "proc":
         # object_counts specifies a definite number for certain objects
         # For example, if you want to have only one instance of ChristmasTree_01 in the scene, you can set the object_counts as {"ChristmasTree_01": 1}.
         # global prefabs, interactable_names, kinematic_names, interactable_names_set, kinematic_names_set
         MAX = 7
         
-        if room_num == 2:
+        room_types = ["Bedroom", "LivingRoom", "Kitchen", "Bathroom"]
+        if 2 <= room_num <= 4:
+            sample_rooms = random.sample(room_types, room_num)
             sampler = RoomSpecSampler(
                 [
                     RoomSpec(
-                        room_spec_id="LivingRoom",  # TwoRooms
+                        room_spec_id="TwoRooms",  # TwoRooms
                         sampling_weight=1,
-                        spec=[
-                            LeafRoom(room_id=2, ratio=1, room_type="Bedroom"),
-                            LeafRoom(room_id=3, ratio=1, room_type="LivingRoom"),
+                        spec=
+                        [
+                            LeafRoom(room_id=2+i, ratio=1, room_type=room) for i, room in enumerate(sample_rooms)
                         ],
                     )
                 ]
             )
         elif room_num == 1:
-            import random
 
-            room_types = ["Bedroom", "LivingRoom", "Kitchen", "Bathroom"]
             room_type = random.choice(room_types)
 
             # room_type = "Bedroom"
