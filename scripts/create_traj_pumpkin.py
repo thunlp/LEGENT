@@ -1,7 +1,7 @@
 from legent import Environment, ResetInfo, TaskCreator, Controller, TrajectorySaver
 
 # env = Environment(env_path=None, use_animation=False) # significantly increase the sampling rate without using animations
-env = Environment(env_path="auto", use_animation=False, camera_resolution=448) # significantly increase the sampling rate without using animations
+env = Environment(env_path="auto", use_animation=False, camera_resolution_width=448, camera_resolution_height=448, camera_field_of_view=120) # significantly increase the sampling rate without using animations
 
 def generate_tasks():
     from legent import generate_scene

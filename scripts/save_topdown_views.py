@@ -4,7 +4,7 @@ import os
 save_folder = f'{os.getcwd()}/topdown_views'
 os.makedirs(save_folder, exist_ok=True)
 
-env = Environment(env_path="auto", camera_resolution=1024, camera_field_of_view=120)
+env = Environment(env_path="auto", camera_resolution_width=1024, camera_resolution_height=1024, camera_field_of_view=120)
 
 try:
     for i in range(10):

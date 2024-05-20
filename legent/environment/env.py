@@ -10,7 +10,7 @@ import os
 
 
 class Environment:
-    def __init__(self, env_path: Optional[str] = None, run_options: Dict = {}, use_animation=True, camera_resolution=448, camera_field_of_view=120, rendering_options: Dict = {}):
+    def __init__(self, env_path: Optional[str] = None, run_options: Dict = {}, use_animation=True, camera_resolution_width=448, camera_resolution_height=448, camera_field_of_view=120, rendering_options: Dict = {}):
         self._process: Optional[subprocess.Popen] = None
         # RPC is a one-to-one communication method, with each pair of python worker and game client using the same port.
         # If there are multiple environments, multiple different ports are required.
@@ -34,7 +34,7 @@ class Environment:
                 raise
         else:
             print(f"Listening on port {port}. " f"Start inference or training by launching the LEGENT environment client.")
-        self._communicator.initialize(self._poll_process, {"use_animation": use_animation, "camera_resolution": camera_resolution, "camera_field_of_view": camera_field_of_view, "background": rendering_options.get("background", 1), "use_shadows": rendering_options.get("use_shadows", 1), "style": rendering_options.get("style", 1)})
+        self._communicator.initialize(self._poll_process, {"use_animation": use_animation, "camera_resolution_width": camera_resolution_width, "camera_resolution_height": camera_resolution_height, "camera_field_of_view": camera_field_of_view, "background": rendering_options.get("background", 1), "use_shadows": rendering_options.get("use_shadows", 1), "style": rendering_options.get("style", 1)})
 
     def _poll_process(self) -> None:
         """
