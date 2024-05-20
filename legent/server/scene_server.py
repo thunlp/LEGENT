@@ -174,7 +174,13 @@ def serve_scene(scene):
             if os.path.exists(scene):
                 write_params_buffer(load_json(scene))
             else:
-                write_params_buffer(load_json(f"{get_default_env_data_path()}/scene-default.json"))
+                if scene=="1":
+                    scene_json = load_json(f"{get_default_env_data_path()}/scene-default.json")
+                    scene_json["instances"] = scene_json["instances"][:1]
+                    scene_json["instances"][0]["prefab"] = "Scene_Interior_Realistic"
+                    write_params_buffer(scene_json)
+                else:
+                    write_params_buffer(load_json(f"{get_default_env_data_path()}/scene-default.json"))
         server = Process(target=serve_main)
         server.start()
         return server

@@ -54,3 +54,8 @@ Press X to switch between full screen and windowed screen.<br>
 Press Esc to unfocus the game client.
 
 Currently the robot will not have any response. Next, we will use the Python side to [control the robot](/documentation/environment/basic_usage/).
+
+
+## Default Scenes
+
+Currently, LEGENT has two default scenes: 0 (stylized) and 1 (realistic). You can use these scenes by running `legent launch --scene 0` or legent `launch --scene 1` respectively.

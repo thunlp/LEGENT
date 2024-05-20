@@ -10,8 +10,9 @@
         <!-- <a href="https://github.com/thunlp/LEGENT/blob/main/docs/README.md">Documentation</a> | -->
         <a href="https://docs.legent.ai/">Documentation</a> |
         <a href="https://arxiv.org/pdf/2404.18243">Paper</a> |
-        <a href="https://huggingface.co/spaces/LEGENT/LEGENT-basic-demo-Alpha">Playable Demo</a> |
-        <a href="https://docs.legent.ai/blog/introduction">Quick Start</a>
+        <a href="https://huggingface.co/spaces/LEGENT/LEGENT">Playable Demo</a> |
+        <a href="https://docs.legent.ai/blog/introduction">Quick Start</a> | 
+        <a href="https://discord.gg/FenHQRyFN7">Discord</a>
     】
     </p>
 </h4>
@@ -20,8 +21,8 @@
 
 ### Updates
 
-* [2024/05] A simple [web demo](https://huggingface.co/spaces/LEGENT/LEGENT-basic-demo-Alpha) is accessible on HuggingFace Space🤗.
-Let's dive into the immersive 3D interactive world!
+* [2024/05] A simple [web demo](https://huggingface.co/spaces/LEGENT/LEGENT) is accessible on HuggingFace Space🤗.
+Let's dive into the immersive interactive world!
 
 ### Introduction
 
@@ -49,20 +50,22 @@ Interact with the embodied agent in stylized scenes.
 
 ### Features
 
-* **Scene Generation**. LEGENT integrates advanced scene generation algorithms to support scalable training.
-
-  <https://github.com/thunlp/LEGENT/assets/50205889/fafaa02e-1050-4dab-a43f-701bca1477b7>
-
-
 * **Language Interaction**. Use natural language as the human-robot interaction interface.
+
+
+* **Fundamental Physics**. The simulation incorporates gravity, friction, and collision dynamics.
+
+* **Diverse Rendering**. By adjusting assets and rendering features, LEGENT can achieve photorealistic rendering and stylized rendering. 
+Instructions for trying out these scenes can be found [here](https://docs.legent.ai/documentation/getting_started/play/#default-scenes).
+
+  <https://github.com/thunlp/LEGENT/assets/50205889/bcce2f73-8e8d-420a-85a2-0d7491840e48>
+
 
 
 * **Interactable Objects**. Agents and humans can manipulate various 3D objects.
 
   <https://github.com/thunlp/LEGENT/assets/50205889/b2392a4e-0c26-489a-b608-2c11f45c619f>
-
-* **Fundamental Physics**. The simulation incorporates gravity, friction, and collision dynamics.
-* **Diverse Rendering**.
+  
 * **Scalable Assets**. LEGENT supports importing (1) your own 3D objects, (2) objects from academic datasets, and (3) objects created by generative models. Learn more [here](https://docs.legent.ai/documentation/data/object_assets/).
 
   <https://github.com/thunlp/LEGENT/assets/50205889/d5b35c51-4da3-4392-a87e-262ba70a9713>
@@ -70,6 +73,12 @@ Interact with the embodied agent in stylized scenes.
   <https://github.com/thunlp/LEGENT/assets/50205889/b90c7ac4-73c6-4dfc-bbd8-9e4cd5051548>
 
 * **Humanoid Animation**. Body movement and nonverbal expression are also important for embodied agents. LEGENT will continue to enhance support in this aspect.
+
+
+* **Scene Generation**. LEGENT integrates advanced scene generation algorithms to support scalable training.
+
+  <https://github.com/thunlp/LEGENT/assets/50205889/fafaa02e-1050-4dab-a43f-701bca1477b7>
+
 * **Trajectory Generation**. Automatic generation of training data for training multimodal models into language-grounded embodied models. A minimal example of a trajectory:
   
   <img src="https://github.com/thunlp/LEGENT/assets/50205889/14a58d07-a28b-45c5-b5f8-323d0690d9cc" width="160" height="160" alt="0000">
