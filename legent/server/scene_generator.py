@@ -51,7 +51,7 @@ def load_prefabs() -> None:
 def generate_scene(
     object_counts: Dict[str, int] = {},
     receptacle_object_counts={},
-    room_num=1,
+    room_num=0,
     method="proc",
 ):
     # room_num = 1
@@ -62,6 +62,7 @@ def generate_scene(
         MAX = 7
         
         room_types = ["Bedroom", "LivingRoom", "Kitchen", "Bathroom"]
+        sampler = ROOM_SPEC_SAMPLER
         if 2 <= room_num <= 4:
             sample_rooms = random.sample(room_types, room_num)
             sampler = RoomSpecSampler(

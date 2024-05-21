@@ -1138,7 +1138,7 @@ class HouseGenerator:
         room_polygon = []
         for room in self.rooms.values():
             id = room.room_id
-            polygon = list(room.room_polygon.polygon.exterior.coords)[:-1]
+            polygon = list(room.room_polygon.polygon.exterior.coords)
             x_center = sum([x for x, _ in polygon]) / len(polygon)
             z_center = sum([z for _, z in polygon]) / len(polygon)
             x_size = max([x for x, _ in polygon]) - min([x for x, _ in polygon])
@@ -1147,7 +1147,8 @@ class HouseGenerator:
                 'room_id':id,
                 'room_type': room.room_type,
                 'position': [x_center, 1.5, z_center],
-                'size': [x_size,3, z_size]
+                'size': [x_size,3, z_size],
+                'polygon':polygon
             })
             # print(f'room {id} polygon: {polygon}')
 
