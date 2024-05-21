@@ -174,7 +174,7 @@ def convert_crm_obj_to_gltf(input_file, output_file):
     glb.save(output_file)
 
 
-env = Environment(env_path=None, camera_resolution=1024, camera_field_of_view=120)
+env = Environment(env_path=None)
 
 try:
 
@@ -195,7 +195,7 @@ try:
         asset = os.path.abspath("crm_example.gltf")
         asset_size = get_mesh_size(asset)
         asset_y_size = asset_size[1]
-        scene["instances"].append({"prefab": asset, "position": [2, asset_y_size / 2, 1], "rotation": [0, 0, 0], "scale": [1, 1, 1], "type": "kinematic"})
+        scene["instances"].append({"prefab": asset, "position": [2, asset_y_size / 2, 1], "rotation": [0, 0, 0], "scale": [0.1, 0.1, 0.1], "type": "interactable"})
 
         # ================== Example of using Holodeck assets ==================
         # Download from https://drive.google.com/file/d/1MQbFbNfTz94x8Pxfkgbohz4l46O5e3G1/view?usp=sharing

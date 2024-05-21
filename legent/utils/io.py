@@ -33,10 +33,26 @@ def store_json(obj, file):
         return json.dump(obj, f, ensure_ascii=False, indent=4)
 
 
-def save_image(image, file):
+def save_image(image, file, center_mark=False):
     from skimage.io import imsave
+    import numpy as np
 
-    imsave(file, image, check_contrast=False)
+    if center_mark:
+        marked_image = np.copy(image)
+
+        # Define the range of the center mark
+        mark_size = 8
+        center = (image.shape[0] // 2, image.shape[1] // 2)
+        x_start = max(center[0] - mark_size // 2, 0)
+        x_end = min(center[0] + mark_size // 2, image.shape[0])
+        y_start = max(center[1] - mark_size // 2, 0)
+        y_end = min(center[1] + mark_size // 2, image.shape[1])
+
+        # Set the marked area to red
+        marked_image[x_start:x_end, y_start:y_end] = [255, 0, 0]
+        imsave(file, marked_image, check_contrast=False)
+    else:
+        imsave(file, image, check_contrast=False)
 
 
 def load_json_from_toolkit(file):

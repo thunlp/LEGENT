@@ -20,6 +20,9 @@ class Action:
         grab: bool = False,
         teleport_forward: float = 0,
         use_teleport: bool = False,  # whether to use teleport mode
+        look_x: float = 0,
+        look_y: float = 0,
+        use_look_at: bool = False,  # whether to use look-at-image-point mode
         api_calls: List[str] = [],
     ) -> None:
         self.type = type
@@ -36,6 +39,11 @@ class Action:
         self.teleport_forward: float = teleport_forward
 
         self.use_teleport: bool = use_teleport
+
+        self.look_x: float = look_x
+        self.look_y: float = look_y
+        self.use_look_at: bool = use_look_at
+
         self.api_calls: List[str] = api_calls
 
     def build(self) -> ActionProto:
@@ -43,8 +51,8 @@ class Action:
             type=self.type,
             text=self.text,
             json_actions=self.json_actions,
-            float_actions=[self.move_right, self.move_forward, self.rotate_right, self.rotate_down] + [self.jump, self.grab, self.teleport_forward],
-            int_actions=[self.use_teleport],
+            float_actions=[self.move_right, self.move_forward, self.rotate_right, self.rotate_down] + [self.jump, self.grab, self.teleport_forward, self.look_x, self.look_y],
+            int_actions=[self.use_teleport, self.use_look_at],
             api_calls=json.dumps({"calls": self.api_calls}),
         )
 

@@ -20,7 +20,7 @@ if args.ssh is None and args.api_key is None:
     print("No --ssh or --api_key parameters provided. Ensure your model and environment are running locally.")
 
 def interact():
-    env = Environment(env_path="auto", run_options={"port": 50054})
+    env = Environment(env_path="auto", camera_resolution_width=448, camera_resolution_height=448, camera_field_of_view=120, run_options={"port": 50054})
     if args.api_key is None:
         agent = AgentClient(ssh=args.ssh, remote_model_port=args.remote_model_port)
     else:
