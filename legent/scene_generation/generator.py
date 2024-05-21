@@ -1135,12 +1135,30 @@ class HouseGenerator:
         log(f"min_x: {min_x}, max_x: {max_x}, min_z: {min_z}, max_z: {max_z}")
         center = [(min_x + max_x) / 2, height, (min_z + max_z) / 2]
 
+        room_polygon = []
+        for room in self.rooms.values():
+            id = room.room_id
+            polygon = list(room.room_polygon.polygon.exterior.coords)
+            x_center = sum([x for x, _ in polygon]) / len(polygon)
+            z_center = sum([z for _, z in polygon]) / len(polygon)
+            x_size = max([x for x, _ in polygon]) - min([x for x, _ in polygon])
+            z_size = max([z for _, z in polygon]) - min([z for _, z in polygon])
+            room_polygon.append({
+                'room_id':id,
+                'room_type': room.room_type,
+                'position': [x_center, 1.5, z_center],
+                'size': [x_size,3, z_size],
+                'polygon':polygon
+            })
+            # print(f'room {id} polygon: {polygon}')
+
         infos = {
             "prompt": "",
             "instances": instances,
             "player": player,
             "agent": agent,
             "center": center,
+            "room_polygon": room_polygon,
         }
         with open("last_scene.json", "w", encoding="utf-8") as f:
             json.dump(infos, f, ensure_ascii=False, indent=4)

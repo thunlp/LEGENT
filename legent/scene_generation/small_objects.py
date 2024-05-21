@@ -229,7 +229,8 @@ def add_small_objects(
                 break
 
             asset_candidates = odb.OBJECT_DICT[group["childObjectType"]]
-
+            if len(asset_candidates) == 0:
+                continue
             chosen_asset_id = random.choice(asset_candidates)
 
             prefab = odb.PREFABS[chosen_asset_id]
