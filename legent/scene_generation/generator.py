@@ -145,15 +145,15 @@ class HouseGenerator:
                         }
                     )
                     # add ceiling
-                    # floor_instances.append(
-                    #     {
-                    #         "prefab": FLOOR_PREFAB,
-                    #         "position": [x, wall_y_size + floor_y_size / 2, z],
-                    #         "rotation": [0, 90, 0],
-                    #         "scale": [self.scale_ratio, 1, self.scale_ratio],
-                    #         "type": "kinematic",
-                    #     }
-                    # )
+                    floor_instances.append(
+                        {
+                            "prefab": FLOOR_PREFAB,
+                            "position": [x, wall_y_size + floor_y_size / 2, z],
+                            "rotation": [0, 90, 0],
+                            "scale": [self.scale_ratio, 1, self.scale_ratio],
+                            "type": "kinematic",
+                        }
+                    )
 
                 WALL_PREFAB = room2wall[floors[i][j]]
                 wall_x_size, wall_y_size, wall_z_size = (

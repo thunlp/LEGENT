@@ -224,8 +224,6 @@ def generate_house_structure(room_spec: RoomSpec, dims: Optional[Tuple[int, int]
     elif room_spec.dims is not None:
         generate_dims = room_spec.dims()
 
-    generate_dims = None  # 让房间尺寸随机
-
     interior_boundary = sample_interior_boundary(
         num_rooms=len(room_ids),
         dims=generate_dims,

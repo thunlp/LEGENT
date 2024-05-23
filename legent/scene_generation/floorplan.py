@@ -1,4 +1,3 @@
-# %%
 """
 Things to consider:
 - Hallways:

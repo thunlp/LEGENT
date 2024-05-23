@@ -58,8 +58,8 @@ def sample_interior_boundary(
 
     boundary = np.zeros((z_size, x_size), dtype=int)
 
-    # if num_rooms > 1:
-    if False:
+    # NOTE: LEGENT: If you want a rectangular house, comment out the following code
+    if num_rooms > 1:
         n_cuts = get_n_cuts(num_rooms=num_rooms)
         logging.debug(f"Number of cuts: {n_cuts}")
 

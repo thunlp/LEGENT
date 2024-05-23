@@ -15,6 +15,7 @@ from legent.scene_generation.room_spec import (
     RoomSpecSampler,
     RoomSpec,
     LeafRoom,
+    MetaRoom
 )
 from legent.scene_generation.constants import UNIT_SIZE
 
@@ -54,17 +55,24 @@ def generate_scene(
     room_num=0,
     method="proc",
 ):
-    # room_num = 1
     if method == "proc":
         # object_counts specifies a definite number for certain objects
         # For example, if you want to have only one instance of ChristmasTree_01 in the scene, you can set the object_counts as {"ChristmasTree_01": 1}.
         # global prefabs, interactable_names, kinematic_names, interactable_names_set, kinematic_names_set
-        MAX = 7
-        
         room_types = ["Bedroom", "LivingRoom", "Kitchen", "Bathroom"]
-        sampler = ROOM_SPEC_SAMPLER
-        if 2 <= room_num <= 4:
+        room_size_range = {
+            "Bedroom": (4, 6), # min 4 units, max 6 units
+            "LivingRoom": (6, 9),
+            "Kitchen": (2, 6),
+            "Bathroom": (1, 2),
+        }
+        if room_num == 0:
+            room_num = random.randint(1, 4)
+        if 1 <= room_num <= 4:
             sample_rooms = random.sample(room_types, room_num)
+            sample_sizes = [random.randint(*room_size_range[room]) for room in sample_rooms]
+            total_size = sum(sample_sizes)
+            sample_ratios = [size / total_size for size in sample_sizes]
             sampler = RoomSpecSampler(
                 [
                     RoomSpec(
@@ -72,53 +80,36 @@ def generate_scene(
                         sampling_weight=1,
                         spec=
                         [
-                            LeafRoom(room_id=2+i, ratio=1, room_type=room) for i, room in enumerate(sample_rooms)
+                            LeafRoom(room_id=2+i, ratio=sample_ratios[i], room_type=room) for i, room in enumerate(sample_rooms)
                         ],
                     )
                 ]
             )
-        elif room_num == 1:
-
-            room_type = random.choice(room_types)
-
-            # room_type = "Bedroom"
+            room_spec = sampler.sample()
+        else:
+            sampler = ROOM_SPEC_SAMPLER
+            room_spec = sampler.sample()
             
-
-            unit_size = 2.5
-            # global UNIT_SIZE
-            if room_type == "Bedroom":
-                unit_size = 2
-            elif room_type == "LivingRoom":
-                unit_size = 1.5
-            elif room_type == "Kitchen":
-                unit_size = 1
-            elif room_type == "Bathroom":
-                unit_size = 0.5
+            room_num = len((room_spec.room_type_map.keys()))
+            total_size = 6 * room_num
             
-            unit_size = 2
-
-            sampler = RoomSpecSampler(
-                [
-                    RoomSpec(
-                        room_spec_id="OneRoom",
-                        sampling_weight=1,
-                        spec=[LeafRoom(room_id=2, ratio=1, room_type=room_type)],
-                    )
-                ]
-            )
-        
-        # sampler = ROOM_SPEC_SAMPLER
         unit_size = 2.5
-        # receptacle_object_counts= {"Table": {"count": 1, "objects": [{"Banana": 1}]}}
-        room_spec = sampler.sample()
-
+        
+        # get total size of the floors
+        x_size = random.randint(max(1, int(np.sqrt(total_size))), int(np.sqrt(total_size)) + 1)
+        z_size = random.randint(max(1, int(np.sqrt(total_size))), int(np.sqrt(total_size)) + 1)
+        x_size = max(3, x_size)
+        z_size = max(3, x_size)
+        
+        dims = (x_size, z_size) # If you want a random total size, set dims = None
+        
         house_generator = HouseGenerator(
             room_spec=room_spec,
-            dims=(MAX, MAX),
+            dims=dims,
             objectDB=get_default_object_db(),
             unit_size = unit_size,
         )
-
+        
         # receptacle_object_counts={
         #     "Sofa": {"count": 1, "objects": [{"Orange": 1}]},
         #     "Chair": {"count": 1, "objects": [{"Orange": 1}]},
@@ -131,6 +122,7 @@ def generate_scene(
             receptacle_object_counts=receptacle_object_counts,
             room_num=room_num,
         )
+
         # for instance in scene["instances"]:
         #     instance["type"] = "kinematic"
         return scene
