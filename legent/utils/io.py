@@ -78,6 +78,32 @@ def scene_string(scene):  # to save tokens or print neatly
     return "\n".join(objects_string)
 
 
+def pack_scene(scene):
+    import zipfile
+
+    files_to_zip = {}
+
+    with zipfile.ZipFile(output_zip, "w") as zipf:
+        for file in files_to_zip:
+            zipf.write(file, arcname=file.split("/")[-1])
+
+    for instance in scene["instances"]:
+        if os.path.exists(instance["prefab"]):
+            files_to_zip.add(instance["prefab"])
+
+    for instance in scene["floors"]:
+        if "material" in instance and os.path.exists(instance["material"]):
+            files_to_zip.add(instance["material"])
+
+    for instance in scene["walls"]:
+        if "material" in instance and os.path.exists(instance["material"]):
+            files_to_zip.add(instance["material"])
+
+    output_zip = "packed_scene.zip"
+
+    log_green(f"created ZIP file at <g>{output_zip}</g>")
+
+
 def get_latest_folder(root_folder):
     folders = [os.path.join(root_folder, d) for d in os.listdir(root_folder) if os.path.isdir(os.path.join(root_folder, d))]
     folder = sorted(folders, reverse=True)[0]
