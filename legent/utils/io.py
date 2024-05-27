@@ -3,6 +3,7 @@ import json
 from colorama import Fore, Style
 from datetime import datetime
 import os
+import zipfile
 
 
 def log(*args):
@@ -79,29 +80,53 @@ def scene_string(scene):  # to save tokens or print neatly
 
 
 def pack_scene(scene):
-    import zipfile
-
     files_to_zip = {}
 
-    with zipfile.ZipFile(output_zip, "w") as zipf:
-        for file in files_to_zip:
-            zipf.write(file, arcname=file.split("/")[-1])
+    store_json(scene, "pack_scene_temp.json")
 
     for instance in scene["instances"]:
         if os.path.exists(instance["prefab"]):
             files_to_zip.add(instance["prefab"])
-
-    for instance in scene["floors"]:
+    for instance in scene["floors"] + scene["walls"]:
         if "material" in instance and os.path.exists(instance["material"]):
             files_to_zip.add(instance["material"])
-
-    for instance in scene["walls"]:
         if "material" in instance and os.path.exists(instance["material"]):
             files_to_zip.add(instance["material"])
 
     output_zip = "packed_scene.zip"
 
-    log_green(f"created ZIP file at <g>{output_zip}</g>")
+    with zipfile.ZipFile(output_zip, "w") as zipf:
+        zipf.write(file, arcname="scene.json")
+        for file in files_to_zip:
+            zipf.write(file, arcname=file.split("/")[-1])
+
+    os.remove("pack_scene_temp.json")
+
+    log_green(f"created packed scene at <g>{output_zip}</g>")
+
+
+def unpack_scene(input_file: str):
+    dir = input_file.rsplit(".", maxsplit=1)[0]
+    if not os.path.exists(dir):
+        os.makedirs(dir)
+        with zipfile.ZipFile(input_file, "r") as zip_ref:
+            zip_ref.extractall(dir)
+
+    scene = load_json(os.path.join(dir, "scene.json"))
+
+    for instance in scene["instances"]:
+        new_path = f"{dir}/{instance['prefab'].split('/')[-1]}"
+        print(new_path)
+        if os.path.exists(new_path):
+            instance["prefab"] = new_path
+    for instance in scene["floors"] + scene["walls"]:
+        if "material" in instance:
+            print(new_path)
+            new_path = f"{dir}/{instance['material'].split('/')[-1]}"
+            if os.path.exists(new_path):
+                instance["material"] = new_path
+    scene = store_json(scene, os.path.join(dir, "new_scene.json"))
+    return scene
 
 
 def get_latest_folder(root_folder):
