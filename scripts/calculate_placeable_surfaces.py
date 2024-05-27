@@ -12,10 +12,10 @@ scale = 1
 asset = "F:/Downloads/soviet_sofa.glb"
 scale = 0.01
 
-surfaces = get_placable_surface(asset, visualize=False)
+# NOTE: Set visualize=False when processing a large number of assets
+surfaces = get_placable_surface(asset, size_is_correct=False, visualize=True)
 
-
-env = Environment(env_path=None)
+env = Environment(env_path="auto")
 try:
 
     def build_scene_with_lights():

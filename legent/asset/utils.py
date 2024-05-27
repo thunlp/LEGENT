@@ -54,7 +54,7 @@ def convert_obj_to_gltf(input_file, output_file):
     glb.save(output_file)
 
 
-def get_placable_surface(input_file, visualize):
+def get_placable_surface(input_file, size_is_correct, visualize):
     # Uniformly emit rays downward to obtain a set of intersection points. The set of intersection points on the same horizontal plane forms a placable surface.
     import trimesh
     import numpy as np
@@ -87,12 +87,16 @@ def get_placable_surface(input_file, visualize):
     bounds_min_z = mesh.bounds[0][2] + 0.01
     bounds_max_z = mesh.bounds[1][2] - 0.01
 
-    # Shoot a ray every 0.05 meters.
-    density = 0.05
-    rays_x = int((mesh.bounds[1][0] - mesh.bounds[0][0]) / density)  # Number of rays in the X-axis direction
-    rays_z = int((mesh.bounds[1][2] - mesh.bounds[0][2]) / density)  # Number of rays in the Z-axis direction
-    rays_x = min(rays_x, 20)
-    rays_z = min(rays_z, 20)
+    if size_is_correct:
+        # Shoot a ray every 0.05 meters.
+        density = 0.05
+        rays_x = int((mesh.bounds[1][0] - mesh.bounds[0][0]) / density)  # Number of rays in the X-axis direction
+        rays_z = int((mesh.bounds[1][2] - mesh.bounds[0][2]) / density)  # Number of rays in the Z-axis direction
+        rays_x = max(min(rays_x, 20), 2)
+        rays_z = max(min(rays_z, 20), 2)
+    else:
+        rays_x = 20
+        rays_z = 20
 
     def ij_to_pos(i, j):
         x = bounds_min_x + (bounds_max_x - bounds_min_x) * i / (rays_x - 1)
@@ -139,9 +143,10 @@ def get_placable_surface(input_file, visualize):
                     points.append([p[0], hit_y[i][j], p[1]])
         add_vis_points(points, point_scale=1, color=[0, 0, 255, 255])
 
+    same_plane_eps = (mesh.bounds[1][0] - mesh.bounds[0][0]) / 100
+
     def find_most_points_on_same_y():
         planes = []  # planes[plane_i] is the i, j coordinates of all points on the plane
-        same_plane_eps = (mesh.bounds[1][0] - mesh.bounds[0][0]) / 100
 
         for i in range(rays_x):
             for j in range(rays_z):
@@ -159,17 +164,24 @@ def get_placable_surface(input_file, visualize):
 
         # Find the group with the most points.
         if not planes:
-            return False, []
+            return []
         placeable_points = max(planes, key=len)
 
+        # Check if there is a protrusion in the middle of the plane.
+        bounds_min_i, bounds_max_i = min(i for i, _ in placeable_points), max(i for i, _ in placeable_points)
+        bounds_min_j, bounds_max_j = min(j for _, j in placeable_points), max(j for _, j in placeable_points)
+        placeable_y = hit_y[placeable_points[0][0], placeable_points[0][1]]
+        for i in range(bounds_min_i, bounds_max_i + 1):
+            for j in range(bounds_min_j, bounds_max_j + 1):
+                if placeable_y - hit_y[i, j] > same_plane_eps * 2:
+                    return []
+
         if len(placeable_points) < 16:
-            return False, []
+            return []
 
-        return True, placeable_points
+        return placeable_points
 
-    plane_valid, placeable_points = find_most_points_on_same_y()
-    if not plane_valid:
-        return []
+    placeable_points = find_most_points_on_same_y()
 
     if visualize:
         points = []
