@@ -1,5 +1,5 @@
 from legent.server.server import serve_scene, launch
-from legent.utils.io import load_json, store_json, save_image, scene_string, time_string, get_latest_folder, get_latest_folder_with_suffix, unpack_scene
+from legent.utils.io import load_json, store_json, save_image, scene_string, time_string, get_latest_folder, get_latest_folder_with_suffix, unpack_scene, find_files_by_extension
 from legent.environment.env import Environment
 from legent.action.action import Action, ResetInfo, ActionFinish
 from legent.action.observation import Observation

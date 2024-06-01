@@ -140,6 +140,13 @@ def get_latest_folder_with_suffix(root_folder, suffix):
     folder = sorted(folders, reverse=True)[0]
     return folder
 
+def find_files_by_extension(directory, extension):
+    matching_files = []
+    for root, dirs, files in os.walk(directory):
+        for file in files:
+            if file.endswith(extension):
+                matching_files.append(os.path.join(root, file))
+    return matching_files
 
 def parse_ssh(ssh: str):
     ssh_parts = ssh.rsplit(",", maxsplit=1)
