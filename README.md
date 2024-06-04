@@ -10,8 +10,8 @@
         <!-- <a href="https://github.com/thunlp/LEGENT/blob/main/docs/README.md">Documentation</a> | -->
         <a href="https://docs.legent.ai/">Documentation</a> |
         <a href="https://arxiv.org/pdf/2404.18243">Paper</a> |
-        <a href="https://huggingface.co/spaces/LEGENT/LEGENT">Playable Demo</a> |
-        <a href="https://docs.legent.ai/blog/introduction">Quick Start</a> | 
+        <a href="">Playable Demo (Coming Soon)</a> |
+        <a href="https://docs.legent.ai/blog/introduction">Quick Start</a> |
         <a href="https://discord.gg/FenHQRyFN7">Discord</a>
     】
     </p>
@@ -19,19 +19,13 @@
 
 ---
 
-### Updates
-
-* [2024/05] A simple [web demo](https://huggingface.co/spaces/LEGENT/LEGENT) is accessible on HuggingFace Space🤗.
-Let's dive into the immersive interactive world!
-
 ### Introduction
 
-In the future, robots will perceive the environment as we do, communicate with us through natural language and help us with our tasks. The platform is dedicated to developing robots that can chat, see, and act from virtual worlds to the real world.
-We aim to facilitate research in this field for anyone interested. LEGENT is a pioneering solution combining large models with embodied agents, prioritizing ease of use and scalability. The platform focuses on developing:
+In the future, robots will perceive the environment as we do, communicate with us through natural language and help us with our tasks. LEGENT is dedicated to developing robots that can chat, see, and act from virtual worlds to the real world. Designed to integrate large models with embodied agents, this platform prioritizes ease of use and scalability, focusing on developing:
 
 * An easy-to-use environment that simulates a physical world, where an agent can interact with humans through language, receive egocentric vision, and perform physical actions.
 
-* Automated generation of training data, including the generation of scenes, tasks, and agent trajectories. The platform is tailored to train large multimodal models as embodied models, using generated data from simulated worlds at scale. LEGENT serves as the data engine for embodied models in **robotics** and **games**, as well as for world models.
+* Automated generation of training data, including the generation of scenes, tasks, and agent trajectories. The platform is tailored to train large multimodal models as embodied models, using generated data from simulated worlds at scale. LEGENT serves as the data engine for embodied models in robotics and games, as well as for world models.
 
 ### Demonstration
 
@@ -50,7 +44,7 @@ Interact with the embodied agent in stylized scenes.
 
 ### Features
 
-* **Language Interaction**. Use natural language as the human-robot interaction interface.
+* **Language Interaction**. Use natural language as the human-robot interaction interface. (LEGENT is short for **l**anguage-interactive **e**mbodied a**gent**s)
 
 
 * **Fundamental Physics**. The simulation incorporates gravity, friction, and collision dynamics.
@@ -66,7 +60,7 @@ Instructions for trying out these scenes can be found [here](https://docs.legent
 
   <https://github.com/thunlp/LEGENT/assets/50205889/b2392a4e-0c26-489a-b608-2c11f45c619f>
   
-* **Scalable Assets**. LEGENT supports importing (1) your own 3D objects, (2) objects from academic datasets, and (3) objects created by generative models. Learn more [here](https://docs.legent.ai/documentation/data/object_assets/).
+* **Scalable Assets**. LEGENT supports importing (1) your own 3D objects, (2) objects from academic datasets, and (3) objects created by generative models. Learn more [here](https://docs.legent.ai/documentation/data/object_assets/). Note that the available adequately annotated 3D objects are very limited and vary a lot in format and quality. We are compiling a unified, open object assets library that can be freely used for embodied agent research.
 
   <https://github.com/thunlp/LEGENT/assets/50205889/d5b35c51-4da3-4392-a87e-262ba70a9713>
 
