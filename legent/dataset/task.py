@@ -164,7 +164,7 @@ For example (The examples are from other scenes. The number means object_id):
 
         ret = self.send_chat(messages)
 
-        log_green(f"<g>Send to ChatGPT<g/>:\n{content}\n<g>Received from ChatGPT<g/>:\n{ret}")
+        log_green(f"<g>Send to ChatGPT</g>:\n{content}\n<g>Received from ChatGPT</g>:\n{ret}")
 
         task_lines = [task for task in ret.split("\n") if task]
         samples = []

@@ -4,6 +4,7 @@ from colorama import Fore, Style
 from datetime import datetime
 import os
 import zipfile
+from typing import List
 
 
 def log(*args):
@@ -14,7 +15,7 @@ def log(*args):
 
 def log_green(arg: str):
     if "<g>" in arg:
-        log(arg.replace("<g>", Fore.GREEN).replace("<g/>", Style.RESET_ALL))
+        log(arg.replace("<g>", Fore.GREEN).replace("</g>", Style.RESET_ALL))
     else:
         log(Fore.GREEN + arg + Style.RESET_ALL)
 
@@ -79,54 +80,98 @@ def scene_string(scene):  # to save tokens or print neatly
     return "\n".join(objects_string)
 
 
-def pack_scene(scene):
-    files_to_zip = {}
+def pack_scenes(scenes: List):
+    if type(scenes) != list:
+        scenes = [scenes]
+    for i, scene in enumerate(scenes):
+        if type(scene) == str:
+            scenes[i] = load_json(scene)
 
-    store_json(scene, "pack_scene_temp.json")
+    # find all assets
+    files_to_zip = set()
+    for i, scene in enumerate(scenes):
+        for instance in scene["instances"]:
+            if os.path.exists(instance["prefab"]):
+                files_to_zip.add(instance["prefab"])
+        for instance in scene["floors"] + scene["walls"]:
+            if "material" in instance and os.path.exists(instance["material"]):
+                files_to_zip.add(instance["material"])
+    
+    
+    # To prevent the occurrence of files with the same name.
+    dup_name_count = {}
+    path_to_unique_name = {}
+    for file_path in files_to_zip:
+        file_name = os.path.basename(file_path)
+        if file_name in dup_name_count:
+            dup_name_count[file_name] += 1
 
-    for instance in scene["instances"]:
-        if os.path.exists(instance["prefab"]):
-            files_to_zip.add(instance["prefab"])
-    for instance in scene["floors"] + scene["walls"]:
-        if "material" in instance and os.path.exists(instance["material"]):
-            files_to_zip.add(instance["material"])
-        if "material" in instance and os.path.exists(instance["material"]):
-            files_to_zip.add(instance["material"])
+            prefix, suffix = file_name.rsplit(".", maxsplit=1)
+            path_to_unique_name[file_path] = f"{prefix}.{dup_name_count[file_name]}.{suffix}"
+        else:
+            dup_name_count[file_name] = 0
+    for file_path in files_to_zip:
+        if file_path not in path_to_unique_name:
+            path_to_unique_name[file_path] = os.path.basename(file_path)
+        path_to_unique_name[file_path] = os.path.join("assets", path_to_unique_name[file_path])
 
-    output_zip = "packed_scene.zip"
+    output_zip = f"packed_{len(scenes)}_scenes_{time_string()}.zip"
 
+
+    temp_file = "packed_scene_temp.json"
     with zipfile.ZipFile(output_zip, "w") as zipf:
-        zipf.write(file, arcname="scene.json")
+        
         for file in files_to_zip:
-            zipf.write(file, arcname=file.split("/")[-1])
+            zipf.write(file, arcname=f"{path_to_unique_name[file]}")
+        for i, scene in enumerate(scenes):
+            if i==1:
+                scenes[i]['prompt'] = "1"
+            for instance in scene["instances"]:
+                if os.path.exists(instance["prefab"]):
+                    instance["prefab"] = path_to_unique_name[instance["prefab"]]
+            for instance in scene["floors"] + scene["walls"]:
+                if "material" in instance and os.path.exists(instance["material"]):
+                    instance["material"] = path_to_unique_name[instance["material"]]
+            
+            store_json(scene, temp_file)
+            zipf.write(temp_file, arcname=f"scene_{i}_relative.json")
+    os.remove(temp_file)
 
-    os.remove("pack_scene_temp.json")
+    log_green(f"created packed scenes at <g>{output_zip}</g>")
+    return output_zip
 
-    log_green(f"created packed scene at <g>{output_zip}</g>")
 
-
-def unpack_scene(input_file: str):
+def unpack_scenes(input_file: str, get_scene_id: int = -1):
     dir = input_file.rsplit(".", maxsplit=1)[0]
+    dir = os.path.abspath(dir)
     if not os.path.exists(dir):
         os.makedirs(dir)
         with zipfile.ZipFile(input_file, "r") as zip_ref:
             zip_ref.extractall(dir)
 
-    scene = load_json(os.path.join(dir, "scene.json"))
+    files = [item for item in os.listdir(dir) if item.endswith("_relative.json")]
 
-    for instance in scene["instances"]:
-        new_path = f"{dir}/{instance['prefab'].split('/')[-1]}"
-        print(new_path)
-        if os.path.exists(new_path):
-            instance["prefab"] = new_path
-    for instance in scene["floors"] + scene["walls"]:
-        if "material" in instance:
-            print(new_path)
-            new_path = f"{dir}/{instance['material'].split('/')[-1]}"
+    scenes = []
+    for i in range(len(files)):
+        if get_scene_id != -1 and f'scene_{i}_relative.json' != files[i]:
+            continue
+        scene = load_json(os.path.join(dir, f"scene_{i}_relative.json"))
+
+        for instance in scene["instances"]:
+            new_path = f"{dir}/{instance['prefab']}"
             if os.path.exists(new_path):
-                instance["material"] = new_path
-    scene = store_json(scene, os.path.join(dir, "new_scene.json"))
-    return scene
+                instance["prefab"] = new_path
+        for instance in scene["floors"] + scene["walls"]:
+            if "material" in instance:
+                new_path = f"{dir}/{instance['material']}"
+                if os.path.exists(new_path):
+                    instance["material"] = new_path
+        store_json(scene, os.path.join(dir, f"scene_{i}.json"))
+        scenes.append(scene)
+    if get_scene_id!=-1:
+        return scenes[0]
+    else:
+        return scenes
 
 
 def get_latest_folder(root_folder):

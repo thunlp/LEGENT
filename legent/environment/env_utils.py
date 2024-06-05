@@ -167,7 +167,7 @@ def download_env(from_tsinghua_cloud=False, download_env_data=False):
                 os.chmod(os.path.join(root, file), mode)
     env_path = os.path.abspath(extract_to).replace("\\", "/")
     log_prefix = "environment data" if download_env_data else "LEGENT environment client"
-    log_green(f"{log_prefix} is saved to <g>{env_path}<g/>.")
+    log_green(f"{log_prefix} is saved to <g>{env_path}</g>.")
 
 
 def get_default_env_path(root_folder=CLIENT_FOLDER):
