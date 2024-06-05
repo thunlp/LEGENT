@@ -52,6 +52,7 @@ def main():
         help="",
     )
     parser.add_argument("--thu", action="store_true", help="download from tsinghua cloud rather than huggingface hub")
+    parser.add_argument("--dev", action="store_true", help="download dev version from tsinghua cloud")
 
     args = parser.parse_args()
     if args.function == "serve":
@@ -62,5 +63,5 @@ def main():
     elif args.function == "launch":
         launch(args.env_path, args.ssh, args.scene, False, True, args.api_key, args.base_url)
     elif args.function == "download":
-        download_env(args.thu)
+        download_env(args.thu, download_dev_version=args.dev)
         download_env(args.thu, download_env_data=True)

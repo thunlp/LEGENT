@@ -122,11 +122,14 @@ def download_file(url, file_path):
             bar.update(size)
 
 
-def download_env(from_tsinghua_cloud=False, download_env_data=False):
+def download_env(from_tsinghua_cloud=False, download_env_data=False, download_dev_version=False):
     import requests
 
     if from_tsinghua_cloud:
-        share_key = "9976c807e6e04e069377"
+        if download_dev_version:
+            share_key = "806b350ea72c4bf4ba51"
+        else:
+            share_key = "9976c807e6e04e069377"
         res = requests.get(f"https://cloud.tsinghua.edu.cn/api/v2.1/share-links/{share_key}/dirents/")
         files = [item["file_name"] for item in res.json()["dirent_list"]]
     else:
