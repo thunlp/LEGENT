@@ -15,6 +15,7 @@ from legent.dataset.eval import task_done
 from legent.action.action import parse_action
 from legent.action.api import SaveTopDownView, TakePhotoWithVisiblityInfo
 from legent.asset.utils import get_mesh_size, get_mesh_vertical_size, convert_obj_to_gltf
+import time
 
 
 def main():
@@ -55,6 +56,9 @@ def main():
     args = parser.parse_args()
     if args.function == "serve":
         serve_scene(args.scene)
+        while True:
+            time.sleep(60)
+            pass
     elif args.function == "launch":
         launch(args.env_path, args.ssh, args.scene, False, True, args.api_key, args.base_url)
     elif args.function == "download":

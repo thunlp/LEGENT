@@ -1,4 +1,4 @@
-def get_mesh_size(input_file):
+def get_mesh_size(input_file, visualize=False):
     """Get the bounding box of a mesh file.
     Args:
         input_file: str, the path of the mesh file.
@@ -10,6 +10,17 @@ def get_mesh_size(input_file):
 
     mesh = trimesh.load(input_file)
     min_vals, max_vals = mesh.bounds[0], mesh.bounds[1]
+
+    def show_bbox(bounding_box):
+        bbox = bounding_box
+        bbox.visual.face_colors = [1, 0, 0, 0.3]
+        bbox.visual.edge_colors = [0, 0, 1, 0.8]
+        scene = trimesh.Scene([mesh, bbox])
+        scene.show()
+
+    if visualize:
+        show_bbox(bounding_box=mesh.bounding_box)
+
     return max_vals - min_vals
 
 
@@ -44,7 +55,7 @@ def convert_obj_to_gltf(input_file, output_file):
     mesh = trimesh.load(input_file)
 
     # Export to GLTF
-    mesh.export(output_file, file_type="gltf")
+    mesh.export(output_file, file_type="glb")
 
     glb = GLTF2().load(output_file)
     for material in glb.materials:
