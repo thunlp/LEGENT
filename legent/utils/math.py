@@ -112,7 +112,6 @@ def look_rotation(forward_vector):
 
 
 def rotation_to_foward(rotation: np.ndarray):
-    print(rotation, "rotation")
     # Convert angles from degrees to radians
     angles_rad = np.radians(rotation)
     x, y, z = angles_rad
