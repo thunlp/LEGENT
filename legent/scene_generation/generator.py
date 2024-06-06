@@ -13,7 +13,6 @@ from legent.scene_generation.room import Room
 from legent.scene_generation.room_spec import RoomSpec
 from legent.scene_generation.small_objects import add_small_objects
 from legent.server.rect_placer import RectPlacer
-from legent.utils.io import log
 from legent.utils.math import look_rotation
 
 from .asset_groups import Asset
@@ -35,8 +34,8 @@ MAX_SPECIFIED_NUMBER = 20
 WALL_THICKNESS = 0.075
 
 
-# def log(*args, **kwargs):
-#     pass
+def log(*args, **kwargs):
+    pass
 
 
 class HouseGenerator:
