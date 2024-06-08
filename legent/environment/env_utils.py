@@ -135,7 +135,11 @@ def download_env(from_tsinghua_cloud=False, download_env_data=False, download_de
     else:
         from huggingface_hub import list_files_info
 
-        files_info = list_files_info("LEGENT/LEGENT-environment-Alpha")
+        if download_dev_version:
+            repo_name = "LEGENT/LEGENT-environment-dev"
+        else:
+            repo_name = "LEGENT/LEGENT-environment-Alpha"
+        files_info = list_files_info(repo_name)
         files = [f.rfilename for f in list(files_info)]
 
     if get_platform() == "linux" or get_platform() == "linux2":
@@ -154,7 +158,7 @@ def download_env(from_tsinghua_cloud=False, download_env_data=False, download_de
     if from_tsinghua_cloud:
         link = f"https://cloud.tsinghua.edu.cn/d/{share_key}/files/?p={file_name}&dl=1"
     else:
-        link = f"https://huggingface.co/LEGENT/LEGENT-environment-Alpha/resolve/main/{file_name}?download=true"
+        link = f"https://huggingface.co/{repo_name}/resolve/main/{file_name}?download=true"
     # log(f'download {file_name} from {link}')
     download_file(link, file_path)
 
