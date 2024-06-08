@@ -23,6 +23,7 @@ class Action:
         look_x: float = 0,
         look_y: float = 0,
         use_look_at: bool = False,  # whether to use look-at-image-point mode
+        high_level_action_id: int = -1,
         api_calls: List[str] = [],
     ) -> None:
         self.type = type
@@ -43,6 +44,8 @@ class Action:
         self.look_x: float = look_x
         self.look_y: float = look_y
         self.use_look_at: bool = use_look_at
+        
+        self.high_level_action_id: int = high_level_action_id
 
         self.api_calls: List[str] = api_calls
 
@@ -51,7 +54,7 @@ class Action:
             type=self.type,
             text=self.text,
             json_actions=self.json_actions,
-            float_actions=[self.move_right, self.move_forward, self.rotate_right, self.rotate_down] + [self.jump, self.grab, self.teleport_forward, self.look_x, self.look_y],
+            float_actions=[self.move_right, self.move_forward, self.rotate_right, self.rotate_down] + [self.jump, self.grab, self.teleport_forward, self.look_x, self.look_y] + [self.high_level_action_id],
             int_actions=[self.use_teleport, self.use_look_at],
             api_calls=json.dumps({"calls": self.api_calls}),
         )
