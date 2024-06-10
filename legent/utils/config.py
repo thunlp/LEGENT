@@ -17,6 +17,7 @@ TASKS_FOLDER = f"{resource_path}/tasks"
 DATASET_FOLDER = f"{resource_path}/dataset"
 MODEL_FOLDER = f"{resource_path}/models"
 EVAL_FOLDER = f"{resource_path}/eval"
+PACKED_FOLDER = f"{resource_path}/packed_scenes"
 
 
 DEFAULT_GRPC_PORT = 50051
