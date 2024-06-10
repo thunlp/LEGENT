@@ -5,6 +5,7 @@ from datetime import datetime
 import os
 import zipfile
 from typing import List
+from legent.utils.config import PACKED_FOLDER
 
 
 def log(*args):
@@ -91,45 +92,36 @@ def pack_scenes(scenes: List, output_dir: str = None):
 
     # find all assets
     files_to_zip = set()
+
+    def check_and_add_path(path_to_check):
+        if os.path.exists(path_to_check):
+            files_to_zip.add(path_to_check)
+        else:
+            log(f"Warning: file {path_to_check} not found")
+            raise FileNotFoundError
+
     for i, scene in enumerate(scenes):
         for instance in scene["instances"]:
-            if "material" in instance:
-                if os.path.exists(instance["material"]):
-                    files_to_zip.add(instance["material"])
-                else:
-                    log(f"Warning: material {instance['material']} not found")
-                    raise FileNotFoundError
-            if instance["source"] == "built-in":
+            if ("source" in instance and instance["source"] == "built-in") or instance["prefab"].startswith("LowPolyInterior"):
                 continue
             else:
-                if os.path.exists(instance["prefab"]):
-                    files_to_zip.add(instance["prefab"])
-                else:
-                    log(f"Warning: prefab {instance['prefab']} not found")
-                    raise FileNotFoundError
-                
+                check_and_add_path(instance["prefab"])
+
                 # for procthor assets
                 if "mesh_materials" in instance:
                     for mesh in instance["mesh_materials"]:
                         for material in mesh["materials"]:
                             for map in ["base_map", "metallic_map", "normal_map", "height_map", "occulusion_map", "emission_map", "detail_mask_map", "detail_base_map", "detail_normal_map"]:
-                                if material[map]: 
-                                    if os.path.exists(material[map]):
-                                        files_to_zip.add(material[map])
-                                    else:
-                                        log(f"Warning: material {material[map]} not found")
-                                        raise FileNotFoundError
+                                if material[map]:
+                                    check_and_add_path(material[map])
 
-        for instance in scene["floors"] + scene["walls"]:
-            if "material" in instance and os.path.exists(instance["material"]):
-                files_to_zip.add(instance["material"])
-            else:
-                log(f"Warning: material not found")
-                raise FileNotFoundError
-        skybox = scene["skybox"]["map"]
-        if os.path.exists(skybox):
-            files_to_zip.add(skybox)
-    
+        for instance in scene["instances"] + scene["floors"] + scene["walls"]:
+            if "material" in instance and instance["material"]:
+                check_and_add_path(instance["material"])
+
+        if "skybox" in scene:
+            check_and_add_path(scene["skybox"]["map"])
+
     # To prevent the occurrence of files with the same name.
     dup_name_count = {}
     path_to_unique_name = {}
@@ -149,36 +141,30 @@ def pack_scenes(scenes: List, output_dir: str = None):
 
     output_zip = f"{output_dir}/packed_{len(scenes)}_scenes_{time_string()}.zip"
 
-
     temp_file = "packed_scene_temp.json"
     with zipfile.ZipFile(output_zip, "w") as zipf:
-        
+
         for file in files_to_zip:
             zipf.write(file, arcname=f"{path_to_unique_name[file]}")
         for i, scene in enumerate(scenes):
-            if i==1:
-                scenes[i]['prompt'] = "1"
+            if i == 1:
+                scenes[i]["prompt"] = "1"
             for instance in scene["instances"]:
                 if os.path.exists(instance["prefab"]):
                     instance["prefab"] = path_to_unique_name[instance["prefab"]]
-                if "material" in instance:
-                    if os.path.exists(instance["material"]):
-                        instance["material"] = path_to_unique_name[instance["material"]]
                 # for procthor assets
                 if "mesh_materials" in instance:
                     for mesh in instance["mesh_materials"]:
                         for material in mesh["materials"]:
                             for map in ["base_map", "metallic_map", "normal_map", "height_map", "occulusion_map", "emission_map", "detail_mask_map", "detail_base_map", "detail_normal_map"]:
-                                if material[map]: 
-                                    if os.path.exists(material[map]):
-                                        material[map] = path_to_unique_name[material[map]]
-                                    
-            for instance in scene["floors"] + scene["walls"]:
-                if "material" in instance and os.path.exists(instance["material"]):
+                                if material[map]:
+                                    material[map] = path_to_unique_name[material[map]]
+
+            for instance in scene["instances"] + scene["floors"] + scene["walls"]:
+                if "material" in instance and instance["material"] and os.path.exists(instance["material"]):
                     instance["material"] = path_to_unique_name[instance["material"]]
-            skybox = scene["skybox"]["map"]
-            if os.path.exists(skybox):
-                scene["skybox"]["map"] = path_to_unique_name[skybox]
+            if "skybox" in scene:
+                scene["skybox"]["map"] = path_to_unique_name[scene["skybox"]["map"]]
             store_json(scene, temp_file)
             zipf.write(temp_file, arcname=f"scene_{i}_relative.json")
     os.remove(temp_file)
@@ -198,60 +184,46 @@ def unpack_scenes(input_file: str, get_scene_id: int = -1):
     files = [item for item in os.listdir(dir) if item.endswith("_relative.json")]
 
     scenes = []
+
+    def check_and_change_path(path_to_check):
+        new_path = f"{dir}/{path_to_check}"
+        if os.path.exists(new_path):
+            return new_path
+        else:
+            log(f"Warning: {new_path} not found")
+            raise FileNotFoundError
+
     for i in range(len(files)):
-        if get_scene_id != -1 and f'scene_{i}_relative.json' != files[i]:
+        if get_scene_id != -1 and f"scene_{i}_relative.json" != files[i]:
             continue
         scene = load_json(os.path.join(dir, f"scene_{i}_relative.json"))
 
         for instance in scene["instances"]:
-            if "material" in instance:
-                new_path = f"{dir}/{instance['material']}"
-                if os.path.exists(new_path):
-                    instance["material"] = new_path
-                else:
-                    log(f"Warning: material {instance['material']} not found")
-                    raise FileNotFoundError
-            if instance["source"] == "built-in":
+            if ("source" in instance and instance["source"] == "built-in") or instance["prefab"].startswith("LowPolyInterior"):
                 continue
             else:
-                new_path = f"{dir}/{instance['prefab']}"
-                if os.path.exists(new_path):
-                    instance["prefab"] = new_path
-                else:
-                    log(f"Warning: prefab {instance['prefab']} not found")
-                    raise FileNotFoundError
-                
+                instance["prefab"] = check_and_change_path(instance["prefab"])
+
                 # for procthor assets
                 if "mesh_materials" in instance:
                     for mesh in instance["mesh_materials"]:
                         for material in mesh["materials"]:
                             for map in ["base_map", "metallic_map", "normal_map", "height_map", "occulusion_map", "emission_map", "detail_mask_map", "detail_base_map", "detail_normal_map"]:
-                                if material[map]: 
-                                    new_path = f"{dir}/{material[map]}"
-                                    if os.path.exists(new_path):
-                                        material[map] = new_path
-                                    else:
-                                        log(f"Warning: material {material[map]} not found")
-                                        raise FileNotFoundError
+                                if material[map]:
+                                    material[map] = check_and_change_path(material[map])
 
-        for instance in scene["floors"] + scene["walls"]:
-            if "material" in instance:
-                new_path = f"{dir}/{instance['material']}"
-                if os.path.exists(new_path):
-                    instance["material"] = new_path
-                else:
-                    log(f"Warning: material {new_path} not found")
-                    raise FileNotFoundError
-        skybox = scene["skybox"]["map"]
-        new_path = f"{dir}/{skybox}"
-        if os.path.exists(new_path):
-            scene["skybox"]["map"] = new_path
+        for instance in scene["instances"] + scene["floors"] + scene["walls"]:
+            if "material" in instance and instance["material"] and os.path.exists(instance["material"]):
+                instance["material"] = check_and_change_path(instance["material"])
+        if "skybox" in scene:
+            scene["skybox"]["map"] = check_and_change_path(scene["skybox"]["map"])
         store_json(scene, os.path.join(dir, f"scene_{i}.json"))
         scenes.append(scene)
-    if get_scene_id!=-1:
+    if get_scene_id != -1:
         return scenes[0]
     else:
         return scenes
+
 
 def get_latest_folder(root_folder):
     folders = [os.path.join(root_folder, d) for d in os.listdir(root_folder) if os.path.isdir(os.path.join(root_folder, d))]
@@ -264,6 +236,7 @@ def get_latest_folder_with_suffix(root_folder, suffix):
     folder = sorted(folders, reverse=True)[0]
     return folder
 
+
 def find_files_by_extension(directory, extension):
     matching_files = []
     for root, dirs, files in os.walk(directory):
@@ -271,6 +244,7 @@ def find_files_by_extension(directory, extension):
             if file.endswith(extension):
                 matching_files.append(os.path.join(root, file))
     return matching_files
+
 
 def parse_ssh(ssh: str):
     ssh_parts = ssh.rsplit(",", maxsplit=1)
