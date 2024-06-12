@@ -14,7 +14,7 @@ class Environment:
         """Initialize the environment.
 
         Args:
-            action_mode (int, optional): 0 is low-level action mode, 1 is high-level action mode, 2 is ground-truth guided action mode. Defaults to 0.
+            action_mode (int, optional): 0 is low-level action mode, 1 is options-based action mode. Defaults to 0.
         """
         self._process: Optional[subprocess.Popen] = None
         # RPC is a one-to-one communication method, with each pair of python worker and game client using the same port.
@@ -76,7 +76,7 @@ class Environment:
         self._communicator.close()
         if self._process is not None:
             # Wait a bit for the process to shutdown, but kill it if it takes too long
-            timeout = 60  # Number of seconds to wait for the environment to shut down beforeforce-killing it.
+            timeout = 300  # Number of seconds to wait for the environment to shut down beforeforce-killing it.
             try:
                 self._process.wait(timeout=timeout)
             except subprocess.TimeoutExpired:

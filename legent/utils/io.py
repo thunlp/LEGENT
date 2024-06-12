@@ -213,8 +213,12 @@ def unpack_scenes(input_file: str, get_scene_id: int = -1):
                                     material[map] = check_and_change_path(material[map])
 
         for instance in scene["instances"] + scene["floors"] + scene["walls"]:
-            if "material" in instance and instance["material"] and os.path.exists(instance["material"]):
-                instance["material"] = check_and_change_path(instance["material"])
+            if "material" in instance and instance["material"]:
+                if not os.path.exists(instance["material"]):
+                    # TODO: Remove this. Provide the right scene file rather than use a default material
+                    instance["material"] = "#222222"
+                else:
+                    instance["material"] = check_and_change_path(instance["material"])
         if "skybox" in scene:
             scene["skybox"]["map"] = check_and_change_path(scene["skybox"]["map"])
         store_json(scene, os.path.join(dir, f"scene_{i}.json"))
@@ -237,7 +241,9 @@ def get_latest_folder_with_suffix(root_folder, suffix):
     return folder
 
 
-def find_files_by_extension(directory, extension):
+def find_files_by_extension(directory, extension, recursive=True):
+    if not recursive:
+        return [os.path.join(directory, file) for file in os.listdir(directory) if file.endswith(extension)]
     matching_files = []
     for root, dirs, files in os.walk(directory):
         for file in files:
