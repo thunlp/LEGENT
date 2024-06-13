@@ -182,7 +182,8 @@ def unpack_scenes(input_file: str, get_scene_id: int = -1):
             zip_ref.extractall(dir)
 
     files = [item for item in os.listdir(dir) if item.endswith("_relative.json")]
-
+    files = list(sorted(files, key=lambda x: (len(x), x)))
+    
     scenes = []
 
     def check_and_change_path(path_to_check):
@@ -193,10 +194,10 @@ def unpack_scenes(input_file: str, get_scene_id: int = -1):
             log(f"Warning: {new_path} not found")
             raise FileNotFoundError
 
-    for i in range(len(files)):
-        if get_scene_id != -1 and f"scene_{i}_relative.json" != files[i]:
+    for file in files:
+        if get_scene_id != -1 and f"scene_{get_scene_id}_relative.json" != file:
             continue
-        scene = load_json(os.path.join(dir, f"scene_{i}_relative.json"))
+        scene = load_json(os.path.join(dir, file))
 
         for instance in scene["instances"]:
             if ("source" in instance and instance["source"] == "built-in") or instance["prefab"].startswith("LowPolyInterior"):
@@ -221,7 +222,7 @@ def unpack_scenes(input_file: str, get_scene_id: int = -1):
                     instance["material"] = check_and_change_path(instance["material"])
         if "skybox" in scene:
             scene["skybox"]["map"] = check_and_change_path(scene["skybox"]["map"])
-        store_json(scene, os.path.join(dir, f"scene_{i}.json"))
+        store_json(scene, os.path.join(dir, file.replace("_relative", "")))
         scenes.append(scene)
     if get_scene_id != -1:
         return scenes[0]
