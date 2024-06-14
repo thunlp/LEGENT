@@ -77,9 +77,9 @@ class RpcCommunicator:
         so that we can stop sooner and raise a more appropriate error.
         """
         # TODO: remove timeout 
-        timeout_wait = 30  # Timeout (in seconds) to wait for a response before exiting.
+        timeout_wait = 600  # Timeout (in seconds) to wait for a response before exiting.
         deadline = time.monotonic() + timeout_wait
-        callback_timeout_wait = timeout_wait // 10
+        callback_timeout_wait = timeout_wait // 200
         while time.monotonic() < deadline:
             if self.unity_to_external.parent_conn.poll(callback_timeout_wait):
                 # Got an acknowledgment from the connection
