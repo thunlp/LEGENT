@@ -215,6 +215,8 @@ def unpack_scenes(input_file: str, get_scene_id: int = -1):
 
         for instance in scene["instances"] + scene["floors"] + scene["walls"]:
             if "material" in instance and instance["material"]:
+                # TODO: Remove this. Provide the right scene file.
+                instance["material"] = instance["material"].replace("/data41/private/legent/3D_assets/", "")
                 if not os.path.exists(instance["material"]):
                     # TODO: Remove this. Provide the right scene file rather than use a default material
                     instance["material"] = "#222222"
