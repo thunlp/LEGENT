@@ -133,14 +133,13 @@ def download_env(from_tsinghua_cloud=False, download_env_data=False, download_de
         res = requests.get(f"https://cloud.tsinghua.edu.cn/api/v2.1/share-links/{share_key}/dirents/")
         files = [item["file_name"] for item in res.json()["dirent_list"]]
     else:
-        from huggingface_hub import list_files_info
+        from huggingface_hub import list_repo_files
 
         if download_dev_version:
             repo_name = "LEGENT/LEGENT-environment-dev"
         else:
             repo_name = "LEGENT/LEGENT-environment-Alpha"
-        files_info = list_files_info(repo_name)
-        files = [f.rfilename for f in list(files_info)]
+        files = list_repo_files(repo_name)
 
     if get_platform() == "linux" or get_platform() == "linux2":
         platform_name = "linux"
