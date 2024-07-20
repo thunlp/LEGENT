@@ -44,7 +44,7 @@ Interact with the embodied agent in stylized scenes.
 
 ### Features
 
-* **Language Interaction**. Use natural language as the human-robot interaction interface. (LEGENT is short for **l**anguage-interactive **e**mbodied a**gent**s)
+* **Language Interaction**. Use natural language as the human-robot interaction interface.
 
 
 * **Fundamental Physics**. The simulation incorporates gravity, friction, and collision dynamics.
@@ -118,3 +118,13 @@ Instructions for trying out these scenes can be found [here](https://docs.legent
 ### Note
 
 LEGENT is currently organizing code and documents and improving existing features. It will be more convenient to use once this process is complete. If you want a more stable version, please stay tuned!
+
+### TODO List
+
+- Polish APIs and write complete documentations.
+- Release the first stable version.
+- Develop a more powerful data generation system for training LMM-based embodied agents.
+- Add planning-level action APIs to support text-only research.
+- Add humanoid animation action APIs to support text-to-motion research.
+- Add physics-based character/body control by integrating more dedicated tools such as [MuJoCo](https://github.com/google-deepmind/mujoco?tab=readme-ov-file#bindings).
+- Add multi-agent support.
