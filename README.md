@@ -10,7 +10,7 @@
         <!-- <a href="https://github.com/thunlp/LEGENT/blob/main/docs/README.md">Documentation</a> | -->
         <a href="https://docs.legent.ai/">Documentation</a> |
         <a href="https://arxiv.org/pdf/2404.18243">Paper</a> |
-        <a href="">Playable Demo (Coming Soon)</a> |
+        <a href="https://huggingface.co/spaces/LEGENT/LEGENT">Demo</a> |
         <a href="https://docs.legent.ai/blog/introduction">Quick Start</a> |
         <a href="https://discord.gg/FenHQRyFN7">Discord</a>
     】
@@ -29,13 +29,12 @@ In the future, robots will perceive the environment as we do, communicate with u
 
 ### Demonstration
 
-Interact with the embodied agent in realistic scenes.
+A simple [online demo](https://huggingface.co/spaces/LEGENT/LEGENT) is accessible on HuggingFace Space🤗.
+Let's dive into the immersive interactive world and interact with the agent!
 
+Examples of interaction with the embodied agent:
 
 <https://github.com/thunlp/LEGENT/assets/50205889/20657124-e2e6-434f-9315-bcbdce26e1f3>
-
-
-Interact with the embodied agent in stylized scenes.
 
 
 <https://github.com/thunlp/LEGENT/assets/50205889/e667bf3d-1dc5-4ed7-95b7-b3bf6ab60fdf>
