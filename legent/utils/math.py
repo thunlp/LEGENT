@@ -111,6 +111,26 @@ def look_rotation(forward_vector):
     return r
 
 
+def look_at_xz(camera_pos, target_pos):
+    """
+    Calculate the rotation angle (along the Y axis) for a camera on the XZ plane to look at a target point.
+    
+    :param camera_pos: Tuple (x, y, z) representing the camera's position
+    :param target_pos: Tuple (x, y, z) representing the target's position
+    :return: Angle in degrees
+    """
+    camera_pos = np.array([camera_pos[0], camera_pos[2]])
+    target_pos = np.array([target_pos[0], target_pos[2]])
+    
+    direction = target_pos - camera_pos
+    
+    angle_rad = np.arctan2(direction[0], direction[1])
+    angle_deg = np.degrees(angle_rad)
+    if angle_deg < 0:
+        angle_deg += 360
+    
+    return angle_deg
+
 def rotation_to_foward(rotation: np.ndarray):
     # Convert angles from degrees to radians
     angles_rad = np.radians(rotation)

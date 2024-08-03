@@ -25,6 +25,20 @@ def SaveTopDownView(absolute_path):
         "args": absolute_path
     }
     
+def TakePhoto(photo_path, position, rotation, width=4096, height=4096, vertical_field_of_view=90):
+    return {
+        "api": "TakePhoto",
+        "args": json.dumps({
+            "position": position,
+            "rotation": rotation,
+            "width": width,
+            "height": height,
+            "vertical_field_of_view": vertical_field_of_view,
+            "path": photo_path,
+            "rendering_type": ""
+        })
+    }
+    
 def TakePhotoWithVisiblityInfo(photo_path, position, rotation, width=4096, height=4096, vertical_field_of_view=90, rendering_type=""):
     return {
         "api": "TakePhotoWithVisiblityInfo",
