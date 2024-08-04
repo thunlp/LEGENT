@@ -3,11 +3,10 @@ from legent.action.api import TakePhoto
 from legent.utils.math import look_at_xz
 import numpy as np
 import os
-import imageio
 import math
 
 
-env = Environment(env_path="auto", camera_resolution_width=1024, camera_field_of_view=60, action_mode=0, rendering_options={"use_default_light": 0, "style": 0, "background": 0})
+env = Environment(env_path="auto", camera_resolution_width=1024, camera_field_of_view=60, action_mode=0, rendering_options={"use_default_light": 1, "style": 0, "background": 0})
 try:
     scene = generate_scene()
     env.reset(ResetInfo(scene))
@@ -17,13 +16,15 @@ try:
     images = [os.path.join(path, img) for img in os.listdir(path) if img.endswith(".png")]
     [os.remove(image) for image in images]
 
-    center = np.array([5, 0, 5])  # Scene center, around which the camera rotates
-    radius = 15  # Radius of the camera around the center (larger radius makes the room appear smaller)
-    camera_height = 5  # Camera height
-    look_down_angle = 30  # Camera's downward viewing angle
+    radius = 10  # Radius of the camera around the center (larger radius makes the scene appear smaller)
+    look_down_angle = 45  # Camera's downward viewing angle
+
+    center = np.array([scene["center"][0], 0, scene["center"][2]])  # Scene center, around which the camera rotates
+    camera_height = np.tan(look_down_angle / 180 * math.pi) * radius
 
     time = 3  # Rotation time (time for one complete rotation of the room)
     fps = 12  # Frame rate
+    resolution = 1024  # Image resolution
 
     num_photos = fps * time
     step_angle = 360 / num_photos
@@ -36,21 +37,22 @@ try:
             camera_rotation = np.array([look_down_angle, look_at_xz(camera_position, center), 0])
 
             action = Action()
-            action.api_calls = [TakePhoto(os.path.abspath(f"{path}/frame{i:04d}.png"), camera_position.tolist(), camera_rotation.tolist(), 512, 512)]
+            action.api_calls = [TakePhoto(os.path.abspath(f"{path}/frame{i:04d}.png"), camera_position.tolist(), camera_rotation.tolist(), resolution, resolution, 60)]
             env.step(action)
 
     rotate_camera(center, radius)
 
     def create_video(image_folder, output_path, fps):
-        images = [img for img in os.listdir(image_folder) if img.endswith(".png")]
-        images.sort()
+        # !pip install moviepy
+        from moviepy.editor import ImageSequenceClip
+        import os
 
-        writer = imageio.get_writer(output_path, fps=fps, codec="libx264")
-        for image_name in images:
-            image_path = os.path.join(image_folder, image_name)
-            image = imageio.imread(image_path)
-            writer.append_data(image)
-        writer.close()
+        image_files = [img for img in os.listdir(image_folder) if img.endswith(".png")]
+        image_files.sort()
+
+        image_paths = [os.path.join(image_folder, img) for img in image_files]
+        clip = ImageSequenceClip(image_paths, fps=fps)
+        clip.write_videofile(output_path, codec="libx264")
 
     create_video(path, f"{path}/video.mp4", fps=fps)
 except Exception as e:
