@@ -82,6 +82,8 @@ class HouseGenerator:
         room_spec,
         odb,
         prefabs,
+        add_ceiling = True,
+        remove_out_walls = False
     ):
         room_num = len(room_spec.room_type_map)
         room_ids = set(room_spec.room_type_map.keys())
@@ -144,15 +146,16 @@ class HouseGenerator:
                         }
                     )
                     # add ceiling
-                    floor_instances.append(
-                        {
-                            "prefab": FLOOR_PREFAB,
-                            "position": [x, wall_y_size + floor_y_size / 2, z],
-                            "rotation": [0, 90, 0],
-                            "scale": [self.scale_ratio, 1, self.scale_ratio],
-                            "type": "kinematic",
-                        }
-                    )
+                    if add_ceiling:
+                        floor_instances.append(
+                            {
+                                "prefab": FLOOR_PREFAB,
+                                "position": [x, wall_y_size + floor_y_size / 2, z],
+                                "rotation": [0, 90, 0],
+                                "scale": [self.scale_ratio, 1, self.scale_ratio],
+                                "type": "kinematic",
+                            }
+                        )
 
                 WALL_PREFAB = room2wall[floors[i][j]]
                 wall_x_size, wall_y_size, wall_z_size = (
@@ -167,6 +170,8 @@ class HouseGenerator:
                 a = floors[i][j]
                 if i < floors.shape[0] - 1:
                     a_col = floors[i + 1][j]
+                    if remove_out_walls and (a==0 or a_col==0):
+                        continue
 
                     if a != a_col:
                         x = i + 1 - 1
@@ -252,6 +257,9 @@ class HouseGenerator:
 
                 if j < floors.shape[1] - 1:
                     a_row = floors[i][j + 1]
+                    if remove_out_walls and (a==0 or a_row==0):
+                        continue
+
                     if a != a_row:
                         x = i + 0.5 - 1
                         z = j + 1 - 1
@@ -736,7 +744,7 @@ class HouseGenerator:
         self.placer = RectPlacer((min_x, min_z, max_x, max_z))
 
         floor_instances, floors = self.add_floors_and_walls(
-            house_structure, room_spec, odb, prefabs
+            house_structure, room_spec, odb, prefabs, add_ceiling=True, remove_out_walls=False
         )
 
         # add light
