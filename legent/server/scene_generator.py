@@ -10,13 +10,7 @@ from typing import Dict, Literal, Optional
 
 from legent.scene_generation.generator import HouseGenerator
 from legent.scene_generation.objects import DEFAULT_OBJECT_DB, get_default_object_db
-from legent.scene_generation.room_spec import (
-    ROOM_SPEC_SAMPLER,
-    RoomSpecSampler,
-    RoomSpec,
-    LeafRoom,
-    MetaRoom
-)
+from legent.scene_generation.room_spec import ROOM_SPEC_SAMPLER, RoomSpecSampler, RoomSpec, LeafRoom, MetaRoom
 from legent.scene_generation.constants import UNIT_SIZE
 
 
@@ -61,7 +55,7 @@ def generate_scene(
         # global prefabs, interactable_names, kinematic_names, interactable_names_set, kinematic_names_set
         room_types = ["Bedroom", "LivingRoom", "Kitchen", "Bathroom"]
         room_size_range = {
-            "Bedroom": (4, 6), # min 4 units, max 6 units
+            "Bedroom": (4, 6),  # min 4 units, max 6 units
             "LivingRoom": (6, 9),
             "Kitchen": (2, 6),
             "Bathroom": (1, 2),
@@ -78,10 +72,7 @@ def generate_scene(
                     RoomSpec(
                         room_spec_id="TwoRooms",  # TwoRooms
                         sampling_weight=1,
-                        spec=
-                        [
-                            LeafRoom(room_id=2+i, ratio=sample_ratios[i], room_type=room) for i, room in enumerate(sample_rooms)
-                        ],
+                        spec=[LeafRoom(room_id=2 + i, ratio=sample_ratios[i], room_type=room) for i, room in enumerate(sample_rooms)],
                     )
                 ]
             )
@@ -89,27 +80,27 @@ def generate_scene(
         else:
             sampler = ROOM_SPEC_SAMPLER
             room_spec = sampler.sample()
-            
+
             room_num = len((room_spec.room_type_map.keys()))
             total_size = 6 * room_num
-            
+
         unit_size = 2.5
-        
+
         # get total size of the floors
         x_size = random.randint(max(1, int(np.sqrt(total_size))), int(np.sqrt(total_size)) + 1)
         z_size = random.randint(max(1, int(np.sqrt(total_size))), int(np.sqrt(total_size)) + 1)
         x_size = max(3, x_size)
         z_size = max(3, x_size)
-        
-        dims = (x_size, z_size) # If you want a random total size, set dims = None
-        
+
+        dims = (x_size, z_size)  # If you want a random total size, set dims = None
+
         house_generator = HouseGenerator(
             room_spec=room_spec,
             dims=dims,
             objectDB=get_default_object_db(),
-            unit_size = unit_size,
+            unit_size=unit_size,
         )
-        
+
         # receptacle_object_counts={
         #     "Sofa": {"count": 1, "objects": [{"Orange": 1}]},
         #     "Chair": {"count": 1, "objects": [{"Orange": 1}]},
@@ -125,7 +116,10 @@ def generate_scene(
                     room_num=room_num,
                 )
                 break
-            except:
+            except KeyboardInterrupt:
+                raise
+            except Exception as e:
+                # print("Exception:", e)
                 continue
 
         # for instance in scene["instances"]:
@@ -143,9 +137,7 @@ def generate_scene_messy(object_counts: Dict[str, int] = {}):
         load_prefabs()
     MAX = 7
     MID = MAX // 2
-    floors = np.zeros(
-        (MAX, MAX)
-    )  # the spatial layout of the rooms. 1 for rooms and 0 for invalid spaces
+    floors = np.zeros((MAX, MAX))  # the spatial layout of the rooms. 1 for rooms and 0 for invalid spaces
     floors[MID][MID] = 1
 
     ### STEP 1: Create Rooms Randomly
@@ -171,9 +163,7 @@ def generate_scene_messy(object_counts: Dict[str, int] = {}):
     # Create the second room.
     # Determine the position of the second room. Use absolute coordinates for all positions.
     # (x0, z0) (x1, z1) represents two corners of the second room.
-    x0, z0 = np.random.randint(MID - top, MID + down + 1), np.random.randint(
-        MID - left, MID + right + 1
-    )
+    x0, z0 = np.random.randint(MID - top, MID + down + 1), np.random.randint(MID - left, MID + right + 1)
     x1, z1 = np.random.randint(0, MAX), np.random.randint(0, MAX)
     x0, x1, z0, z1 = min(x0, x1), max(x0, x1), min(z0, z1), max(z0, z1)
     floors[x0 : x1 + 1, z0 : z1 + 1] = 2
@@ -187,12 +177,8 @@ def generate_scene_messy(object_counts: Dict[str, int] = {}):
 
     ### STEP 2: Create Floors and Walls
     # create rectangle placer to avoid object overlapping
-    min_x, max_x = min(area0_range[0], area1_range[0]), max(
-        area0_range[1], area1_range[1]
-    )
-    min_z, max_z = min(area0_range[2], area1_range[2]), max(
-        area0_range[3], area1_range[3]
-    )
+    min_x, max_x = min(area0_range[0], area1_range[0]), max(area0_range[1], area1_range[1])
+    min_z, max_z = min(area0_range[2], area1_range[2]), max(area0_range[3], area1_range[3])
     placer = RectPlacer((min_x, min_z, max_x, max_z))
 
     floor_instances = []
@@ -220,9 +206,7 @@ def generate_scene_messy(object_counts: Dict[str, int] = {}):
             if (i - 1 < 0 or floors[i - 1][j] == 0) and floors[i][j] != 0:
                 x, z = (i - MID) * 2.5 - 1.25, (j - MID) * 2.5
                 bbox = (
-                    x
-                    - z_size
-                    / 2,  # The wall is rotated 90 degrees. The sizes corresponding to z and x need to be swapped.
+                    x - z_size / 2,  # The wall is rotated 90 degrees. The sizes corresponding to z and x need to be swapped.
                     z - x_size / 2,
                     x + z_size / 2,
                     z + x_size / 2,
@@ -287,12 +271,8 @@ def generate_scene_messy(object_counts: Dict[str, int] = {}):
     def random_xz_in_area():
         areas = np.array([area0, area1])
         areas = areas / areas.sum()
-        area_range = [area0_range, area1_range][
-            int(np.random.choice([0, 1], 1, p=areas))
-        ]
-        return np.random.uniform(area_range[0], area_range[1]), np.random.uniform(
-            area_range[2], area_range[3]
-        )
+        area_range = [area0_range, area1_range][int(np.random.choice([0, 1], 1, p=areas))]
+        return np.random.uniform(area_range[0], area_range[1]), np.random.uniform(area_range[2], area_range[3])
 
     def random_xz_in_area_inner(
         eps,
@@ -311,12 +291,8 @@ def generate_scene_messy(object_counts: Dict[str, int] = {}):
         )
         areas = np.array([area0, area1])
         areas = areas / areas.sum()
-        area_range = [area0_range_inner, area1_range_inner][
-            int(np.random.choice([0, 1], 1, p=areas))
-        ]
-        return np.random.uniform(area_range[0], area_range[1]), np.random.uniform(
-            area_range[2], area_range[3]
-        )
+        area_range = [area0_range_inner, area1_range_inner][int(np.random.choice([0, 1], 1, p=areas))]
+        return np.random.uniform(area_range[0], area_range[1]), np.random.uniform(area_range[2], area_range[3])
 
     ### STEP 3: Randomly place the player and agent
     # place the player
@@ -367,9 +343,7 @@ def generate_scene_messy(object_counts: Dict[str, int] = {}):
 
     ### STEP 4: Create Objects Randomly
     object_instances = []
-    max_nums = {
-        name: 10 for name in kinematic_names
-    }  # Limit the maximum number of each type of object.
+    max_nums = {name: 10 for name in kinematic_names}  # Limit the maximum number of each type of object.
 
     def put_once(
         _name,
@@ -389,32 +363,23 @@ def generate_scene_messy(object_counts: Dict[str, int] = {}):
             if _name in kinematic_names:
                 _x, _z = random_xz_in_area_inner(eps=0.05)
             else:
-                _x, _z = random_xz_in_area_inner(
-                    eps=0.2
-                )  # Avoid generating small objects close to the wall
+                _x, _z = random_xz_in_area_inner(eps=0.2)  # Avoid generating small objects close to the wall
         elif rand_method == "fit":  # put exactly inside the area
             _bbox = _placer.bbox
             _x_min, _x_max, _z_min, _z_max = _bbox[0], _bbox[2], _bbox[1], _bbox[3]
             try:
                 # eps will be dynamically determined based on the size of the object
                 # TODO: all previous eps related logic follow this approach.
-                _x, _z = np.random.uniform(
-                    _x_min + _x_size / 2, _x_max - _x_size / 2
-                ), np.random.uniform(_z_min + _z_size / 2, _z_max - _z_size / 2)
+                _x, _z = np.random.uniform(_x_min + _x_size / 2, _x_max - _x_size / 2), np.random.uniform(_z_min + _z_size / 2, _z_max - _z_size / 2)
             except:  # the right range may be smaller than the left range. unable to place.
                 return False
         _bbox = (_x - _x_size / 2, _z - _z_size / 2, _x + _x_size / 2, _z + _z_size / 2)
         ok = _placer.place_rectangle(_name, bbox=_bbox)
         if parent_idx == 0:
-            _y_base = (
-                0 + prefabs[DEFAULT_FLOOR_PREFAB]["size"]["y"] / 2
-            )  # center + size / 2
+            _y_base = 0 + prefabs[DEFAULT_FLOOR_PREFAB]["size"]["y"] / 2  # center + size / 2
         else:
             parent_info = object_instances[parent_idx - len(floor_instances)]
-            _y_base = (
-                parent_info["position"][1]
-                + prefabs[parent_info["prefab"]]["size"]["y"] / 2
-            )
+            _y_base = parent_info["position"][1] + prefabs[parent_info["prefab"]]["size"]["y"] / 2
         if ok:
             _y = _y_base + _y_size / 2
             object_instances.append(
@@ -424,11 +389,7 @@ def generate_scene_messy(object_counts: Dict[str, int] = {}):
                     "rotation": [0, 0, 0],
                     "scale": [1, 1, 1],
                     "parent": parent_idx,  # 0 represents the floor
-                    "type": (
-                        "interactable"
-                        if name in interactable_names_set
-                        else "kinematic"
-                    ),
+                    "type": ("interactable" if name in interactable_names_set else "kinematic"),
                 }
             )
         if return_bbox:
@@ -453,12 +414,8 @@ def generate_scene_messy(object_counts: Dict[str, int] = {}):
     for name in object_counts:
         for i in range(object_counts[name]):
             put_one(name, placer, 0, "eps")
-    random_kinematic_names = [
-        name for name in kinematic_names if name not in object_counts
-    ]
-    random_interactable_names = [
-        name for name in interactable_names if name not in object_counts
-    ]
+    random_kinematic_names = [name for name in kinematic_names if name not in object_counts]
+    random_interactable_names = [name for name in interactable_names if name not in object_counts]
 
     # create non-interactive objects
     for i in range(10):

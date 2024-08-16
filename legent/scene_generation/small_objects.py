@@ -165,6 +165,141 @@ def add_small_objects(
     with open("failed_objects.json", "w") as f:
         json.dump(failed_objects, f, indent=4, ensure_ascii=False)
 
+    # TODO: merge the following code with "if receptable_object_counts" branch
+    if object_counts:
+        # If object_counts is specified, then we will only generate object_counts[A] number of instances for A.
+        surfaces = []
+        for room_id, room in rooms.items():
+            if room_id not in receptacles_per_room:
+                continue
+            receptacles_in_room = receptacles_per_room[room_id]
+            for receptacle in receptacles_in_room:
+                placeable_surfaces = odb.PREFABS[receptacle["prefab"]][
+                    "placeable_surfaces"
+                ]
+                if not placeable_surfaces:
+                    continue
+                for surface in placeable_surfaces:
+                    surfaces.append(
+                        {
+                            "receptacle": receptacle,
+                            "surface": surface,
+                            "small_object_num": 0,
+                        }
+                    )
+
+        for k, v in object_counts.items():
+            for _ in range(v):
+                random.shuffle(surfaces)
+                prefab = odb.PREFABS[k]
+                success_flag = False
+                for surface in surfaces:
+                    receptacle = surface
+                    if prefab_fit_surface(prefab["size"], surface, receptacle):
+                        small_object = {}
+                        small_object["prefab"] = k
+
+                        x_min = (
+                            (
+                                surface["surface"]["x_min"]
+                                + receptacle["receptacle"]["position"][0]
+                            )
+                            if receptacle["receptacle"]["rotation"][1] == 0
+                            or receptacle["receptacle"]["rotation"][1] == 180
+                            else (
+                                surface["surface"]["z_min"]
+                                + receptacle["receptacle"]["position"][0]
+                            )
+                        )
+                        x_max = (
+                            (
+                                surface["surface"]["x_max"]
+                                + receptacle["receptacle"]["position"][0]
+                            )
+                            if receptacle["receptacle"]["rotation"][1] == 0
+                            or receptacle["receptacle"]["rotation"][1] == 180
+                            else (
+                                surface["surface"]["z_max"]
+                                + receptacle["receptacle"]["position"][0]
+                            )
+                        )
+                        z_min = (
+                            (
+                                surface["surface"]["z_min"]
+                                + receptacle["receptacle"]["position"][2]
+                            )
+                            if receptacle["receptacle"]["rotation"][1] == 0
+                            or receptacle["receptacle"]["rotation"][1] == 180
+                            else (
+                                surface["surface"]["x_min"]
+                                + receptacle["receptacle"]["position"][2]
+                            )
+                        )
+                        z_max = (
+                            (
+                                surface["surface"]["z_max"]
+                                + receptacle["receptacle"]["position"][2]
+                            )
+                            if receptacle["receptacle"]["rotation"][1] == 0
+                            or receptacle["receptacle"]["rotation"][1] == 180
+                            else (
+                                surface["surface"]["x_max"]
+                                + receptacle["receptacle"]["position"][2]
+                            )
+                        )
+
+                        x_margin = prefab["size"]["x"] / 2 + SMALL_OBJECT_MIN_MARGIN
+
+                        z_margin = prefab["size"]["z"] / 2 + SMALL_OBJECT_MIN_MARGIN
+
+                        sample_x_min = x_min + x_margin
+                        sample_x_max = x_max - x_margin
+                        sample_z_min = z_min + z_margin
+                        sample_z_max = z_max - z_margin
+
+                        for _ in range(MAX_PLACE_ON_SURFACE_RETRIES):
+                            x, z = np.random.uniform(
+                                sample_x_min, sample_x_max
+                            ), np.random.uniform(sample_z_min, sample_z_max)
+
+                            if placer.place(
+                                k,
+                                x,
+                                z,
+                                prefab["size"]["x"] + 2 * SMALL_OBJECT_MIN_MARGIN,
+                                prefab["size"]["z"] + 2 * SMALL_OBJECT_MIN_MARGIN,
+                            ):
+                                y = (
+                                    receptacle["receptacle"]["position"][1]
+                                    + surface["surface"]["y"]
+                                    + odb.PREFABS[k]["size"]["y"] / 2
+                                )
+
+                                small_object["position"] = (x, y, z)
+                                small_object["type"] = "interactable"
+                                # small_object["type"] = "kinematic"
+                                small_object["parent"] = receptacle["receptacle"][
+                                    "prefab"
+                                ]
+                                small_object["scale"] = [1, 1, 1]
+                                small_object["rotation"] = [0, 0, 0]
+                                small_objects.append(small_object)
+                                surface["small_object_num"] += 1
+                                receptacle["small_object_num"] += 1
+                                success_flag = True
+                                break
+                        if success_flag:
+                            # log(
+                            #     f"Small Object {k} on {receptacle['receptacle']['prefab']}, position:{format(small_object['position'][0],'.4f')},{format(small_object['position'][2],'.4f')}",
+                            # )
+                            
+                            break
+                if not success_flag:
+                    print(f"Failed to place object {k}")
+                    raise Exception(f"Failed to place object {k}")
+        
+        return small_objects
+    
     object_types_in_rooms = {room_id: set(odb.OBJECT_TO_TYPE[obj["prefab"]] for obj in objects) for room_id, objects in objects_per_room.items()}
 
     receptacle_index = 0

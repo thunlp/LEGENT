@@ -788,66 +788,67 @@ class HouseGenerator:
         specified_object_types = set()
         if receptacle_object_counts:
             # first place the specified receptacles
-            receptacle_type = receptacle
-            receptacle = random.choice(odb.OBJECT_DICT[receptacle.lower()])
-            specified_object_types.add(odb.OBJECT_TO_TYPE[receptacle])
-            count = d["count"]
-            prefab_size = odb.PREFABS[receptacle]["size"]
-            for _ in range(MAX_SPECIFIED_NUMBER):
-                success_flag = False
-                for room in self.rooms.values():
-                    for _ in range(MAX_SPECIFIED_RECTANGLE_RETRIES):
-                        rectangle = room.sample_next_rectangle()
-                        minx, minz, maxx, maxz = rectangle
-                        rect_x = maxx - minx
-                        rect_z = maxz - minz
-                        rotation = self.prefab_fit_rectangle(prefab_size, rectangle)
+            for receptacle, d in receptacle_object_counts.items():
+                receptacle_type = receptacle
+                receptacle = random.choice(odb.OBJECT_DICT[receptacle.lower()])
+                specified_object_types.add(odb.OBJECT_TO_TYPE[receptacle])
+                count = d["count"]
+                prefab_size = odb.PREFABS[receptacle]["size"]
+                for _ in range(MAX_SPECIFIED_NUMBER):
+                    success_flag = False
+                    for room in self.rooms.values():
+                        for _ in range(MAX_SPECIFIED_RECTANGLE_RETRIES):
+                            rectangle = room.sample_next_rectangle()
+                            minx, minz, maxx, maxz = rectangle
+                            rect_x = maxx - minx
+                            rect_z = maxz - minz
+                            rotation = self.prefab_fit_rectangle(prefab_size, rectangle)
 
-                        if rotation == -1:
-                            continue
-                        else:
-                            x_size = (
-                                prefab_size["x"] if rotation == 0 else prefab_size["z"]
-                            )
-                            z_size = (
-                                prefab_size["z"] if rotation == 0 else prefab_size["x"]
-                            )
-                            minx += x_size / 2 + WALL_THICKNESS
-                            minz += z_size / 2 + WALL_THICKNESS
-                            maxx -= x_size / 2 + WALL_THICKNESS
-                            maxz -= z_size / 2 + WALL_THICKNESS
-                            x = np.random.uniform(minx, maxx)
-                            z = np.random.uniform(minz, maxz)
-                            bbox = (
-                                x - x_size / 2,
-                                z - z_size / 2,
-                                x + x_size / 2,
-                                z + z_size / 2,
-                            )
-                            if self.placer.place_rectangle(receptacle, bbox):
-                                specified_object_instances.append(
-                                    {
-                                        "prefab": receptacle,
-                                        "position": [x, prefab_size["y"] / 2, z],
-                                        "rotation": [0, rotation, 0],
-                                        "scale": [1, 1, 1],
-                                        "parent": -1,
-                                        "type": "receptacle",
-                                        "room_id": room.room_id,
-                                        "is_receptacle": True,
-                                        "receptacle_type": receptacle_type,
-                                    }
+                            if rotation == -1:
+                                continue
+                            else:
+                                x_size = (
+                                    prefab_size["x"] if rotation == 0 else prefab_size["z"]
                                 )
-                                log(
-                                    f"Specified {receptacle} into position:{ format(x,'.4f')},{format(z,'.4f')}, bbox:{bbox} rotation:{rotation}"
+                                z_size = (
+                                    prefab_size["z"] if rotation == 0 else prefab_size["x"]
                                 )
-                                success_flag = True
-                                count -= 1
-                                break
-                    if success_flag:
+                                minx += x_size / 2 + WALL_THICKNESS
+                                minz += z_size / 2 + WALL_THICKNESS
+                                maxx -= x_size / 2 + WALL_THICKNESS
+                                maxz -= z_size / 2 + WALL_THICKNESS
+                                x = np.random.uniform(minx, maxx)
+                                z = np.random.uniform(minz, maxz)
+                                bbox = (
+                                    x - x_size / 2,
+                                    z - z_size / 2,
+                                    x + x_size / 2,
+                                    z + z_size / 2,
+                                )
+                                if self.placer.place_rectangle(receptacle, bbox):
+                                    specified_object_instances.append(
+                                        {
+                                            "prefab": receptacle,
+                                            "position": [x, prefab_size["y"] / 2, z],
+                                            "rotation": [0, rotation, 0],
+                                            "scale": [1, 1, 1],
+                                            "parent": -1,
+                                            "type": "receptacle",
+                                            "room_id": room.room_id,
+                                            "is_receptacle": True,
+                                            "receptacle_type": receptacle_type,
+                                        }
+                                    )
+                                    log(
+                                        f"Specified {receptacle} into position:{ format(x,'.4f')},{format(z,'.4f')}, bbox:{bbox} rotation:{rotation}"
+                                    )
+                                    success_flag = True
+                                    count -= 1
+                                    break
+                        if success_flag:
+                            break
+                    if count == 0:
                         break
-                if count == 0:
-                    break
 
         object_instances = []
         for room in self.rooms.values():
