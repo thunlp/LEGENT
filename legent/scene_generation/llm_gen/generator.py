@@ -117,7 +117,7 @@ class LLMGenerator:
         # save for view
         store_json(scene, f'{self.scene_folder}/{self.scene_name}.json')
         if take_photo:
-            env = Environment(env_path="auto", camera_resolution=1024, camera_field_of_view=120)
+            env = Environment(env_path="auto", camera_resolution_width=1024, camera_resolution_height=1024, camera_field_of_view=120)
 
             try:
                 photo_path = f'{os.path.abspath(self.scene_folder)}/{self.scene_name}.png'
@@ -172,7 +172,7 @@ def play_with_scene(scene_name):
     Play with the scene
     """
     scene_path = f"{os.getcwd()}/scenes/{scene_name}/{scene_name}.json"
-    env = Environment(env_path="auto", camera_resolution=1024, camera_field_of_view=120)
+    env = Environment(env_path="auto", camera_resolution_width=1024, camera_resolution_height=1024, camera_field_of_view=120)
     try:
         obs: Observation = env.reset(ResetInfo(scene=load_json(scene_path)))
         while True:

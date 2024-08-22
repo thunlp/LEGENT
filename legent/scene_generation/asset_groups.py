@@ -11,7 +11,6 @@ from typing import (
 )
 
 import numpy as np
-import pandas as pd
 from attr import field
 from attrs import define
 
@@ -139,6 +138,7 @@ class AssetGroup:
 
         objects = {
             obj["instanceId"]: Object(
+
                 id=f"{self.room_id}|{self.object_n}|{i}",
                 position=obj["position"],
                 rotation=Vector3(x=0, y=obj["rotation"], z=0),
@@ -198,16 +198,9 @@ class AssetGroupGenerator:
                 out = []
                 for asset_type, asset_ids in asset_metadata["assetIds"].items():
                     for asset_id in asset_ids:
-                        # if self.pt_db.ASSET_ID_DATABASE[asset_id]["split"] in {
-                        #     None,
-                        #     self.split,
-                        # }:
                         out.append((asset_type, asset_id))
                 if not out:
                     raise Exception(f"No valid asset groups for {self.name} ! ")
-                    # raise Exception(
-                    #     f"No valid asset groups for {self.name} with {self.split} split!"
-                    # )
                 asset_metadata["assetIds"] = out
 
         flatten_asset_ids()
@@ -226,6 +219,7 @@ class AssetGroupGenerator:
         return self.cache["dimensions"]
 
     def _set_dimensions(self) -> None:
+        import pandas as pd
         asset_group_assets = {
             asset["name"]: set([asset_id for asset_type, asset_id in asset["assetIds"]])
             for asset in self.data["assetMetadata"].values()

@@ -1,5 +1,4 @@
 import numpy as np
-from scipy.spatial.transform import Rotation
 from typing import Dict
 
 
@@ -101,10 +100,10 @@ def foward_to_rotation_matrix(forward_vector):
     rotation_matrix = np.column_stack((right_vector, up_vector, forward_vector))  # np.array([right_vector, up_vector, forward_vector]).T
     return rotation_matrix
 
-# Creates a rotation with the specified forward and upwards directions
-
 
 def look_rotation(forward_vector):
+    # Creates a rotation with the specified forward and upwards directions
+    from scipy.spatial.transform import Rotation
     r = Rotation.from_matrix(foward_to_rotation_matrix(forward_vector))
     r = r.as_euler('xyz', degrees=True)
     if r[0] != 0 and r[2] != 0:
@@ -112,7 +111,71 @@ def look_rotation(forward_vector):
     return r
 
 
+def look_at_xz(camera_pos, target_pos):
+    """
+    Calculate the rotation angle (along the Y axis) for a camera on the XZ plane to look at a target point.
+    
+    :param camera_pos: Tuple (x, y, z) representing the camera's position
+    :param target_pos: Tuple (x, y, z) representing the target's position
+    :return: Angle in degrees
+    """
+    camera_pos = np.array([camera_pos[0], camera_pos[2]])
+    target_pos = np.array([target_pos[0], target_pos[2]])
+    
+    direction = target_pos - camera_pos
+    
+    angle_rad = np.arctan2(direction[0], direction[1])
+    angle_deg = np.degrees(angle_rad)
+    if angle_deg < 0:
+        angle_deg += 360
+    
+    return angle_deg
+
+def rotation_to_foward(rotation: np.ndarray):
+    # Convert angles from degrees to radians
+    angles_rad = np.radians(rotation)
+    x, y, z = angles_rad
+
+    # Rotation matrices for each axis
+    Rx = np.array([
+        [1, 0, 0],
+        [0, np.cos(x), -np.sin(x)],
+        [0, np.sin(x), np.cos(x)]
+    ])
+    
+    Ry = np.array([
+        [np.cos(y), 0, np.sin(y)],
+        [0, 1, 0],
+        [-np.sin(y), 0, np.cos(y)]
+    ])
+    
+    Rz = np.array([
+        [np.cos(z), -np.sin(z), 0],
+        [np.sin(z), np.cos(z), 0],
+        [0, 0, 1]
+    ])
+
+    # Composite rotation matrix, assuming ZXY order
+    R = Rz @ Rx @ Ry
+
+    # Default forward vector in Unity (0, 0, 1)
+    forward_vector = R @ np.array([0, 0, 1])
+    return forward_vector
+
+    x, y, z = np.radians(rotation)  # Convert degrees to radians
+    # Calculate trigonometric values
+    sx, cx = np.sin(x), np.cos(x)
+    sy, cy = np.sin(y), np.cos(y)
+    sz, cz = np.sin(z), np.cos(z)
+    # Apply ZXY rotation to compute the forward vector
+    fx = -sy
+    fy = sx * cy
+    fz = cx * cy
+    return np.array([fx, fy, fz])
+
+
 def is_point_on_box(point, box_center, box_size, box_forward=None, box_rotation=None):
+    from scipy.spatial.transform import Rotation
     # Calculate the position of the point relative to the center of the box
     relative_point = point - box_center
 

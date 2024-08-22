@@ -215,7 +215,7 @@ def get_xz_poly_map(boundary_groups, room_ids: Set[int]) -> Dict[int, XZPoly]:
     return out
 
 
-def generate_house_structure(room_spec: RoomSpec, dims: Optional[Tuple[int, int]]):
+def generate_house_structure(room_spec: RoomSpec, dims: Optional[Tuple[int, int]], unit_size):
     room_ids = set(room_spec.room_type_map.keys())
 
     generate_dims = None
@@ -223,8 +223,6 @@ def generate_house_structure(room_spec: RoomSpec, dims: Optional[Tuple[int, int]
         generate_dims = dims
     elif room_spec.dims is not None:
         generate_dims = room_spec.dims()
-
-    generate_dims = None  # 让房间尺寸随机
 
     interior_boundary = sample_interior_boundary(
         num_rooms=len(room_ids),
@@ -242,7 +240,8 @@ def generate_house_structure(room_spec: RoomSpec, dims: Optional[Tuple[int, int]
     boundary_groups = consolidate_walls(walls=rowcol_walls)
     boundary_groups = scale_boundary_groups(
         boundary_groups=boundary_groups,
-        scale=INTERIOR_BOUNDARY_SCALE,
+        # scale=INTERIOR_BOUNDARY_SCALE,
+        scale = unit_size
     )
     xz_poly_map = get_xz_poly_map(boundary_groups=boundary_groups, room_ids=room_ids)
 

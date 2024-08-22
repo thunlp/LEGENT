@@ -108,7 +108,7 @@ def get_scale(uid, verbose=False):
 
 
 if __name__ == "__main__":
-    env = Environment(env_path=None, camera_resolution=1024, camera_field_of_view=120)
+    env = Environment(env_path=None)
 
     try:
 

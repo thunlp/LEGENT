@@ -4,6 +4,7 @@ from multiprocessing.connection import Connection
 from queue import Empty as EmptyQueueException
 from legent.protobuf.communicator_pb2 import ActionProto, ObservationProto
 from legent.environment.env import Environment
+from legent.utils.config import DEFAULT_GRPC_PORT
 
 
 class EnvResponse(NamedTuple):
@@ -29,7 +30,7 @@ class EnvWorker:
 def worker(parent_conn: Connection, step_queue: Queue, worker_id: int, run_options: Dict) -> None:
     try:
         # Each worker has its own Environment.
-        run_options["port"] = 50051 + worker_id
+        run_options["port"] = DEFAULT_GRPC_PORT + worker_id
         env = Environment(file_name=run_options["file_name"], run_options=run_options)
         while True:
             # The parent_conn only needs to use recv() and does not need to send(), as return values are conveyed through the step_queue.

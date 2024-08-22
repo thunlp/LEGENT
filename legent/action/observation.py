@@ -1,11 +1,12 @@
 from legent.protobuf.communicator_pb2 import ObservationProto
 import json
 import io
-import skimage
 
 
 class Observation:
     def __init__(self, obs: ObservationProto):
+        import skimage  # TODO: use Pillow instead
+
         self.type = obs.type
         image_stream = io.BytesIO(obs.image)
         self.image = skimage.io.imread(image_stream, plugin="imageio")

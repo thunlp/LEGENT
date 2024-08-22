@@ -8,7 +8,7 @@ from datetime import timedelta
 def worker(worker_id, save_path, scene_num):
     print(f"Worker {worker_id} started")
 
-    env = Environment(env_path="auto", use_animation=False, camera_resolution=448, camera_field_of_view=120, run_options={"port": 50100 + worker_id})  # significantly increase the sampling rate without using animations
+    env = Environment(env_path="auto", use_animation=False, camera_resolution_width=448, camera_resolution_height=448, camera_field_of_view=120, run_options={"port": 50100 + worker_id})  # significantly increase the sampling rate without using animations
 
     try:
         saver = TrajectorySaver(save_path=save_path)

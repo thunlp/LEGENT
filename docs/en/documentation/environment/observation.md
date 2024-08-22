@@ -4,7 +4,7 @@ Below is the observations of an agent.
 
 | Observation | Descriptions                                                    | Details                                                                                                                                                                         |
 | ----------- | --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| image       | the egocentric view of the agent                                | 224*224 numpy array (customizable soon)<br />, the same as many pretrained image encoders such as CLIP.                                                                           |
+| image       | the egocentric view of the agent                                | `camera_resolution_width`*`camera_resolution_height` numpy array                                                                           |
 | text        | the text received by the agent (i.e. what the player just send) | string.<br /> If it is empty, it means nothing has been sent by the user. Note that the environment does not maintain a chat history. If needed, it should be recorded by the agent itself. |
 
 You are only allowed to use image and chat as input for your agents. This is necessary to ensure the generalizability of the agent. However, during training or data generation you are allowed to use additional info from the environment. This information is returned along with the observation, with the content as follows.

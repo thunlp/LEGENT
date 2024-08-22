@@ -31,7 +31,7 @@ else:
     prompt = {"come": GPT4V_PROMPT_COME, "where": GPT4V_PROMPT_WHERE}[args.task]
     agent: GPT4VAgentClient = GPT4VAgentClient(api_key=args.api_key, base_url=args.base_url, prompt=prompt)
     model_name = "gpt4v"
-env = Environment(env_path="auto", camera_resolution=448, run_options={"port": 50054})
+env = Environment(env_path="auto", camera_resolution_width=448, camera_resolution_height=448, camera_field_of_view=120, run_options={"port": 50054})
 success_count = 0
 eval_folder = get_latest_folder_with_suffix(EVAL_FOLDER, args.task)
 save_path = f"{eval_folder}/results/{time_string()}-{model_name}"

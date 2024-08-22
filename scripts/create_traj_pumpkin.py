@@ -1,18 +1,20 @@
 from legent import Environment, ResetInfo, TaskCreator, Controller, TrajectorySaver
 
 # env = Environment(env_path=None, use_animation=False) # significantly increase the sampling rate without using animations
-env = Environment(env_path="auto", use_animation=False, camera_resolution=448) # significantly increase the sampling rate without using animations
+env = Environment(env_path="auto", use_animation=False, camera_resolution_width=1024, camera_resolution_height=1024, camera_field_of_view=60) # significantly increase the sampling rate without using animations
 
 def generate_tasks():
     from legent import generate_scene
 
     tasks = []
-    for i in range(100):
+    for i in range(10):
+        print(f"Generate task {i}")
         task = {
             "task": "Go to the Pumpkin.",
             "plan": ["Go to the Pumpkin."]
         }
-        scene = generate_scene({"LowPolyInterior_Pumpkin": 1}) # Ensure that the generated scene contains a pumpkin.
+        scene = generate_scene(object_counts={"LowPolyInterior_Pumpkin": 1}) # Ensure that the generated scene contains a pumpkin.
+        
         object_id = {instance['prefab']: i for i, instance in enumerate(scene['instances'])}['LowPolyInterior_Pumpkin']
         task['solution'] = [f"goto({object_id})"]
         task['scene'] = scene

@@ -15,7 +15,7 @@ os.makedirs(save_path)
 eval_episodes = args.num
 
 if args.get_steps:
-    env = Environment(env_path="auto", use_animation=False, camera_resolution=448)  # significantly increase the sampling rate without using animations
+    env = Environment(env_path="auto", use_animation=False, camera_resolution_width=448, camera_resolution_height=448, camera_field_of_view=120)
 
 
 def agent_player_too_near(task_setting):

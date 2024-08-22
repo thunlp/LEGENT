@@ -2,36 +2,34 @@ import json
 import os
 from collections import defaultdict
 from typing import Any, Dict, List, Tuple
-
-import pandas as pd
-from attr import define
-
 from legent.environment.env_utils import get_default_env_data_path
 
 
-@define
 class ObjectDB:
-    PLACEMENT_ANNOTATIONS: pd.DataFrame
-    OBJECT_DICT: Dict[str, List[str]]
-    MY_OBJECTS: Dict[str, List[str]]
-    OBJECT_TO_TYPE: Dict[str, str]
-    PREFABS: Dict[str, Any]
-    RECEPTACLES: Dict[str, Any]
-    KINETIC_AND_INTERACTABLE_INFO: Dict[str, Any]
-    ASSET_GROUPS: Dict[str, Any]
-    FLOOR_ASSET_DICT: Dict[Tuple[str, str], Tuple[Dict[str, Any], pd.DataFrame]]
-    PRIORITY_ASSET_TYPES: Dict[
-        str, List[str]
-    ]  # These objects should be placed first inside of the rooms.
+    def __init__(self, PLACEMENT_ANNOTATIONS, OBJECT_DICT: Dict[str, List[str]], MY_OBJECTS: Dict[str, List[str]], OBJECT_TO_TYPE: Dict[str, str], PREFABS: Dict[str, Any], RECEPTACLES: Dict[str, Any], KINETIC_AND_INTERACTABLE_INFO: Dict[str, Any], ASSET_GROUPS: Dict[str, Any], FLOOR_ASSET_DICT: Dict, PRIORITY_ASSET_TYPES: Dict[str, List[str]]):
+        import pandas as pd
+        self.PLACEMENT_ANNOTATIONS: pd.DataFrame = PLACEMENT_ANNOTATIONS
+        self.OBJECT_DICT: Dict[str, List[str]] = OBJECT_DICT
+        self.MY_OBJECTS: Dict[str, List[str]] = MY_OBJECTS
+        self.OBJECT_TO_TYPE: Dict[str, str] = OBJECT_TO_TYPE
+        self.PREFABS: Dict[str, Any] = PREFABS
+        self.RECEPTACLES: Dict[str, Any] = RECEPTACLES
+        self.KINETIC_AND_INTERACTABLE_INFO: Dict[str, Any] = KINETIC_AND_INTERACTABLE_INFO
+        self.ASSET_GROUPS: Dict[str, Any] = ASSET_GROUPS
+        self.FLOOR_ASSET_DICT: Dict[Tuple[str, str], Tuple[Dict[str, Any], pd.DataFrame]] = FLOOR_ASSET_DICT
+        self.PRIORITY_ASSET_TYPES: Dict[str, List[str]] = PRIORITY_ASSET_TYPES
+        
 
 ENV_DATA_PATH = None
 def get_data_path():
     global ENV_DATA_PATH
     if ENV_DATA_PATH is None:
         ENV_DATA_PATH = f"{get_default_env_data_path()}/procthor"
+        # ENV_DATA_PATH = r'D:\code\LEGENT\LEGENT\legent\scene_generation\data'
     return ENV_DATA_PATH
 
 def _get_place_annotations():
+    import pandas as pd
     filepath = os.path.join(get_data_path(), "placement_annotations.csv")
     df = pd.read_csv(filepath, index_col=0)
     df.index.set_names("assetType", inplace=True)
@@ -93,7 +91,8 @@ def _get_asset_groups():
 
 def _get_floor_assets(
     room_type: str, split: str, odb: ObjectDB
-) -> Tuple[Any, pd.DataFrame]:
+):
+    import pandas as pd
     floor_types = odb.PLACEMENT_ANNOTATIONS[
         odb.PLACEMENT_ANNOTATIONS["onFloor"]
         & (odb.PLACEMENT_ANNOTATIONS[f"in{room_type}s"] > 0)
@@ -111,7 +110,7 @@ def _get_floor_assets(
             for asset_name in odb.OBJECT_DICT[asset_type]
         ]
     )
-    assets = pd.merge(assets, floor_types, on="assetType", how="left")
+    assets: pd.DataFrame = pd.merge(assets, floor_types, on="assetType", how="left")
     assets.set_index("assetId", inplace=True)
     return floor_types, assets
 
@@ -149,10 +148,10 @@ def get_default_object_db():
             ASSET_GROUPS=_get_asset_groups(),
             FLOOR_ASSET_DICT=keydefaultdict(_get_default_floor_assets_from_key),
             PRIORITY_ASSET_TYPES={
-                "Bedroom": ["bed", "dresser"],
-                "LivingRoom": ["television", "diningTable", "sofa"],
-                "Kitchen": ["counterTop", "refrigerator","oven"],
-                "Bathroom": ["toilet","washer"],
+                "Bedroom": ["bed", "pc_table"],
+                "LivingRoom": ["tv", "table", "sofa"],
+                "Kitchen": ["kitchen_table", "refrigerator","oven"],
+                "Bathroom": ["toilet","washing_machine"],
             },
         )
     return DEFAULT_OBJECT_DB
