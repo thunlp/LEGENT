@@ -9,6 +9,8 @@ from legent.server.scene_generator import generate_scene, prefabs
 from legent.utils.config import TASKS_FOLDER
 from legent.utils.io import store_json, load_json_from_toolkit, time_string, scene_string, log_green, log
 from legent.utils.math import is_point_on_box
+from legent.dataset.chat_prompt import get_prompt
+
 
 class ChatAPI:
     def __init__(self, api_key=None, base_url=None) -> None:
@@ -28,6 +30,7 @@ class ChatAPI:
         )
         ret = response.choices[0].message.content
         return ret
+
 
 registered_api = [ChatAPI]
 
@@ -172,8 +175,7 @@ class TaskCreator(ChatBase):
         examples = [f"Task: {e['example']}; Plan: {e['plan']}; Solution: {e['solution']}" for e in task_prompt["examples"]]
         task_prompt["example"] = "\n".join(examples)
         # TODO: Add descriptions for functions goto_user(), goto(object_id), grab(), release().
-        task_description = \
-            f"""You need to {task_prompt['message']}
+        task_description = f"""You need to {task_prompt['message']}
 You need to propose {sample_num} independent tasks and corresponding solutions, in the format of "Task: task; Plan: plan; Solution: solution.", with no line breaks between the three (use ';' to seperate). 
 One sentence in Plan should match one function call in Solution, and the Solution should contain only the following instructions and no other irrelevant output:
 1. goto_user()
@@ -291,100 +293,8 @@ class ChatAnnotator(ChatBase):
         self.messages = [{"role": "system", "content": "You are a helpful assistant."}]
 
     def _annotate_solution(self, user_chat, game_states):
-
-        prompt = f"""You are an intelligent robot agent in a room.
-
-Your task is to respond to the player's command with line-by-line action code. Each line can be one of the following APIs: 
-1. def speak(content: str) -> None
-Speak something to the player.
-2. def goto_user() -> None
-Navigate to the player.
-3. def goto(object_id: int) -> None
-Navigate to an object and look at it.
-4. def grab() -> None
-Grab the object you are looking at.
-5. def release() -> None
-Put the grabbed object onto what you have gone to.
-6. def look(object_id: int) -> None
-Look at an object. (used only before you answer where something is)
-7. def goto_point(point_id: int) -> None
-Navigate to a point. (used only the user asks you to go to a room or go upstairs/downstairs)
-8. def rotate_right(degree: float) -> None
-Rotate to the right by a certain degree. Used ONLY when the user asks you to rotate or turn.
-9. def move_forward(meter: float) -> None
-Move foward by a certain distance. Used ONLY when the user asks you to move forward.
-    
-Note:
-1. You should only call release() after calling goto().
-2. Do not call release() after calling goto_user().
-3. If the target object is already held by the agent, do not goto or grab it.
-4. If you are holding something, please release it before grabing anything else. 
-5. Try to be as helpful to the player as possible.
-6. Do not write any other output or comment.
-7. If asked where is an object, please tell whether it is on (including on the floor) or near other objects.
-8. Do not speak about the object id or object position. If you have to, use relative position and other features.
-
-Examples:
-Player: "Bring me a spoon."
-Agent:
-speak("Okay.")
-goto(78)
-grab()
-goto_user()
-speak("Here you are.")
-
-Player: "Where is the tomato?"
-Agent:
-look(32)
-speak("It is on the TV table.")
-
-Player: "Go upstairs."
-Agent:
-goto_point(4)
-speak("I have gone upstairs.")
-
-Player: "Put it on the table."
-Agent:
-goto(88)
-release()
-
-(Note: below, 84 is the object_id of the cake, 89 is the object_id of the plate.)
-Player: "Put the cake onto the plate."
-Agent:
-goto(84)
-grab()
-goto(89)
-release()
-
-(Note: below, 98 is the object_id of the refrigerator.)
-Player: "Stand next to the refrigerator."
-Agent:
-goto(98)
-speak("I'm standing next to the refrigerator.")
-
-Player: "Turn left."
-Agent:
-rotate_right(-90)
-speak("I have turned left.")
-
-(Note: below, 106 is the object_id of the remote control, 113 is the object_id of the tv table.)
-Player: "Put the remote control on the tv table."
-Agent:
-goto(106)
-grab()
-goto(113)
-release()
-
-You are an intelligent robot agent in a room with the following objects(in table format):
-{game_states}
-
-Please output your action now.
-Player: "{user_chat}".
-Agent:
-"""
+        prompt = get_prompt(user_chat, game_states)
         messages = self.messages + [{"role": "user", "content": prompt}]
-
-        # print(f"CHATGPT request\n{messages}\n\n")
         return self.send_chat(messages)
 
     def annotate_solution(self, user_chat, game_states):
@@ -397,10 +307,9 @@ Agent:
         log_green(f"<g>user:</g>\n{user_chat}")
         log_green(f"<g>agent:</g>\n{solution}")
         if solution == "" or solution.startswith("<!doctype html>"):
-            solution = 'speak("Some error occurred. Please try again.")'
-        # print(f"Processed reply\n{solution}\n")
+            solution = 'speak("Request failed.")'
 
-        apis = ["speak", "speak_without_look", "play", "goto_user", "goto", "goto_point", "goto_and_grab", "grab", "release", "look", "speak_and_play"]
+        apis = ["speak", "speak_without_look", "play", "goto_user", "goto", "goto_point", "toggle", "put_in_drawer", "goto_and_grab", "grab", "goto_and_grab", "release", "look", "open", "speak_and_play"]
 
         def is_valid(p):
             for action in p.split("\n"):
