@@ -3,19 +3,15 @@ import os
 import random
 import re
 import time
-import uuid
 from typing import Literal
-
 import numpy as np
-
 from legent.server.scene_generator import generate_scene, prefabs
-from legent.utils.config import TASKS_FOLDER, OPENAI_API_KEY, OPENAI_BASE_URL, MODEL_CHAT
+from legent.utils.config import TASKS_FOLDER
 from legent.utils.io import store_json, load_json_from_toolkit, time_string, scene_string, log_green, log
 from legent.utils.math import is_point_on_box
 
-
-class ChatBase:
-    def __init__(self, api_key=OPENAI_API_KEY, base_url=OPENAI_BASE_URL) -> None:
+class ChatAPI:
+    def __init__(self, api_key=None, base_url=None) -> None:
         import openai
 
         if api_key:
@@ -23,7 +19,7 @@ class ChatBase:
 
     def send_chat(self, messages):
         response = self.client.chat.completions.create(
-            model=MODEL_CHAT,  # 'gpt-3.5-turbo', 'gpt-3.5-turbo-16k', 'gpt-4', 'gpt-4-32k'
+            model="gpt-4",  # 'gpt-3.5-turbo', 'gpt-3.5-turbo-16k', 'gpt-4', 'gpt-4-32k'
             messages=messages,
             max_tokens=None,
             n=1,
@@ -32,6 +28,28 @@ class ChatBase:
         )
         ret = response.choices[0].message.content
         return ret
+
+registered_api = [ChatAPI]
+
+
+def chat_api():
+    global registered_api
+
+    def decorator(api_class):
+        registered_api.append(api_class)
+        log(f"register API: {api_class.__name__}")
+        return api_class
+
+    return decorator
+
+
+class ChatBase:
+    def __init__(self, api_key=None, base_url=None) -> None:
+        global registered_api
+        self.chat_api = registered_api[-1](api_key, base_url)
+
+    def send_chat(self, messages):
+        return self.chat_api.send_chat(messages)
 
 
 class TaskCreator(ChatBase):
@@ -159,44 +177,33 @@ class TaskCreator(ChatBase):
 You need to propose {sample_num} independent tasks and corresponding solutions, in the format of "Task: task; Plan: plan; Solution: solution.", with no line breaks between the three (use ';' to seperate). 
 One sentence in Plan should match one function call in Solution, and the Solution should contain only the following instructions and no other irrelevant output:
 1. goto_user()
-2. goto(object_id)
-3. find(object_id)
-4. grab()
-5. release()
+2. goto(object_id): go to the object and look at it
+3. find(object_id): find the object to answer where it is (no need to approach it)
+4. grab(): grab the object you are looking at
+5. release(): put the grabbed object onto what you have gone to
 6. speak(text)
 For example (The examples are from other scenes. The number means object_id):
 {task_prompt['example']}
 """
         content = f"{scene_description}\n{task_description}"
         messages = [
-            {
-                "role": "user",
-                "content": content
-            },
-            {
-                "role": "system",
-                "content": system_message
-            },
-            {  # this message can ensure the format correct
-                "role": "assistant",
-                "content": task_prompt['example']
-            },
+            {"role": "system", "content": system_message},
+            {"role": "assistant", "content": task_prompt["example"]},  # this message can ensure the format correct
+            {"role": "user", "content": content},
         ]
-        id = uuid.uuid4()
-        log_green(f"\nid:{id} start send chat...")
 
         ret = self.send_chat(messages)
 
-        log_green(f"<g>Send to ChatGPT<g/>:\n{content}\n<g>Received from ChatGPT<g/>:\n{ret}")
-        log_green(f"\nid:{id} end send chat...")
+        log_green(f"<g>Send to LLM</g>:\n{content}\n<g>Received from LLM</g>:\n{ret}")
 
         task_lines = [task for task in ret.split("\n") if task]
         samples = []
         for task in task_lines:
             task, plan, solution = task.split("; ")
             task, plan, solution = task.split(": ")[1], plan.split(": ")[1], solution.split(": ")[1]
-            sample = {"task": task, "plan": plan, "solution": solution, "scene": scene}
+            sample = {"task": task, "plan": plan.split(". "), "solution": solution.split(", "), "scene": scene}
             samples.append(sample)
+        print({"task": task, "plan": plan, "solution": solution})
         time.sleep(0.5)
         return samples
 
@@ -378,9 +385,6 @@ Agent:
         messages = self.messages + [{"role": "user", "content": prompt}]
 
         # print(f"CHATGPT request\n{messages}\n\n")
-        import requests
-        response = requests.post('http://137.184.12.245:8901/', json={'message': prompt}).text
-        return response
         return self.send_chat(messages)
 
     def annotate_solution(self, user_chat, game_states):
@@ -390,10 +394,10 @@ Agent:
             reserved_turn = 3
             if len(messages) > 1 + reserved_turn * 2:
                 messages = messages[:1] + messages[-reserved_turn * 2 :]
-        # print(user_chat, '\n')
-        print(f"CHATGPT reply\n{solution}\n")
+        log_green(f"<g>user:</g>\n{user_chat}")
+        log_green(f"<g>agent:</g>\n{solution}")
         if solution == "" or solution.startswith("<!doctype html>"):
-            solution = 'speak("I don\'t understand.")'
+            solution = 'speak("Some error occurred. Please try again.")'
         # print(f"Processed reply\n{solution}\n")
 
         apis = ["speak", "speak_without_look", "play", "goto_user", "goto", "goto_point", "goto_and_grab", "grab", "release", "look", "speak_and_play"]
@@ -404,9 +408,7 @@ Agent:
                 if any([action.startswith(f"{api}(") for api in apis]) and action.endswith(")"):
                     continue
                 else:
-                    print("NOT valid")
-                    # return False
-            print("is valid")
+                    print(f"solution '{action}' not valid, skip")
             return True
 
         def post_process(p):

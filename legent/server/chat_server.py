@@ -29,7 +29,7 @@ def serve_main():
 
     params = read_params_buffer()
 
-    chat_annotator = ChatAnnotator(api_key=params["api_key"], base_url=params["base_url"], add_history=False)
+    chat_annotator = ChatAnnotator(api_key=params["api_key"] if params else None, base_url=params["base_url"] if params else None, add_history=False)
 
     @app.route("/annotate_solution", methods=["POST"])
     def annotate_solution():
