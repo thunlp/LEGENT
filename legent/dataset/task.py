@@ -1,17 +1,21 @@
-from legent.server.scene_generator import generate_scene, prefabs
-from legent.utils.config import TASKS_FOLDER
-from legent.utils.io import store_json, load_json_from_toolkit, time_string, scene_string, log_green, log
-from legent.utils.math import is_point_on_box
 import time
 import os
-from typing import Literal
 import random
-import numpy as np
 import re
+import time
+import uuid
+from typing import Literal
+
+import numpy as np
+
+from legent.server.scene_generator import generate_scene, prefabs
+from legent.utils.config import TASKS_FOLDER, OPENAI_API_KEY, OPENAI_BASE_URL, MODEL_CHAT
+from legent.utils.io import store_json, load_json_from_toolkit, time_string, scene_string, log_green, log
+from legent.utils.math import is_point_on_box
 
 
 class ChatBase:
-    def __init__(self, api_key=None, base_url=None) -> None:
+    def __init__(self, api_key=OPENAI_API_KEY, base_url=OPENAI_BASE_URL) -> None:
         import openai
 
         if api_key:
@@ -19,7 +23,7 @@ class ChatBase:
 
     def send_chat(self, messages):
         response = self.client.chat.completions.create(
-            model="gpt-4",  # 'gpt-3.5-turbo', 'gpt-3.5-turbo-16k', 'gpt-4', 'gpt-4-32k'
+            model=MODEL_CHAT,  # 'gpt-3.5-turbo', 'gpt-3.5-turbo-16k', 'gpt-4', 'gpt-4-32k'
             messages=messages,
             max_tokens=None,
             n=1,
@@ -150,21 +154,41 @@ class TaskCreator(ChatBase):
         examples = [f"Task: {e['example']}; Plan: {e['plan']}; Solution: {e['solution']}" for e in task_prompt["examples"]]
         task_prompt["example"] = "\n".join(examples)
         # TODO: Add descriptions for functions goto_user(), goto(object_id), grab(), release().
-        task_description = f"""You need to {task_prompt['message']}
-You need to propose {sample_num} independent tasks and corresponding solutions, in the format of "Task: task; Plan: plan; Solution: solution.", with no line breaks between the three (use ';' to seperate). One sentence in Plan should match one function call in Solution.
+        task_description = \
+            f"""You need to {task_prompt['message']}
+You need to propose {sample_num} independent tasks and corresponding solutions, in the format of "Task: task; Plan: plan; Solution: solution.", with no line breaks between the three (use ';' to seperate). 
+One sentence in Plan should match one function call in Solution, and the Solution should contain only the following instructions and no other irrelevant output:
+1. goto_user()
+2. goto(object_id)
+3. find(object_id)
+4. grab()
+5. release()
+6. speak(text)
 For example (The examples are from other scenes. The number means object_id):
 {task_prompt['example']}
 """
         content = f"{scene_description}\n{task_description}"
         messages = [
-            {"role": "system", "content": system_message},
-            {"role": "assistant", "content": task_prompt["example"]},  # this message can ensure the format correct
-            {"role": "user", "content": content},
+            {
+                "role": "user",
+                "content": content
+            },
+            {
+                "role": "system",
+                "content": system_message
+            },
+            {  # this message can ensure the format correct
+                "role": "assistant",
+                "content": task_prompt['example']
+            },
         ]
+        id = uuid.uuid4()
+        log_green(f"\nid:{id} start send chat...")
 
         ret = self.send_chat(messages)
 
         log_green(f"<g>Send to ChatGPT<g/>:\n{content}\n<g>Received from ChatGPT<g/>:\n{ret}")
+        log_green(f"\nid:{id} end send chat...")
 
         task_lines = [task for task in ret.split("\n") if task]
         samples = []
