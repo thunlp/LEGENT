@@ -3,6 +3,7 @@ from legent.action.observation import Observation
 from typing import List, Optional, Dict
 import numpy as np
 from legent.environment.env import Environment
+from legent.utils.io import log_green
 from legent.utils.math import vec_xz, vec, compute_signed_angle_2d_dir, distance, clip_angle, compute_angle_to_y_axis, compute_angle_to_y_axis_diff
 from legent.action.api import *
 from legent.dataset.trajectory import Trajectory
@@ -31,6 +32,12 @@ class TrajectoryNotValidError(Exception):
     For example, if the agent does not see the object, it should not answer where it is."""
 
     def __init__(self, message="trajectory not valid for training"):
+        super().__init__(message)
+
+
+class SolutionNotValidError(Exception):
+
+    def __init__(self, message="solution not valid for controller"):
         super().__init__(message)
 
 
@@ -302,7 +309,8 @@ class Controller:
                 actions = Speak(parse_arg(solu))
                 self.actions_queue.append(actions)
             else:
-                raise
+                log_green(f"Solution <g>{solu}</g> is not valid for controller.")
+                raise SolutionNotValidError()
 
         self.actions = self.actions_queue.pop(0)
         self.actions.init_actions(self.env)
