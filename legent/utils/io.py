@@ -66,6 +66,24 @@ def load_json_from_toolkit(file):
     return load_json(file)
 
 
+def create_video(image_folder, format, output_path, fps, remove_images=False):
+    from moviepy.editor import ImageSequenceClip
+    import os
+
+    image_folders = image_folder if type(image_folder) == list else [image_folder]
+    image_folders.sort(key=lambda x: (len(x), x))
+    image_files = []
+    for folder in image_folders:
+        images = [os.path.join(folder, img) for img in os.listdir(folder) if img.endswith(f".{format}")]
+        images.sort(key=lambda x: (len(x), x))
+        image_files += images
+
+    clip = ImageSequenceClip(image_files, fps=fps)
+    clip.write_videofile(output_path, codec="libx264")
+    if remove_images:
+        [os.remove(image) for image in image_files]
+
+
 def time_string():
     now = datetime.now()
     formatted_now = now.strftime(r"%Y%m%d-%H%M%S-%f")

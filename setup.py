@@ -28,7 +28,9 @@ setup(
         "paramiko", "sshtunnel",
         "shapely==2.0.3", "attrs==23.2.0", "pandas==2.2.1", "matplotlib==3.8.3", # for scene generation
         "objaverse", "pyglet==1.5.28", "trimesh", # for objaverse
-        "compress_pickle", "pygltflib", "Pillow" # for load holodeck asset
+        "compress_pickle", "pygltflib", "Pillow", # for load holodeck asset
+        "rtree", # for asset utils
+        "moviepy", # for video obersevation
     ],
     extras_require={
         "llava": [

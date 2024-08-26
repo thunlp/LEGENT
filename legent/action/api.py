@@ -1,4 +1,5 @@
 import json
+import os
 
 
 def PathToUser():
@@ -19,10 +20,10 @@ def ObjectInView(object_index):
         "args": str(object_index)
     }
     
-def SaveTopDownView(absolute_path):
+def SaveTopDownView(photo_path):
     return {
         "api": "SaveTopDownView",
-        "args": absolute_path
+        "args": os.path.abspath(photo_path)
     }
     
 def TakePhoto(photo_path, position, rotation, width=4096, height=4096, vertical_field_of_view=90):
@@ -34,7 +35,7 @@ def TakePhoto(photo_path, position, rotation, width=4096, height=4096, vertical_
             "width": width,
             "height": height,
             "vertical_field_of_view": vertical_field_of_view,
-            "path": photo_path,
+            "path": os.path.abspath(photo_path),
             "rendering_type": ""
         })
     }
@@ -48,7 +49,13 @@ def TakePhotoWithVisiblityInfo(photo_path, position, rotation, width=4096, heigh
             "width": width,
             "height": height,
             "vertical_field_of_view": vertical_field_of_view,
-            "path": photo_path,
+            "path": os.path.abspath(photo_path),
             "rendering_type": rendering_type
         })
+    }
+    
+def SetVideoRecordingPath(video_path):
+    return {
+        "api": "SetVideoRecordingPath",
+        "args": os.path.abspath(video_path)
     }
