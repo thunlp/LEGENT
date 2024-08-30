@@ -24,7 +24,7 @@ To launch LEGENT, follow the steps outlined in our [Installation Guide](/documen
 
 ### a. Exploring the Default Scene
 
-Type ```legend launch --scene 0``` in the terminal is enough for launching the default scene. A window will pop up which displays the scene inside a two-story villa.
+Type ```legent launch --scene 0``` in the terminal is enough for launching the default scene. A window will pop up which displays the scene inside a two-story villa.
 
 You can use ```W```, ```A```, ```S```, ```D``` to walk around the house, and use the mouse to adjust the perspective. You can click on the small objects around you to pick them up. If the object is out of reach, this will not take effect. You can put the object in your hand into a designated place by clicking on the place. Use ```I```, ```K``` , ```J```, ```L``` , ```U```, ```O``` to adjust the pose the held object. You can also click on doors and drawers to open or close them.
 
