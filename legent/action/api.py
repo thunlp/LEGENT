@@ -59,3 +59,9 @@ def SetVideoRecordingPath(video_path):
         "api": "SetVideoRecordingPath",
         "args": os.path.abspath(video_path)
     }
+    
+def GetSpatialRelations():
+    return {
+        "api": "GetSpatialRelations",
+        "args": ""
+    }
