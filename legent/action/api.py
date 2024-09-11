@@ -65,3 +65,9 @@ def GetSpatialRelations():
         "api": "GetSpatialRelations",
         "args": ""
     }
+    
+def SaveSceneToGltf(file_path):
+    return {
+        "api": "SaveSceneToGltf",
+        "args": os.path.abspath(file_path)
+    }
