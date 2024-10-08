@@ -37,7 +37,7 @@ def store_json(obj, file):
 
 
 def save_image(image, file, center_mark=False):
-    from skimage.io import imsave
+    from skimage.io import imsave # TODO: use Pillow instead of skimage
     import numpy as np
 
     if center_mark:
@@ -66,22 +66,12 @@ def load_json_from_toolkit(file):
     return load_json(file)
 
 
-def create_video(image_folder, format, output_path, fps, remove_images=False):
+def create_video(images, output_path, fps=30):
+    # images: list of image paths or numpy arrays
+    # Some video processing tools: https://scikit-image.org/docs/stable/user_guide/video.html
     from moviepy.editor import ImageSequenceClip
-    import os
-
-    image_folders = image_folder if type(image_folder) == list else [image_folder]
-    image_folders.sort(key=lambda x: (len(x), x))
-    image_files = []
-    for folder in image_folders:
-        images = [os.path.join(folder, img) for img in os.listdir(folder) if img.endswith(f".{format}")]
-        images.sort(key=lambda x: (len(x), x))
-        image_files += images
-
-    clip = ImageSequenceClip(image_files, fps=fps)
-    clip.write_videofile(output_path, codec="libx264")
-    if remove_images:
-        [os.remove(image) for image in image_files]
+    clip = ImageSequenceClip(images, fps=fps)
+    clip.write_videofile(output_path, codec="libx264", logger=None)
 
 
 def time_string():
@@ -201,7 +191,7 @@ def unpack_scenes(input_file: str, get_scene_id: int = -1):
 
     files = [item for item in os.listdir(dir) if item.endswith("_relative.json")]
     files = list(sorted(files, key=lambda x: (len(x), x)))
-    
+
     scenes = []
 
     def check_and_change_path(path_to_check):

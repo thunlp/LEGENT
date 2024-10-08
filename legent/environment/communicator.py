@@ -47,7 +47,12 @@ class RpcCommunicator:
             # Establish communication grpc
             self.server = grpc.server(
                 thread_pool=ThreadPoolExecutor(max_workers=10),
-                options=(("grpc.so_reuseport", 1),),
+                options=(
+                    ("grpc.so_reuseport", 1),
+                    ('grpc.max_receive_message_length', 500 * 1024 * 1024),  # 500MB, default is 4MB
+                    ('grpc.max_send_message_length', 500 * 1024 * 1024)
+                ),
+                
             )
             self.unity_to_external = CommunicatorServicerImplementation()
             add_CommunicatorServicer_to_server(
