@@ -3,6 +3,7 @@ from legent.protobuf.communicator_pb2 import ActionProto
 from legent.server.scene_generator import generate_scene
 import json
 import re
+import os
 
 
 class Action:
@@ -85,6 +86,10 @@ class ResetInfo:
     def __init__(self, scene: Dict = None, api_calls: List[str] = []) -> None:
         if not scene:
             scene = generate_scene()
+        # TODO: process all relative paths
+        for instance in scene["instances"]:
+            if os.path.exists(instance["prefab"]):
+                instance["prefab"] = os.path.abspath(instance["prefab"])
         self.json_actions = json.dumps(scene)
         self.api_calls = api_calls
 
@@ -133,6 +138,8 @@ def parse_action(action_string):
             text = parse_string(elem)
             if text:
                 action.text = text
+        elif elem.startswith("grab"):
+            action.grab = True
         elif elem.startswith("finish"):
             action = ActionFinish()
     return action

@@ -1,4 +1,5 @@
 from legent import Environment, AgentClient, GPT4VAgentClient
+from prompt_template import *
 import argparse
 
 parser = argparse.ArgumentParser()
@@ -20,11 +21,11 @@ if args.ssh is None and args.api_key is None:
     print("No --ssh or --api_key parameters provided. Ensure your model and environment are running locally.")
 
 def interact():
-    env = Environment(env_path="auto", camera_resolution_width=448, camera_resolution_height=448, camera_field_of_view=120, run_options={"port": 50054})
     if args.api_key is None:
         agent = AgentClient(ssh=args.ssh, remote_model_port=args.remote_model_port)
     else:
-        agent: GPT4VAgentClient = GPT4VAgentClient(api_key=args.api_key, base_url=args.base_url)
+        agent: GPT4VAgentClient = GPT4VAgentClient(api_key=args.api_key, base_url=args.base_url,prompt=GPT4V_PROMPT_SHARED)
+    env = Environment(env_path="auto", camera_resolution_width=448, camera_resolution_height=448, camera_field_of_view=120, run_options={"port": 50054})
     obs = env.reset()
     try:
         while True:
