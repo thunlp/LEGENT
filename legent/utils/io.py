@@ -8,9 +8,15 @@ from typing import List
 from legent.utils.config import PACKED_FOLDER
 
 
+formatter = logging.Formatter("%(asctime)s - %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
+handler = logging.StreamHandler()
+handler.setFormatter(formatter)
+logger = logging.getLogger("LEGENT")
+logger.addHandler(handler)
+logger.propagate = False
+
+
 def log(*args):
-    logging.basicConfig(format="%(asctime)s - %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
-    logger = logging.getLogger("LEGENT")
     logger.error(*args)
 
 
@@ -37,7 +43,7 @@ def store_json(obj, file):
 
 
 def save_image(image, file, center_mark=False):
-    from skimage.io import imsave # TODO: use Pillow instead of skimage
+    from skimage.io import imsave  # TODO: use Pillow instead of skimage
     import numpy as np
 
     if center_mark:
@@ -70,6 +76,7 @@ def create_video(images, output_path, fps=30):
     # images: list of image paths or numpy arrays
     # Some video processing tools: https://scikit-image.org/docs/stable/user_guide/video.html
     from moviepy.editor import ImageSequenceClip
+
     clip = ImageSequenceClip(images, fps=fps)
     clip.write_videofile(output_path, codec="libx264", logger=None)
 
