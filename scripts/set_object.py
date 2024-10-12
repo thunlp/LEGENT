@@ -23,7 +23,7 @@ from legent import Environment, Observation, Action
 from legent.action.api import HideObject, ShowObject, MoveObject, AgentTargetObjectID, PlayerTargetObjectID
 import re
 
-env = Environment(env_path=None)
+env = Environment(env_path="auto")
 try:
     obs: Observation = env.reset()
     while True:
