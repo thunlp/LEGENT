@@ -71,3 +71,37 @@ def SaveSceneToGltf(file_path):
         "api": "SaveSceneToGltf",
         "args": os.path.abspath(file_path)
     }
+    
+def HideObject(object_id):
+    return {
+        "api": "HideObject",
+        "args": str(object_id)
+    }
+    
+def ShowObject(object_id):
+    return {
+        "api": "ShowObject",
+        "args": str(object_id)
+    }
+
+def MoveObject(object_id, position, rotation):
+    return {
+        "api": "MoveObject",
+        "args": json.dumps({
+            "object_id": object_id,
+            "position": position,
+            "rotation": rotation
+        })
+    }
+
+def AgentTargetObjectID():
+    return {
+        "api": "AgentTargetObjectID",
+        "args": ""
+    }
+
+def PlayerTargetObjectID():
+    return {
+        "api": "PlayerTargetObjectID",
+        "args": ""
+    }
