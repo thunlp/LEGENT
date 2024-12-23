@@ -31,7 +31,7 @@ class Environment:
             env_path = get_default_env_path()
         if env_path is not None:
             try:
-                run_args = ["--width", str(run_options.get("width", 640)), "--height", str(run_options.get("width", 480)), "--port", str(port)]
+                run_args = ["--width", str(run_options.get("width", 640)), "--height", str(run_options.get("height", 480)), "--port", str(port)]
                 rendering_args = ["--background", str(rendering_options.get("background", 1)), "--use_shadows", str(rendering_options.get("use_shadows", 1)),"--use_default_light", str(rendering_options.get("use_default_light", 1)), "--style", str(rendering_options.get("style", 1))]
                 self._process = launch_executable(file_name=env_path, args=run_args + rendering_args)
             except Exception:
